@@ -47,7 +47,6 @@ export default async function LandingPage() {
   const data = await supabase.auth.getUser();
   const user = data.data;
   const userDB = await db?.query.userTable.findMany();
-  console.log(user);
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
