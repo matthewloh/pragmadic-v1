@@ -43,11 +43,11 @@ import { userTable } from "@/db/schema/auth-users";
 import { eq } from "drizzle-orm";
 import PragmadicLogo from "@/components/branding/pragmadic-logo";
 import DashboardSidebar from "@/features/dashboard/components/DashboardSidebar";
+import UserButtonSupabase from "@/features/auth/components/UserButtonSupabase";
 
 export default async function LandingPage() {
   const supabase = createClient();
   const data = await supabase.auth.getUser();
-  const user = data.data;
   const userDB = await db?.query.userTable.findMany();
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -174,45 +174,7 @@ export default async function LandingPage() {
               </div>
             </form>
           </div>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger className="outline-none relative">
-              <div>
-                <Avatar className="rounded-full cursor-pointer">
-                  <AvatarImage
-                    src={user.user?.user_metadata.avatar_url}
-                    alt="@shadcn"
-                  />
-                  <AvatarFallback>
-                    <CircleUser className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-                <span className="sr-only">Toggle user menu</span>
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="w-[240px]"
-              sideOffset={10}
-              align="end"
-            >
-              <DropdownMenuLabel>
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col">
-                    <span className="truncate">
-                      {user.user?.user_metadata.name}
-                    </span>
-                    <span className="truncate text-xs text-[#606060] font-normal">
-                      {user.user?.email}
-                    </span>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <SignOut />
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserButtonSupabase />
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           <div className="flex items-center">
@@ -228,7 +190,7 @@ export default async function LandingPage() {
                   className="text-2xl font-bold tracking-tight"
                   key={user?.id}
                 >
-                  {`${user?.display_name}`}
+                  {`${JSON.stringify(user)}`}
                 </h3>
               ))}
               <p className="text-sm text-muted-foreground">
