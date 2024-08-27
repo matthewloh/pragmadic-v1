@@ -65,15 +65,32 @@ export async function signup(formData: FormData) {
   }
 }
 
-export async function signout() {
+export async function signout({ next }: { next?: string }) {
   const supabase = createClient();
   const { error } = await supabase.auth.signOut();
   if (error) {
     console.log(error);
     redirect("/error");
   }
+  revalidatePath("/", "layout");
+  console.log(next);
 
-  redirect("/login");
+  if (next === "/") {
+    revalidatePath("/", "layout");
+    redirect("/");
+  } else if (next) {
+    revalidatePath(`${next}`, "layout");
+    redirect(`login?next=${next}`);
+  } else {
+    revalidatePath("/", "layout");
+    redirect("/");
+  }
+
+  // if (next) {
+  //   redirect(`login?next=${next}`);
+  // } else {
+  //   redirect("/");
+  // }
 }
 
 export async function signInWithGoogle() {

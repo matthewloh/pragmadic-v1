@@ -25,7 +25,7 @@ type SignInCardProps = {
 
 export function SignInForm({ setState }: SignInCardProps) {
   const params = useSearchParams();
-  const next = params.get("next");
+  const next = params.get("next") ?? "";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,7 +41,6 @@ export function SignInForm({ setState }: SignInCardProps) {
     url = url.endsWith("/") ? url : `${url}/`;
     return url;
   };
-
   const handleLoginWithOAuth = async (provider: "github" | "google") => {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({

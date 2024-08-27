@@ -1,6 +1,32 @@
+"use client";
 import { createClient } from "@/utils/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+
+const initialUser = {
+  created_at: "",
+  display_name: "",
+  email: "",
+  id: "",
+  image_url: "",
+};
 
 export function useCurrentUser() {
-  const supabase = createClient();
-  return supabase.auth.getUser();
+  return useQuery({
+    queryKey: ["current-user"],
+    queryFn: async () => {
+      const supabase = createClient();
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        const { data: user } = await supabase
+          .from("user")
+          .select("*")
+          .eq("id", data.user.id)
+          .single()
+          .throwOnError();
+
+        return user;
+      }
+      return initialUser;
+    },
+  });
 }

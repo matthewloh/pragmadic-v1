@@ -41,6 +41,8 @@ import { SignOut } from "@/features/auth/components/SignOutButton";
 import { db } from "@/db";
 import { userTable } from "@/db/schema/auth-users";
 import { eq } from "drizzle-orm";
+import PragmadicLogo from "@/components/branding/pragmadic-logo";
+import DashboardSidebar from "@/features/dashboard/components/DashboardSidebar";
 
 export default async function LandingPage() {
   const supabase = createClient();
@@ -52,9 +54,8 @@ export default async function LandingPage() {
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Package2 className="h-6 w-6" />
-              <span className="">Acme Inc</span>
+            <Link href="/" className="flex items-start gap-2 font-semibold">
+              <PragmadicLogo />
             </Link>
             <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
               <Bell className="h-4 w-4" />
@@ -62,46 +63,7 @@ export default async function LandingPage() {
             </Button>
           </div>
           <div className="flex-1">
-            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-              <Link
-                href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <Home className="h-4 w-4" />
-                Dashboard
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Orders
-                <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  6
-                </Badge>
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
-              >
-                <Package className="h-4 w-4" />
-                Products{" "}
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <Users className="h-4 w-4" />
-                Customers
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <LineChart className="h-4 w-4" />
-                Analytics
-              </Link>
-            </nav>
+            <DashboardSidebar />
           </div>
           <div className="mt-auto p-4">
             <Card x-chunk="dashboard-02-chunk-0">
@@ -212,8 +174,8 @@ export default async function LandingPage() {
               </div>
             </form>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger className="outline-none relative">
               <div>
                 <Avatar className="rounded-full cursor-pointer">
                   <AvatarImage
