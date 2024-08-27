@@ -13,12 +13,16 @@ import { FcGoogle } from "react-icons/fc";
 import { SignInFlow } from "../types";
 import { useState } from "react";
 import { signup } from "@/app/login/actions";
+import { useSearchParams } from "next/navigation";
 
 type SignUpCardProps = {
   setState: (state: SignInFlow) => void;
 };
 
 export function SignUpForm({ setState }: SignUpCardProps) {
+  const params = useSearchParams();
+  const next = params.get("next");
+
   const [first_name, setFirst_name] = useState("");
   const [last_name, setLast_name] = useState("");
   const [email, setEmail] = useState("");
@@ -88,6 +92,9 @@ export function SignUpForm({ setState }: SignUpCardProps) {
             type="password"
             required
           />
+          {/* Hidden input value for next */}
+          {next && <Input type="hidden" name="next" value={next} />}
+
           <Button type="submit" className="w-full" size={"lg"} disabled={false}>
             Continue
           </Button>

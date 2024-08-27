@@ -17,12 +17,16 @@ import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
+import { useSearchParams } from "next/navigation";
 
 type SignInCardProps = {
   setState: (state: SignInFlow) => void;
 };
 
 export function SignInForm({ setState }: SignInCardProps) {
+  const params = useSearchParams();
+  const next = params.get("next");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -43,12 +47,13 @@ export function SignInForm({ setState }: SignInCardProps) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: getURL() + "auth/callback",
+        redirectTo: getURL() + "auth/callback?next=" + next,
         // redirectTo: "/auth/callback",
         // ?next=" + next, // equal to localhost:3000 in dev or your domain in prod
       },
     });
   };
+
   return (
     <Card className="w-full h-full p-8">
       <CardHeader className="px-0 pt-0">
@@ -81,6 +86,8 @@ export function SignInForm({ setState }: SignInCardProps) {
             type="password"
             required
           />
+          {/* Hidden input value for next */}
+          {next && <Input type="hidden" name="next" value={next} />}
           <Button type="submit" className="w-full" size={"lg"} disabled={false}>
             Continue
           </Button>

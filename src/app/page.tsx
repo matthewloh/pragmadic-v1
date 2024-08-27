@@ -262,7 +262,10 @@ export default async function LandingPage() {
           >
             <div className="flex flex-col items-center gap-1 text-center">
               {userDB.map((user) => (
-                <h3 className="text-2xl font-bold tracking-tight" key={user?.id}>
+                <h3
+                  className="text-2xl font-bold tracking-tight"
+                  key={user?.id}
+                >
                   {`${user?.display_name}`}
                 </h3>
               ))}

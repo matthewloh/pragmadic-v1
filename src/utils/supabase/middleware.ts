@@ -1,3 +1,4 @@
+import { protectedPaths } from "@/lib/constants";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -37,6 +38,20 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const url = new URL(request.url);
+  if (user) {
+    if (url.pathname === "/login") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+    return supabaseResponse;
+  } else {
+    if (protectedPaths.includes(url.pathname)) {
+      return NextResponse.redirect(
+        new URL("/login?next=" + url.pathname, request.url)
+      );
+    }
+    return supabaseResponse;
+  }
   if (
     !user &&
     !request.nextUrl.pathname.startsWith("/login") &&
