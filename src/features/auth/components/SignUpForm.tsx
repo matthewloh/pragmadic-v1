@@ -19,6 +19,8 @@ type SignUpCardProps = {
 };
 
 export function SignUpForm({ setState }: SignUpCardProps) {
+  const [first_name, setFirst_name] = useState("");
+  const [last_name, setLast_name] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -32,6 +34,28 @@ export function SignUpForm({ setState }: SignUpCardProps) {
       </CardHeader>
       <CardContent className="space-y-5 px-0 pb-0">
         <form className="space-y-2.5" action={signup}>
+          <Input
+            disabled={false}
+            value={first_name}
+            name="first_name"
+            onChange={(e) => {
+              setFirst_name(e.target.value);
+            }}
+            placeholder="First Name"
+            type="text"
+            required
+          />
+          <Input
+            disabled={false}
+            value={last_name}
+            name="last_name"
+            onChange={(e) => {
+              setLast_name(e.target.value);
+            }}
+            placeholder="Last Name"
+            type="text"
+            required
+          />
           <Input
             disabled={false}
             value={email}
