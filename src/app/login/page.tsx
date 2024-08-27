@@ -1,5 +1,6 @@
 "use client";
 import { AuthScreen } from "@/features/auth/components/auth-screen";
+import { Suspense } from "react";
 export default function LoginPage() {
   return (
     // <form>
@@ -10,6 +11,8 @@ export default function LoginPage() {
     //   <Button formAction={login}>Log in</Button>
     //   <Button formAction={signup}>Sign up</Button>
     // </form>
-    <AuthScreen />
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthScreen />
+    </Suspense>
   );
 }
