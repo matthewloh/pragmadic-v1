@@ -1,34 +1,34 @@
-import { createClient } from "@/utils/supabase/server";
-import { Client } from "@/utils/supabase/types";
-import { unstable_cache } from "next/cache";
-import { cache } from "react";
-import { getUserQuery } from ".";
+import { createClient } from "@/utils/supabase/server"
+import { Client } from "@/utils/supabase/types"
+import { unstable_cache } from "next/cache"
+import { cache } from "react"
+import { getUserQuery } from "."
 
 export const getSession = cache(async () => {
-  const supabase = createClient();
-  return supabase.auth.getUser();
-});
+    const supabase = createClient()
+    return supabase.auth.getUser()
+})
 
 export const getUser = async () => {
-  const {
-    data: { user },
-  } = await getSession();
-  const userId = user?.id;
+    const {
+        data: { user },
+    } = await getSession()
+    const userId = user?.id
 
-  if (!userId) {
-    return null;
-  }
-
-  const supabase = createClient();
-
-  return unstable_cache(
-    async () => {
-      return getUserQuery(supabase, userId);
-    },
-    ["user", userId],
-    {
-      tags: [`user_${userId}`],
-      revalidate: 180,
+    if (!userId) {
+        return null
     }
-  )();
-};
+
+    const supabase = createClient()
+
+    return unstable_cache(
+        async () => {
+            return getUserQuery(supabase, userId)
+        },
+        ["user", userId],
+        {
+            tags: [`user_${userId}`],
+            revalidate: 180,
+        },
+    )()
+}
