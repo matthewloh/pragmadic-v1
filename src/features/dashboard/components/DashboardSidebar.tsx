@@ -1,5 +1,13 @@
 import { Badge } from "@/components/ui/badge"
-import { Home, LineChart, Package, ShoppingCart, Users } from "lucide-react"
+import {
+    BotMessageSquareIcon,
+    Check,
+    Home,
+    LineChart,
+    Package,
+    ShoppingCart,
+    Users,
+} from "lucide-react"
 import Link from "next/link"
 import React from "react"
 
@@ -14,16 +22,16 @@ export default function DashboardSidebar() {
                 Dashboard
             </Link>
             <Link
-                href="#"
+                href="/chat"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
-                <ShoppingCart className="h-4 w-4" />
-                Orders
+                <BotMessageSquareIcon className="h-4 w-4" />
+                Chat
                 <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                    6
+                    <Check className="text-primary text-white" /> 6
                 </Badge>
             </Link>
-            <Link
+            {/* <Link
                 href="#"
                 className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
             >
@@ -43,7 +51,7 @@ export default function DashboardSidebar() {
             >
                 <LineChart className="h-4 w-4" />
                 Analytics
-            </Link>
+            </Link> */}
         </nav>
     )
 }

@@ -10,21 +10,36 @@ import {
 import { SignOut } from "./SignOutButton"
 import { createClient } from "@/utils/supabase/server"
 import Link from "next/link"
+import { ThemeSwitch } from "@/components/mode-toggle"
+import { cn } from "@/lib/utils"
 
-export default async function UserButtonSupabase() {
+export default async function UserButtonSupabase({
+    className,
+}: {
+    className?: string
+}) {
     const supabase = createClient()
     const {
         data: { user },
     } = await supabase.auth.getUser()
+    const avatarImageLink =
+        user?.user_metadata.avatar_url ??
+        user?.user_metadata.picture ??
+        `https://avatar.vercel.sh/${user?.user_metadata.name}`
     const avatarFallback = user?.user_metadata.full_name
         ?.charAt(0)
         .toUpperCase()
     return (
         <DropdownMenu modal={false}>
             <DropdownMenuTrigger className="relative outline-none">
-                <Avatar className="size-10 cursor-pointer rounded-full transition hover:opacity-75">
+                <Avatar
+                    className={cn(
+                        "size-10 cursor-pointer rounded-full transition hover:opacity-75",
+                        className,
+                    )}
+                >
                     <AvatarImage
-                        src={user?.user_metadata.avatar_url}
+                        src={avatarImageLink}
                         alt={`${user?.user_metadata.full_name}`}
                     />
                     <AvatarFallback>
@@ -33,7 +48,7 @@ export default async function UserButtonSupabase() {
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" side="right" className="w-60">
+            <DropdownMenuContent align="start" side="bottom" className="w-60">
                 <DropdownMenuLabel>
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
@@ -50,7 +65,10 @@ export default async function UserButtonSupabase() {
                 <DropdownMenuItem asChild>
                     <Link href="/">Home</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>Test</DropdownMenuItem>
+                <div className="flex flex-row items-center justify-between p-2">
+                    <p className="text-sm">Theme</p>
+                    <ThemeSwitch />
+                </div>
                 <DropdownMenuSeparator />
                 <SignOut />
             </DropdownMenuContent>
