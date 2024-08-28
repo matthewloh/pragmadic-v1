@@ -17,6 +17,7 @@ import {
     Card,
     CardContent,
     CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -28,6 +29,7 @@ import { db } from "@/db"
 import PragmadicLogo from "@/components/branding/pragmadic-logo"
 import DashboardSidebar from "@/features/dashboard/components/DashboardSidebar"
 import UserButtonSupabase from "@/features/auth/components/UserButtonSupabase"
+import Image from "next/image"
 
 export default async function LandingPage() {
     const supabase = createClient()
@@ -183,14 +185,33 @@ export default async function LandingPage() {
                         x-chunk="dashboard-02-chunk-1"
                     >
                         <div className="flex flex-col items-center gap-1 text-center">
-                            {userDB.map((user) => (
-                                <h3
-                                    className="overflow-auto text-2xl font-bold tracking-tight"
-                                    key={user?.id}
-                                >
-                                    {`${JSON.stringify(user)}`}
-                                </h3>
-                            ))}
+                            <div className="space-y-4">
+                                {userDB.map((user) => (
+                                    <Card key={user.id}>
+                                        <CardHeader>
+                                            <CardTitle>
+                                                {user.display_name}
+                                            </CardTitle>
+                                            <CardDescription>
+                                                {user.email}
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="flex flex-col items-center justify-center">
+                                            {user.createdAt?.toTimeString()}
+                                            <Image
+                                                src={
+                                                    user.image_url ??
+                                                    `https://avatar.vercel.sh/${user.display_name}`
+                                                }
+                                                alt={`Image of ${user.display_name}`}
+                                                width={32}
+                                                height={32}
+                                                className="rounded-full"
+                                            />
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
                             <p className="text-sm text-muted-foreground">
                                 You can start selling as soon as you add a
                                 product.
