@@ -30,7 +30,7 @@ export default function SignInPage() {
                         </CardHeader>
                         <CardContent className="space-y-5 px-0 pb-0">
                             <Suspense fallback={<div>Loading...</div>}>
-                                <SignUpForm />
+                                <SignInForm />
                             </Suspense>
                             <Separator />
                         </CardContent>
