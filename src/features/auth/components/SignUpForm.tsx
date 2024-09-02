@@ -1,142 +1,199 @@
-import { Button } from "@/components/ui/button"
+"use client"
+
+import LoadingButton from "@/components/LoadingButton"
+import { PasswordInput } from "./PasswordInput"
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import { FaGithub } from "react-icons/fa"
-import { FcGoogle } from "react-icons/fc"
-import { SignInFlow } from "../types"
-import { useState } from "react"
-import { signup } from "@/app/login/actions"
+import { signUpSchema, SignUpValues } from "../zod/schemas/validation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useState, useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { signup } from "../auth-actions"
 import { useSearchParams } from "next/navigation"
+import { createClient } from "@/utils/supabase/client"
+import { Button } from "@/components/ui/button"
+import { FcGoogle } from "react-icons/fc"
+import { FaGithub } from "react-icons/fa"
+import { Separator } from "@/components/ui/separator"
 
-type SignUpCardProps = {
-    setState: (state: SignInFlow) => void
-}
+export default function SignUpForm() {
+    const [error, setError] = useState<string>()
+    const [isPending, startTransition] = useTransition()
 
-export function SignUpForm({ setState }: SignUpCardProps) {
     const params = useSearchParams()
-    const next = params.get("next")
+    const next = params.get("next") ?? ""
 
-    const [first_name, setFirst_name] = useState("")
-    const [last_name, setLast_name] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
+    const getURL = () => {
+        let url =
+            process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
+            process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
+            "http://localhost:3000/"
+        // Make sure to include `https://` when not localhost.
+        url = url.startsWith("http") ? url : `https://${url}`
+        // Make sure to include a trailing `/`.
+        url = url.endsWith("/") ? url : `${url}/`
+        return url
+    }
+
+    const handleLoginWithOAuth = async (provider: "github" | "google") => {
+        const supabase = createClient()
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider,
+            options: {
+                redirectTo: getURL() + "auth/callback?next=" + next,
+                // redirectTo: "/auth/callback",
+                // ?next=" + next, // equal to localhost:3000 in dev or your domain in prod
+            },
+        })
+    }
+
+    const form = useForm<SignUpValues>({
+        resolver: zodResolver(signUpSchema),
+        defaultValues: {
+            first_name: "",
+            last_name: "",
+            email: "",
+            password: "",
+        },
+    })
+
+    async function onSubmit(values: SignUpValues) {
+        setError(undefined)
+        startTransition(async () => {
+            const { error } = await signup({
+                credentials: values,
+                formData: new FormData(),
+            })
+            if (error) setError(error)
+        })
+    }
+
     return (
-        <Card className="h-full w-full p-8">
-            <CardHeader className="px-0 pt-0">
-                <CardTitle>Sign up to Continue</CardTitle>
-                <CardDescription>
-                    Use your email or another service to continue
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5 px-0 pb-0">
-                <form className="space-y-2.5" action={signup}>
-                    <Input
-                        disabled={false}
-                        value={first_name}
-                        name="first_name"
-                        onChange={(e) => {
-                            setFirst_name(e.target.value)
-                        }}
-                        placeholder="First Name"
-                        type="text"
-                        required
-                    />
-                    <Input
-                        disabled={false}
-                        value={last_name}
-                        name="last_name"
-                        onChange={(e) => {
-                            setLast_name(e.target.value)
-                        }}
-                        placeholder="Last Name"
-                        type="text"
-                        required
-                    />
-                    <Input
-                        disabled={false}
-                        value={email}
-                        name="email"
-                        onChange={(e) => {
-                            setEmail(e.target.value)
-                        }}
-                        placeholder="Email"
-                        type="email"
-                        required
-                    />
-                    <Input
-                        disabled={false}
-                        value={password}
-                        name="password"
-                        onChange={(e) => {
-                            setPassword(e.target.value)
-                        }}
-                        placeholder="Password"
-                        type="password"
-                        required
-                    />
-                    <Input
-                        disabled={false}
-                        value={confirmPassword}
-                        onChange={(e) => {
-                            setConfirmPassword(e.target.value)
-                        }}
-                        placeholder="Confirm Password"
-                        type="password"
-                        required
-                    />
-                    {/* Hidden input value for next */}
-                    {next && <Input type="hidden" name="next" value={next} />}
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                {error && (
+                    <p className="text-center text-destructive">{error}</p>
+                )}
+                <FormField
+                    control={form.control}
+                    name="first_name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                                <Input placeholder="First Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="last_name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Last Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="Email"
+                                    type="email"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                                <PasswordInput
+                                    placeholder="Password"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Confirm Password</FormLabel>
+                            <FormControl>
+                                <PasswordInput
+                                    placeholder="Confirm Password"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                {/* Hidden input value for next */}
+                {next && <Input type="hidden" name="next" value={next} />}
 
-                    <Button
-                        type="submit"
-                        className="w-full"
-                        size={"lg"}
-                        disabled={false}
-                    >
-                        Continue
-                    </Button>
-                </form>
-                <Separator />
-                <div className="flex flex-col gap-y-2.5">
-                    <Button
-                        disabled={false}
-                        onClick={() => {}}
-                        variant={"outline"}
-                        size={"lg"}
-                        className="relative w-full"
-                    >
-                        <FcGoogle className="absolute left-2.5 top-3 size-5" />
-                        Continue with Google
-                    </Button>
-                    <Button
-                        disabled={false}
-                        onClick={() => {}}
-                        variant={"outline"}
-                        size={"lg"}
-                        className="relative w-full"
-                    >
-                        <FaGithub className="absolute left-2.5 top-3 size-5" />
-                        Continue with GitHub
-                    </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                    Already have an account? {""}{" "}
-                    <span
-                        className="cursor-pointer text-sky-700 hover:underline"
-                        onClick={() => setState("signIn")}
-                    >
-                        Sign in.
-                    </span>
-                </p>
-            </CardContent>
-        </Card>
+                <LoadingButton
+                    loading={isPending}
+                    type="submit"
+                    className="w-full"
+                >
+                    Create account
+                </LoadingButton>
+            </form>
+            <Separator />
+            <div className="flex flex-col gap-y-2.5">
+                <Button
+                    disabled={false}
+                    onClick={() => {
+                        handleLoginWithOAuth("google")
+                    }}
+                    variant={"outline"}
+                    size={"lg"}
+                    className="relative w-full"
+                >
+                    <FcGoogle className="absolute left-2.5 top-3 size-5" />
+                    Continue with Google
+                </Button>
+                <Button
+                    disabled={false}
+                    onClick={() => {
+                        handleLoginWithOAuth("github")
+                    }}
+                    variant={"outline"}
+                    size={"lg"}
+                    className="relative w-full"
+                >
+                    <FaGithub className="absolute left-2.5 top-3 size-5" />
+                    Continue with GitHub
+                </Button>
+            </div>
+        </Form>
     )
 }

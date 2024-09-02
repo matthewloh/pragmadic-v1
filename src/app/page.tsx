@@ -63,7 +63,7 @@ export default async function LandingPage() {
                     <div className="flex-1">
                         <DashboardSidebar />
                     </div>
-                    <div className="mt-auto p-4">
+                    {/* <div className="mt-auto p-4">
                         <Card x-chunk="dashboard-02-chunk-0">
                             <CardHeader className="p-2 pt-0 md:p-4">
                                 <CardTitle>Upgrade to Pro</CardTitle>
@@ -78,7 +78,7 @@ export default async function LandingPage() {
                                 </Button>
                             </CardContent>
                         </Card>
-                    </div>
+                    </div> */}
                 </div>
             </div>
             <div className="flex flex-col">
@@ -144,7 +144,7 @@ export default async function LandingPage() {
                                     Analytics
                                 </Link> */}
                             </nav>
-                            <div className="mt-auto">
+                            {/* <div className="mt-auto">
                                 <Card>
                                     <CardHeader>
                                         <CardTitle>Upgrade to Pro</CardTitle>
@@ -160,7 +160,7 @@ export default async function LandingPage() {
                                         </Button>
                                     </CardContent>
                                 </Card>
-                            </div>
+                            </div> */}
                         </SheetContent>
                     </Sheet>
                     {/* <div className="w-full flex-1">

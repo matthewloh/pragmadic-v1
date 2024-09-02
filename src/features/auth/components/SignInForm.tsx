@@ -1,34 +1,38 @@
+"use client"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { login } from "@/features/auth/auth-actions"
 import { SignInFlow } from "../types"
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Separator } from "@/components/ui/separator"
 import { FcGoogle } from "react-icons/fc"
 import { FaGithub } from "react-icons/fa"
 import { createClient } from "@/utils/supabase/client"
 import { useSearchParams } from "next/navigation"
+import { loginSchema, LoginValues } from "../zod/schemas/validation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import LoadingButton from "@/components/LoadingButton"
+import { PasswordInput } from "./PasswordInput"
+import { toast } from "sonner"
 
-type SignInCardProps = {
-    setState: (state: SignInFlow) => void
-}
+export function SignInForm() {
+    const [error, setError] = useState<string>()
+    const [isPending, startTransition] = useTransition()
 
-export function SignInForm({ setState }: SignInCardProps) {
     const params = useSearchParams()
     const next = params.get("next") ?? ""
-
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
 
     const getURL = () => {
         let url =
@@ -41,8 +45,14 @@ export function SignInForm({ setState }: SignInCardProps) {
         url = url.endsWith("/") ? url : `${url}/`
         return url
     }
+
     const handleLoginWithOAuth = async (provider: "github" | "google") => {
         const supabase = createClient()
+        toast.info("Signing in...", {
+            description: `Signing you in into Pragmadic`,
+            duration: 3000,
+            icon: provider === "google" ? <FcGoogle /> : <FaGithub />,
+        })
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
@@ -53,86 +63,104 @@ export function SignInForm({ setState }: SignInCardProps) {
         })
     }
 
+    const form = useForm<LoginValues>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: "",
+            password: "",
+        },
+    })
+
+    async function onSubmit(values: LoginValues) {
+        setError(undefined)
+        startTransition(async () => {
+            const { error } = await login({
+                credentials: values,
+                formData: new FormData(),
+            })
+            if (error) setError(error)
+        })
+    }
+
     return (
-        <Card className="h-full w-full p-8">
-            <CardHeader className="px-0 pt-0">
-                <CardTitle>Login to Continue</CardTitle>
-                <CardDescription>
-                    Use your email or another service to continue
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5 px-0 pb-0">
-                <form className="space-y-2.5" action={login}>
-                    <Input
-                        disabled={false}
-                        value={email}
-                        name="email"
-                        onChange={(e) => {
-                            setEmail(e.target.value)
-                        }}
-                        placeholder="Email"
-                        type="email"
-                        required
-                    />
-                    <Input
-                        disabled={false}
-                        value={password}
-                        name="password"
-                        onChange={(e) => {
-                            setPassword(e.target.value)
-                        }}
-                        placeholder="Password"
-                        type="password"
-                        required
-                    />
-                    {/* Hidden input value for next */}
-                    {next && <Input type="hidden" name="next" value={next} />}
-                    <Button
-                        type="submit"
-                        className="w-full"
-                        size={"lg"}
-                        disabled={false}
-                    >
-                        Continue
-                    </Button>
-                </form>
-                <Separator />
-                <div className="flex flex-col gap-y-2.5">
-                    <Button
-                        disabled={false}
-                        onClick={() => {
-                            handleLoginWithOAuth("google")
-                        }}
-                        variant={"outline"}
-                        size={"lg"}
-                        className="relative w-full"
-                    >
-                        <FcGoogle className="absolute left-2.5 top-3 size-5" />
-                        Continue with Google
-                    </Button>
-                    <Button
-                        disabled={false}
-                        onClick={() => {
-                            handleLoginWithOAuth("github")
-                        }}
-                        variant={"outline"}
-                        size={"lg"}
-                        className="relative w-full"
-                    >
-                        <FaGithub className="absolute left-2.5 top-3 size-5" />
-                        Continue with GitHub
-                    </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                    Don&apos;t have an account? {""}
-                    <span
-                        className="cursor-pointer text-sky-700 hover:underline"
-                        onClick={() => setState("signUp")}
-                    >
-                        Sign up now.
-                    </span>
-                </p>
-            </CardContent>
-        </Card>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                {error && (
+                    <p className="text-center text-destructive">{error}</p>
+                )}
+
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="Email"
+                                    type="email"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                                <PasswordInput
+                                    placeholder="Password"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                {/* Hidden input value for next */}
+                {next && <Input type="hidden" name="next" value={next} />}
+                <LoadingButton
+                    loading={isPending}
+                    type="submit"
+                    className="w-full"
+                    size={"lg"}
+                >
+                    Sign In
+                </LoadingButton>
+            </form>
+            <Separator />
+            <div className="flex flex-col gap-y-2.5">
+                <Button
+                    disabled={false}
+                    onClick={() => {
+                        handleLoginWithOAuth("google")
+                    }}
+                    variant={"outline"}
+                    size={"lg"}
+                    className="relative w-full"
+                >
+                    <FcGoogle className="absolute left-2.5 top-3 size-5" />
+                    Continue with Google
+                </Button>
+                <Button
+                    disabled={false}
+                    onClick={() => {
+                        handleLoginWithOAuth("github")
+                    }}
+                    variant={"outline"}
+                    size={"lg"}
+                    className="relative w-full"
+                >
+                    <FaGithub className="absolute left-2.5 top-3 size-5" />
+                    Continue with GitHub
+                </Button>
+            </div>
+        </Form>
     )
 }

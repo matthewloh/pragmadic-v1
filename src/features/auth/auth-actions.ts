@@ -3,58 +3,40 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
+import {
+    loginSchema,
+    LoginValues,
+    signUpSchema,
+    SignUpValues,
+} from "./zod/schemas/validation"
+import { isAuthApiError } from "@supabase/supabase-js"
 
-export async function login(formData: FormData) {
+export async function login({
+    credentials,
+    formData,
+}: {
+    credentials: LoginValues
+    formData: FormData
+}): Promise<{ error: string }> {
     const supabase = createClient()
+    const { email, password } = loginSchema.parse(credentials)
+    // try {
+    // } catch (error) {}
     // type-casting here for convenience
     // in practice, you should validate your inputs
     const next = formData.get("next") as string
     const data = {
-        email: formData.get("email") as string,
-        password: formData.get("password") as string,
+        email: email,
+        password: password,
     }
 
     const { error } = await supabase.auth.signInWithPassword(data)
 
     if (error) {
-        console.log("Error in login action")
+        if (isAuthApiError(error)) {
+            return { error: "Invalid credentials entered." }
+        }
         console.log(error)
-        redirect("/error")
-    }
-
-    revalidatePath("/", "layout")
-    if (next) {
-        redirect(`${next}`)
-    } else {
-        redirect("/")
-    }
-}
-
-export async function signup(formData: FormData) {
-    const supabase = createClient()
-
-    // type-casting here for convenience
-    // in practice, you should validate your inputs
-
-    const next = formData.get("next") as string
-
-    const firstName = formData.get("first-name") as string
-    const lastName = formData.get("last-name") as string
-    const data = {
-        email: formData.get("email") as string,
-        password: formData.get("password") as string,
-        options: {
-            data: {
-                full_name: `${firstName + " " + lastName}`,
-                email: formData.get("email") as string,
-            },
-        },
-    }
-
-    const { error } = await supabase.auth.signUp(data)
-
-    if (error) {
-        redirect("/error")
     }
 
     revalidatePath("/", "layout")
@@ -111,4 +93,42 @@ export async function signInWithGoogle() {
     }
 
     redirect(data.url)
+}
+
+export async function signup({
+    credentials,
+    formData,
+}: {
+    credentials: SignUpValues
+    formData: FormData
+}): Promise<{ error: string }> {
+    const supabase = createClient()
+
+    // type-casting here for convenience
+    // in practice, you should validate your inputs
+    // TODO: validate inputs
+    // TODO: handle errors in a try/catch block and add isRedirectError(error)
+    const { first_name, last_name, email, password } =
+        signUpSchema.parse(credentials)
+
+    const { error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            data: {
+                name: `${first_name} ${last_name}`,
+                full_name: `${first_name} ${last_name}`,
+                user_name: null,
+                avatar_url: `https://avatar.vercel.sh/${first_name}${last_name}`,
+            },
+        },
+    })
+    if (error) {
+        if (isAuthApiError(error) && error.code === "user_already_exists") {
+            return { error: "User already exists" }
+        }
+        redirect("/error")
+    }
+    revalidatePath("/", "layout")
+    redirect("/")
 }

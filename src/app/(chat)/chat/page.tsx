@@ -42,7 +42,16 @@ import UserButtonSupabase from "@/features/auth/components/UserButtonSupabase"
 import { ChatComponent } from "@/features/chat/components/ChatComponent"
 import Image from "next/image"
 
-export default function ChatPage() {
+type ChatPageSearchParams = {
+    model?: string
+}
+
+export default function ChatPage({
+    searchParams: { model },
+}: {
+    searchParams: ChatPageSearchParams
+}) {
+    const modelString = model ? `- ${model}` : "";
     return (
         <div className="grid h-screen w-full pl-[56px]">
             <aside className="inset-y fixed left-0 z-20 flex h-full flex-col border-r">
@@ -176,7 +185,7 @@ export default function ChatPage() {
             </aside>
             <div className="flex flex-col">
                 <header className="sticky top-0 z-10 flex h-[57px] items-center gap-1 border-b bg-background px-4">
-                    <h1 className="text-xl font-semibold">Playground</h1>
+                    <h1 className="text-xl font-semibold">{`RAG Chat ${modelString}`}</h1>
                     <Drawer>
                         <DrawerTrigger asChild>
                             <Button
