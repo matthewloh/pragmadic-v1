@@ -1,5 +1,5 @@
+import { ThemeProvider } from "next-themes"
 import QueryProvider from "./query-provider"
-import { ThemeProvider } from "./theme-provider"
 import { TooltipProvider } from "./ui/tooltip"
 
 export function Providers({ children }: { children: React.ReactNode }) {
