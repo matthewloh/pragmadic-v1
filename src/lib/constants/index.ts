@@ -1,1 +1,1 @@
-export const protectedPaths = ["/dashboard", "/private", "/", "", "/chat"]
+export const protectedPaths = ["/dashboard", "/private", "/chat"]

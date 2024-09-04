@@ -15,18 +15,18 @@ export function useCurrentUser() {
         queryKey: ["current-user"],
         queryFn: async () => {
             const supabase = createClient()
-            const { data } = await supabase.auth.getUser()
-            if (data.user) {
-                const { data: user } = await supabase
-                    .from("user")
-                    .select("*")
-                    .eq("id", data.user.id)
-                    .single()
-                    .throwOnError()
-
-                return user
-            }
-            return initialUser
+            const {
+                data: { user },
+            } = await supabase.auth.getUser()
+            return user
+            // if (data.user) {
+            //     const { data: user } = await supabase
+            //         .from("user")
+            //         .select("*")
+            //         .eq("id", data.user.id)
+            //         .single()
+            //         .throwOnError()
+            // }
         },
     })
 }

@@ -41,7 +41,7 @@ export async function updateSession(request: NextRequest) {
     const url = new URL(request.url)
     if (user) {
         if (url.pathname === "/login") {
-            return NextResponse.redirect(new URL("/", request.url))
+            return NextResponse.redirect(new URL("/dashboard", request.url))
         }
         return supabaseResponse
     } else {

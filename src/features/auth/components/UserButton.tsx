@@ -11,6 +11,7 @@ import React from "react"
 import { useCurrentUser } from "../hooks/use-current-user"
 import { Loader } from "lucide-react"
 import { SignOut } from "./SignOutButton"
+import Link from "next/link"
 
 export default function UserButton() {
     const { data, isLoading, isFetching } = useCurrentUser()
@@ -22,36 +23,42 @@ export default function UserButton() {
         return null
     }
     console.log(data)
-    const { display_name, image_url, email } = data
-    if (!display_name) {
+    const { user_metadata } = data
+    const { full_name, avatar_url } = user_metadata
+    if (!full_name) {
         return null
     }
-    if (!image_url) {
+    if (!avatar_url) {
         return null
     }
-    const avatarFallback = display_name!.charAt(0).toUpperCase()
+    const avatarFallback = full_name!.charAt(0).toUpperCase()
     return (
         <DropdownMenu modal={false}>
             <DropdownMenuTrigger className="relative outline-none">
                 <Avatar className="size-10 transition hover:opacity-75">
-                    <AvatarImage alt={display_name} src={image_url} />
+                    <AvatarImage alt={full_name} src={avatar_url} />
                     <AvatarFallback>
                         <span className="text-primary">{avatarFallback}</span>
                     </AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" side="right" className="w-60">
+            <DropdownMenuContent align="end" side="bottom" className="w-60">
                 <DropdownMenuLabel>
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="truncate">{display_name}</span>
+                            <span className="truncate">{full_name}</span>
                             <span className="truncate text-xs font-normal text-[#606060]">
-                                {email}
+                                {data.email}
                             </span>
                         </div>
                     </div>
                 </DropdownMenuLabel>
-                <DropdownMenuItem></DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href={`/profile/${data.id}`}>Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href="/dashboard">Dashboard</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <SignOut />
             </DropdownMenuContent>

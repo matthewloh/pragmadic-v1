@@ -23,6 +23,10 @@ import {
 } from "react-icons/fc"
 import PragmadicLogo from "./branding/pragmadic-logo"
 import { Button } from "./ui/button"
+import { createClient } from "@/utils/supabase/client"
+import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
+import SidebarTooltipWrapper from "./TooltipWrapper"
+import UserButton from "@/features/auth/components/UserButton"
 
 const listVariant = {
     show: {
@@ -47,6 +51,8 @@ export function LandingHeader() {
     const [showBlur, setShowBlur] = useState(false)
     const [hidden, setHidden] = useState(false)
 
+    const { data } = useCurrentUser()
+
     const lastPath = `/${pathname.split("/").pop()}`
 
     const handleToggleMenu = () => {
@@ -66,7 +72,7 @@ export function LandingHeader() {
 
     const links = [
         {
-            title: "Home",
+            title: "Pragmadic",
             cover: (
                 <Link href="/" onClick={handleOnClick}>
                     <Image alt="Cool Gama" src={georgetown} quality={60} />
@@ -124,7 +130,6 @@ export function LandingHeader() {
     if (pathname.includes("chat")) {
         return null
     }
-
     return (
         <header
             className={cn(
@@ -219,12 +224,20 @@ export function LandingHeader() {
                         />
                     </svg>
                 </button>
-                <a
-                    className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
-                    href="/"
-                >
-                    Sign in
-                </a>
+                {data ? (
+                    <div className="ml-auto hidden md:flex">
+                        <SidebarTooltipWrapper description={"Go to Dashboard"}>
+                            <UserButton />
+                        </SidebarTooltipWrapper>
+                    </div>
+                ) : (
+                    <Link
+                        className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
+                        href="/login"
+                    >
+                        Sign in
+                    </Link>
+                )}
             </nav>
             {isOpen && (
                 <motion.div

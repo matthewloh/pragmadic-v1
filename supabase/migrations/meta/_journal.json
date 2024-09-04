@@ -15,6 +15,20 @@
       "when": 1724855837211,
       "tag": "0001_panoramic_black_widow",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725468188818,
+      "tag": "0002_right_raider",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1725468438003,
+      "tag": "0003_elite_the_spike",
+      "breakpoints": true
     }
   ]
 }
