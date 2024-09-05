@@ -1,5 +1,5 @@
-import { AppPage } from "@/components/app-page"
+import { LandingHero } from "@/components/landing-hero"
 
 export default async function LandingPage() {
-    return <AppPage />
+    return <LandingHero />
 }

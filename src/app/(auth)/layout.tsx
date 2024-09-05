@@ -7,9 +7,9 @@ export default async function Layout({
     children: React.ReactNode
 }) {
     const {
-        data: { user },
+        data: { session },
     } = await getSession()
-    if (user) redirect("/")
+    if (session) redirect("/")
 
     return <>{children}</>
 }

@@ -1,19 +1,21 @@
 "use client"
 import georgetown from "@/assets/georgetown.jpg"
 import muralwall from "@/assets/muralwall.jpg"
-import { cn } from "@/lib/utils"
-import { Building2 } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useState } from "react"
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import UserButton from "@/features/auth/components/UserButton"
+import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
+import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
+import { Building2 } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useState } from "react"
 import {
     FcAbout,
     FcAdvertising,
@@ -22,11 +24,8 @@ import {
     FcServices,
 } from "react-icons/fc"
 import PragmadicLogo from "./branding/pragmadic-logo"
-import { Button } from "./ui/button"
-import { createClient } from "@/utils/supabase/client"
-import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
 import SidebarTooltipWrapper from "./TooltipWrapper"
-import UserButton from "@/features/auth/components/UserButton"
+import { Button } from "./ui/button"
 
 const listVariant = {
     show: {
@@ -75,7 +74,12 @@ export function LandingHeader() {
             title: "Pragmadic",
             cover: (
                 <Link href="/" onClick={handleOnClick}>
-                    <Image alt="Cool Gama" src={georgetown} quality={60} />
+                    <Image
+                        alt="Cool Gama"
+                        src={georgetown}
+                        quality={60}
+                        className="object-cover"
+                    />
                 </Link>
             ),
             children: [
@@ -357,12 +361,20 @@ export function LandingHeader() {
                                 className="mt-auto border-t-[1px] pt-8"
                                 variants={itemVariant}
                             >
-                                <Link
-                                    className="text-xl text-primary-foreground"
-                                    href="https://app.midday.ai"
-                                >
-                                    Sign in
-                                </Link>
+                                {data ? (
+                                    <SidebarTooltipWrapper
+                                        description={"Go to Dashboard"}
+                                    >
+                                        <UserButton />
+                                    </SidebarTooltipWrapper>
+                                ) : (
+                                    <Link
+                                        className="text-xl text-primary-foreground"
+                                        href="/login"
+                                    >
+                                        Sign in
+                                    </Link>
+                                )}
                             </motion.li>
                         </motion.ul>
                     </div>

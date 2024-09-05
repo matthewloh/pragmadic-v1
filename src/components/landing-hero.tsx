@@ -13,7 +13,7 @@ import ServicesSection from "@/features/landing/components/ServicesSection"
 import TeamSection from "@/features/landing/components/TeamSection"
 import { LandingHeader } from "./Header"
 
-export function AppPage() {
+export function LandingHero() {
     return (
         <div className="flex min-h-screen flex-col bg-primary">
             {/* Navbar */}

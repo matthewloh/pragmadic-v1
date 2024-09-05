@@ -1,27 +1,27 @@
+import { ThemeSwitch } from "@/components/mode-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-    DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
-import { SignOut } from "./SignOutButton"
-import { createClient } from "@/utils/supabase/server"
-import Link from "next/link"
-import { ThemeSwitch } from "@/components/mode-toggle"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
+import { getSession } from "../../../../supabase/queries/cached-queries"
+import { SignOut } from "./SignOutButton"
 
 export default async function UserButtonSupabase({
     className,
 }: {
     className?: string
 }) {
-    const supabase = createClient()
     const {
-        data: { user },
-    } = await supabase.auth.getUser()
+        data: { session },
+    } = await getSession()
+    const user = session?.user
     const avatarImageLink =
         user?.user_metadata.avatar_url ??
         user?.user_metadata.picture ??

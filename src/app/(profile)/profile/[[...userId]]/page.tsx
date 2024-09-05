@@ -26,6 +26,7 @@ import { ProfilePage } from "@/features/profile/components/profile"
 import { createClient } from "@/utils/supabase/server"
 import { eq } from "drizzle-orm"
 import { Profiler } from "react"
+import { getSession } from "../../../../../supabase/queries/cached-queries"
 
 type UserProfile = {
     id: string
@@ -42,10 +43,11 @@ export default async function Profile({
 }: {
     params: { userId: string }
 }) {
-    const supabase = createClient()
     const {
-        data: { user },
-    } = await supabase.auth.getUser()
+        data: { session },
+    } = await getSession()
+
+    const user = session?.user
 
     if (!user) {
         throw new Error("User not found")

@@ -3,15 +3,14 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-    DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
-import React from "react"
-import { useCurrentUser } from "../hooks/use-current-user"
-import { Loader } from "lucide-react"
-import { SignOut } from "./SignOutButton"
+import { Home, Loader, UserRound } from "lucide-react"
 import Link from "next/link"
+import { useCurrentUser } from "../hooks/use-current-user"
+import { SignOut } from "./SignOutButton"
 
 export default function UserButton() {
     const { data, isLoading, isFetching } = useCurrentUser()
@@ -54,10 +53,16 @@ export default function UserButton() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuItem asChild>
-                    <Link href={`/profile/${data.id}`}>Profile</Link>
+                    <Link href={`/profile/${data.id}`}>
+                        <UserRound className="mr-2 size-4" />
+                        Profile
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link href="/dashboard">Dashboard</Link>
+                    <Link href="/dashboard">
+                        <Home className="mr-2 size-4" />
+                        Dashboard
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <SignOut />

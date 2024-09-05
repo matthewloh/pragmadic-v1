@@ -1,22 +1,22 @@
 "use client"
 
 import {
-    Home,
-    FileText,
-    Users,
-    MapPin,
-    Settings,
-    HelpCircle,
-    Send,
-    Briefcase,
-    Coffee,
-    Building,
-    UserPlus,
-    Globe,
-    MessageSquare,
-    Calendar,
     BarChart,
     BotMessageSquareIcon,
+    Briefcase,
+    Building,
+    Calendar,
+    Coffee,
+    FileText,
+    Globe,
+    HelpCircle,
+    Home,
+    MapPin,
+    MessageSquare,
+    Send,
+    Settings,
+    UserPlus,
+    Users,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -60,13 +60,13 @@ const data = {
     navMain: [
         {
             title: "Dashboard",
-            url: "/",
+            url: "/dashboard",
             icon: Home,
             isActive: true,
             items: [
                 {
                     title: "Overview",
-                    url: "/",
+                    url: "/dashboard",
                     icon: BarChart,
                     description: "View your dashboard",
                 },
@@ -96,7 +96,7 @@ const data = {
                     description: "Chat with an intelligent context-aware agent",
                 },
                 {
-                    title: "Partners Exploration",
+                    title: "Partner Exploration",
                     url: "/chat/hubs",
                     icon: HelpCircle,
                     description: "Queries related to DE Rantau partners",
@@ -242,7 +242,7 @@ export function AppSidebar() {
 
     return (
         <Sidebar>
-            <SidebarHeader>
+            <SidebarHeader className="h-14">
                 <TeamSwitcher teams={data.teams} />
             </SidebarHeader>
             <SidebarContent>

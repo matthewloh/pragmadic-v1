@@ -34,6 +34,7 @@ export function NavMain({
         items?: {
             title: string
             url: string
+            icon: LucideIcon
             description: string
         }[]
     }[]
@@ -58,7 +59,7 @@ export function NavMain({
                             >
                                 <item.icon className="h-4 w-4 shrink-0" />
                                 <div className="flex flex-1 overflow-hidden">
-                                    <div className="line-clamp-1 pr-6">
+                                    <div className="line-clamp-1 pr-6 leading-tight">
                                         {item.title}
                                     </div>
                                 </div>
@@ -84,7 +85,8 @@ export function NavMain({
                                                 href={subItem.url}
                                                 className="flex h-8 min-w-8 items-center gap-2 overflow-hidden rounded-md px-2 text-sm font-medium text-muted-foreground ring-ring transition-all hover:bg-accent hover:text-accent-foreground focus-visible:ring-2"
                                             >
-                                                <div className="">
+                                                <div className="flex flex-row items-center justify-center gap-2">
+                                                    <subItem.icon className="h-4 w-4 shrink-0" />
                                                     <span>{subItem.title}</span>
                                                 </div>
                                             </Link>

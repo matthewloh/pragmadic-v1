@@ -15,7 +15,7 @@ export const profileTable = pgTable("profile", {
         .notNull()
         .references(() => userTable.id)
         .unique(),
-    bio: text("bio"),
+    bio: text("bio").notNull(),
     occupation: varchar("occupation", { length: 256 }),
     location: varchar("location", { length: 256 }),
     website: text("website"),

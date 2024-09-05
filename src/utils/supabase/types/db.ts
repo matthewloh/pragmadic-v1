@@ -38,6 +38,44 @@ export type Database = {
           },
         ]
       }
+      profile: {
+        Row: {
+          bio: string
+          id: string
+          location: string | null
+          occupation: string | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          bio: string
+          id?: string
+          location?: string | null
+          occupation?: string | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          bio?: string
+          id?: string
+          location?: string | null
+          occupation?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_user_id_user_id_fk"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resources: {
         Row: {
           content: string
@@ -63,21 +101,21 @@ export type Database = {
         Row: {
           created_at: string | null
           display_name: string | null
-          email: string | null
+          email: string
           id: string
           image_url: string | null
         }
         Insert: {
           created_at?: string | null
           display_name?: string | null
-          email?: string | null
+          email: string
           id?: string
           image_url?: string | null
         }
         Update: {
           created_at?: string | null
           display_name?: string | null
-          email?: string | null
+          email?: string
           id?: string
           image_url?: string | null
         }

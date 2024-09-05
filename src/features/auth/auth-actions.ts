@@ -1,6 +1,6 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import {
@@ -59,12 +59,17 @@ export async function signout({ next }: { next?: string }) {
 
     if (next === "/") {
         revalidatePath("/", "layout")
+        revalidatePath("/")
+        revalidateTag("current_user")
+        console.log("redirecting to /")
         redirect("/")
     } else if (next) {
         revalidatePath(`${next}`, "layout")
+        console.log("redirecting to huh")
         redirect(`login?next=${next}`)
     } else {
         revalidatePath("/", "layout")
+        console.log("redirecting to what")
         redirect("/")
     }
 

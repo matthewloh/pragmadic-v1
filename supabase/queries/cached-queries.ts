@@ -6,14 +6,14 @@ import { getUserQuery } from "."
 
 export const getSession = cache(async () => {
     const supabase = createClient()
-    return supabase.auth.getUser()
+    return supabase.auth.getSession()
 })
 
 export const getUser = async () => {
     const {
-        data: { user },
+        data: { session },
     } = await getSession()
-    const userId = user?.id
+    const userId = session?.user?.id
 
     if (!userId) {
         return null
