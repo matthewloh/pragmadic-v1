@@ -263,7 +263,7 @@ export function AppSidebar() {
 
     return (
         <Sidebar>
-            <SidebarHeader className="h-14">
+            <SidebarHeader className="h-[60px]">
                 <TeamSwitcher teams={data.teams} />
             </SidebarHeader>
             <SidebarContent>

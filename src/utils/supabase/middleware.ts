@@ -35,11 +35,12 @@ export async function updateSession(request: NextRequest) {
     // issues with users being randomly logged out.
 
     const {
-        data: { user },
-    } = await supabase.auth.getUser()
+        data: { session },
+    } = await supabase.auth.getSession()
+    const user = session?.user
 
     const url = new URL(request.url)
-    if (user) {
+    if (session?.user.id) {
         if (url.pathname === "/login") {
             return NextResponse.redirect(new URL("/dashboard", request.url))
         }
@@ -52,16 +53,37 @@ export async function updateSession(request: NextRequest) {
         }
         return supabaseResponse
     }
-    if (
-        !user &&
-        !request.nextUrl.pathname.startsWith("/login") &&
-        !request.nextUrl.pathname.startsWith("/auth")
-    ) {
-        // no user, potentially respond by redirecting the user to the login page
-        const url = request.nextUrl.clone()
-        url.pathname = "/login"
-        return NextResponse.redirect(url)
-    }
+
+    // const {
+    //     data: { user },
+    // } = await supabase.auth.getUser()
+
+    // const url = new URL(request.url)
+    // if (user.id) {
+    //     if (url.pathname === "/login") {
+    //         return NextResponse.redirect(new URL("/dashboard", request.url))
+    //     }
+    //     return supabaseResponse
+    // } else {
+    //     if (protectedPaths.includes(url.pathname)) {
+    //         return NextResponse.redirect(
+    //             new URL("/login?next=" + url.pathname, request.url),
+    //         )
+    //     }
+    //     return supabaseResponse
+    // }
+
+
+    // if (
+    //     !user &&
+    //     !request.nextUrl.pathname.startsWith("/login") &&
+    //     !request.nextUrl.pathname.startsWith("/auth")
+    // ) {
+    //     // no user, potentially respond by redirecting the user to the login page
+    //     const url = request.nextUrl.clone()
+    //     url.pathname = "/login"
+    //     return NextResponse.redirect(url)
+    // }
 
     // If user is already logged in and tries to access the login page, redirect
     // them to the home page. Exclude /error from this check to avoid circular

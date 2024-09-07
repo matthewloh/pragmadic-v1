@@ -62,14 +62,15 @@ export default function ChatPage({
                         aria-label="Home"
                         className="h-10 w-10 rounded-lg p-0"
                     >
-                        <Link href="/">
+                        <Link href="/dashboard">
                             <div className="relative h-6 w-6">
                                 <Image
                                     src="/pragmadic.svg"
                                     fill
-                                    sizes="24px"
+                                    sizes="32px"
                                     alt="PRAGmadic Logo"
                                     className="object-contain"
+                                    priority
                                 />
                             </div>
                         </Link>

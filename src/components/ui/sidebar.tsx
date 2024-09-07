@@ -1,12 +1,16 @@
 "use client"
 
+import {
+    ArrowRightFromLine,
+    PanelRightClose,
+    PanelRightOpen,
+} from "lucide-react"
 import * as React from "react"
-import { PanelLeft } from "lucide-react"
 
-import { useIsMobile } from "@/hooks/use-mobile"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { cn } from "@/lib/utils"
 
 export const SIDEBAR_STATE_COOKIE = "sidebar:state"
 
@@ -75,11 +79,15 @@ const SidebarTrigger = React.forwardRef<
             ref={ref}
             variant="ghost"
             size="icon"
-            className={cn("h-8 w-8", className)}
+            className={cn("size-[60px]", className)}
             onClick={() => onOpenChange(!open)}
             {...props}
         >
-            <PanelLeft className="h-4 w-4" />
+            {open ? (
+                <PanelRightClose className="h-6 w-6 rotate-180 transform transition-transform" />
+            ) : (
+                <PanelRightClose className="h-6 w-6 rotate-0 transform transition-transform" />
+            )}
             <span className="sr-only">Toggle Sidebar</span>
         </Button>
     )

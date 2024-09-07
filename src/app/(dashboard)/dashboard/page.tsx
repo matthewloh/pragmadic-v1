@@ -18,6 +18,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import UserButtonSupabase from "@/features/auth/components/UserButtonSupabase"
 import { db } from "@/lib/db"
 import Image from "next/image"
+import MainNavBar from "@/features/dashboard/components/MainNavBar"
 
 export default async function Page() {
     const userDB = await db?.query.userTable.findMany()
@@ -42,7 +43,7 @@ export default async function Page() {
                 </div>
             </div> */}
             <div className="flex min-h-screen flex-1 flex-col">
-                <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-2">
+                <header className="bg-muted/40 lg:h-[60px] flex h-14 items-center gap-4 border-b">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button
@@ -92,21 +93,7 @@ export default async function Page() {
                             </nav>
                         </SheetContent>
                     </Sheet>
-                    <div className="flex h-full w-full items-center justify-between border-b px-4 lg:h-[60px] lg:px-4">
-                        <div className="flex w-full flex-row items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Link
-                                    href="/dashboard"
-                                    className="flex items-start gap-2 font-semibold"
-                                >
-                                    <PragmadicLogo />
-                                </Link>
-                            </div>
-                            <div className="my-auto ml-auto items-center justify-around">
-                                <UserButtonSupabase />
-                            </div>
-                        </div>
-                    </div>
+                    <MainNavBar />
                 </header>
                 <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
                     <div className="flex items-center">

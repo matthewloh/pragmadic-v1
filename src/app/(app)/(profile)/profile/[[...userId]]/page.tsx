@@ -26,7 +26,7 @@ import { ProfilePage } from "@/features/profile/components/profile"
 import { createClient } from "@/utils/supabase/server"
 import { eq } from "drizzle-orm"
 import { Profiler } from "react"
-import { getSession } from "../../../../../supabase/queries/cached-queries"
+import { getSession } from "../../../../../../supabase/queries/cached-queries"
 
 type UserProfile = {
     id: string

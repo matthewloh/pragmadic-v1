@@ -1,48 +1,55 @@
 {
-    "version": "7",
-    "dialect": "postgresql",
-    "entries": [
-        {
-            "idx": 0,
-            "version": "7",
-            "when": 1724694037580,
-            "tag": "0000_lame_cargill",
-            "breakpoints": true
-        },
-        {
-            "idx": 1,
-            "version": "7",
-            "when": 1724855837211,
-            "tag": "0001_panoramic_black_widow",
-            "breakpoints": true
-        },
-        {
-            "idx": 2,
-            "version": "7",
-            "when": 1725468188818,
-            "tag": "0002_right_raider",
-            "breakpoints": true
-        },
-        {
-            "idx": 3,
-            "version": "7",
-            "when": 1725468438003,
-            "tag": "0003_elite_the_spike",
-            "breakpoints": true
-        },
-        {
-            "idx": 4,
-            "version": "7",
-            "when": 1725497544883,
-            "tag": "0004_workable_the_hand",
-            "breakpoints": true
-        },
-        {
-            "idx": 5,
-            "version": "7",
-            "when": 1725723089520,
-            "tag": "0005_legal_the_fallen",
-            "breakpoints": true
-        }
-    ]
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1724694037580,
+      "tag": "0000_lame_cargill",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1724855837211,
+      "tag": "0001_panoramic_black_widow",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725468188818,
+      "tag": "0002_right_raider",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1725468438003,
+      "tag": "0003_elite_the_spike",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1725497544883,
+      "tag": "0004_workable_the_hand",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1725723089520,
+      "tag": "0005_legal_the_fallen",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1725735877669,
+      "tag": "0006_short_old_lace",
+      "breakpoints": true
+    }
+  ]
 }
