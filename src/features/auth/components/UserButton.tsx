@@ -9,11 +9,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Home, Loader, UserRound } from "lucide-react"
 import Link from "next/link"
-import { useCurrentUser } from "../hooks/use-current-user"
+import { useUser } from "../hooks/use-current-user"
 import { SignOut } from "./SignOutButton"
 
 export default function UserButton() {
-    const { data, isLoading, isFetching } = useCurrentUser()
+    const { data, isLoading, isFetching } = useUser()
 
     if (isLoading || isFetching) {
         return <Loader className="size-4 animate-spin text-muted-foreground" />

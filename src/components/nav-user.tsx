@@ -16,12 +16,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
+import { useUser } from "@/features/auth/hooks/use-current-user"
 import { Skeleton } from "./ui/skeleton"
 import Link from "next/link"
 
 export function NavUser() {
-    const { data: user, isPending } = useCurrentUser()
+    const { data: user, isPending } = useUser()
 
     if (!user) return <Skeleton />
     return (

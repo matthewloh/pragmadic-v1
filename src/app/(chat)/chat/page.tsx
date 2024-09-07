@@ -51,7 +51,7 @@ export default function ChatPage({
 }: {
     searchParams: ChatPageSearchParams
 }) {
-    const modelString = model ? `- ${model}` : "";
+    const modelString = model ? `- ${model}` : ""
     return (
         <div className="grid h-screen w-full pl-[56px]">
             <aside className="inset-y fixed left-0 z-20 flex h-full flex-col border-r">

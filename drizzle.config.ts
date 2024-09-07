@@ -1,11 +1,8 @@
-import { config } from "dotenv"
 import { defineConfig } from "drizzle-kit"
-
-config({ path: ".env.local" })
 
 export default defineConfig({
     schemaFilter: ["public"],
-    schema: "./src/db/schema",
+    schema: "./src/lib/db/schema",
     out: "./supabase/migrations",
     dialect: "postgresql",
     dbCredentials: {

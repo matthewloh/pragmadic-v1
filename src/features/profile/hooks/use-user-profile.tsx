@@ -1,5 +1,5 @@
-import { db } from "@/db"
-import { profileTable } from "@/db/schema"
+import { db } from "@/lib/db"
+import { profileTable } from "@/lib/db/schema"
 import { createClient } from "@/utils/supabase/client"
 import { useQuery } from "@tanstack/react-query"
 import { eq } from "drizzle-orm"

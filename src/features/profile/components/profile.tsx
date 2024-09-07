@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { CreditCard, Bell, Lock, DollarSign } from "lucide-react"
 import { type User } from "@supabase/supabase-js"
-import { SelectProfile } from "@/db/schema"
+import { SelectProfile } from "@/lib/db/schema"
 type ProfileProps = {
     user: User
     profile: SelectProfile

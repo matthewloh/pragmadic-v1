@@ -11,6 +11,8 @@ import {
     Globe,
     HelpCircle,
     Home,
+    Hospital,
+    House,
     MapPin,
     MessageSquare,
     Send,
@@ -32,7 +34,7 @@ import {
     SidebarItem,
     SidebarLabel,
 } from "@/components/ui/sidebar"
-import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
+import { useUser } from "@/features/auth/hooks/use-current-user"
 
 const data = {
     teams: [
@@ -105,26 +107,32 @@ const data = {
         },
         {
             title: "Visa Application",
-            url: "/visa-application",
+            url: "/visa-applications",
             icon: FileText,
             items: [
                 {
-                    title: "Apply",
-                    url: "/visa-application/apply",
-                    icon: FileText,
-                    description: "Start your DE Rantau visa application",
+                    title: "Health Clearance Info",
+                    url: "/health-clearance-info/",
+                    icon: Hospital,
+                    description: "Manage your health clearance info",
                 },
                 {
-                    title: "Status",
-                    url: "/visa-application/status",
-                    icon: HelpCircle,
-                    description: "Check your application status",
+                    title: "Accommodation Proofs",
+                    url: "accommodation-proofs",
+                    icon: House,
+                    description: "Manage your accommodation proofs",
                 },
                 {
-                    title: "Requirements",
-                    url: "/visa-application/requirements",
-                    icon: FileText,
-                    description: "View visa requirements",
+                    title: "Financial Proofs",
+                    url: "/financial-proofs",
+                    icon: Briefcase,
+                    description: "Manage your financial proofs",
+                },
+                {
+                    title: "Work Contract Proofs",
+                    url: "/work-contract-proofs",
+                    icon: Briefcase,
+                    description: "Manage your work contract proofs",
                 },
             ],
         },
@@ -135,7 +143,7 @@ const data = {
             items: [
                 {
                     title: "Events",
-                    url: "/community/events",
+                    url: "/events",
                     icon: Calendar,
                     description: "Discover local events",
                 },
@@ -175,6 +183,19 @@ const data = {
                     url: "/hubs/businesses",
                     icon: Briefcase,
                     description: "Explore local businesses",
+                },
+            ],
+        },
+        {
+            title: "Regions",
+            url: "/regions",
+            icon: Globe,
+            items: [
+                {
+                    title: "States",
+                    url: "/states",
+                    icon: MapPin,
+                    description: "Explore the states available in DE Rantau",
                 },
             ],
         },
@@ -238,7 +259,7 @@ const data = {
 }
 
 export function AppSidebar() {
-    const { data: user } = useCurrentUser()
+    const { data: user } = useUser()
 
     return (
         <Sidebar>

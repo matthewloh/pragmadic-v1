@@ -8,7 +8,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import UserButton from "@/features/auth/components/UserButton"
-import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
+import { useUser } from "@/features/auth/hooks/use-current-user"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { Building2 } from "lucide-react"
@@ -50,7 +50,7 @@ export function LandingHeader() {
     const [showBlur, setShowBlur] = useState(false)
     const [hidden, setHidden] = useState(false)
 
-    const { data } = useCurrentUser()
+    const { data } = useUser()
 
     const lastPath = `/${pathname.split("/").pop()}`
 
