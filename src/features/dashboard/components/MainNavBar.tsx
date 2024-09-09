@@ -6,17 +6,15 @@ import React from "react"
 
 export default function MainNavBar() {
     return (
-        <div className="flex h-full w-full items-center justify-between border-b lg:h-[60px]">
-            <div className="mx-auto flex w-full flex-row items-center justify-between">
+        <div className="flex h-[60px] w-full items-center justify-between border-b">
+            <div className="m-auto mr-4 flex w-full flex-row items-center justify-between">
                 <div className="flex items-center">
                     <SidebarTrigger className="h-[60px]" />
                     <Link href="/dashboard" className="flex font-semibold">
                         <PragmadicLogo />
                     </Link>
                 </div>
-                <div className="pr-4">
-                    <UserButtonSupabase />
-                </div>
+                <UserButtonSupabase />
             </div>
         </div>
     )

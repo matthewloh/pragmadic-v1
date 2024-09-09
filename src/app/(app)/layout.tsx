@@ -13,12 +13,18 @@ export default function DashboardLayout({
             defaultOpen={cookies().get("sidebar:state")?.value === "true"}
         >
             <AppSidebar />
-            <main className="flex min-h-full flex-1 flex-col space-y-4 transition-all duration-300 ease-in-out">
+            <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out">
                 <MainNavBar />
-                <main className="container mx-auto flex h-full flex-1 flex-col border border-border">
-                    {children}
+                <main className="flex-1 overflow-hidden">
+                    <div className="max-w-9xl container mx-auto h-full px-4 py-6 sm:px-6 lg:px-8">
+                        <div className="relative h-full rounded-lg border border-dashed bg-gradient-to-br from-emerald-500 to-purple-300 shadow-sm">
+                            <div className="absolute inset-0 overflow-auto bg-background/65 p-4 sm:p-6 lg:p-8">
+                                {children}
+                            </div>
+                        </div>
+                    </div>
                 </main>
-            </main>
+            </div>
         </SidebarLayout>
     )
 }
