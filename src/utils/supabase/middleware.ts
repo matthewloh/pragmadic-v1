@@ -73,7 +73,6 @@ export async function updateSession(request: NextRequest) {
     //     return supabaseResponse
     // }
 
-
     // if (
     //     !user &&
     //     !request.nextUrl.pathname.startsWith("/login") &&

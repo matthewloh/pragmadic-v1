@@ -43,7 +43,7 @@ export default async function Page() {
                 </div>
             </div> */}
             <div className="flex min-h-screen flex-1 flex-col">
-                <header className="bg-muted/40 lg:h-[60px] flex h-14 items-center gap-4 border-b">
+                <header className="flex h-14 items-center gap-4 border-b bg-muted/40 lg:h-[60px]">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button
