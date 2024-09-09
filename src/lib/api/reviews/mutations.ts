@@ -9,10 +9,10 @@ import {
     reviews,
     reviewIdSchema,
 } from "@/lib/db/schema/reviews"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 
 export const createReview = async (review: NewReviewParams) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const newReview = insertReviewSchema.parse({
         ...review,
         userId: session?.user.id!,
@@ -31,7 +31,7 @@ export const updateReview = async (
     id: ReviewId,
     review: UpdateReviewParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: reviewId } = reviewIdSchema.parse({ id })
     const newReview = updateReviewSchema.parse({
         ...review,
@@ -57,7 +57,7 @@ export const updateReview = async (
 }
 
 export const deleteReview = async (id: ReviewId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: reviewId } = reviewIdSchema.parse({ id })
     try {
         const [r] = await db

@@ -34,32 +34,13 @@ export async function updateSession(request: NextRequest) {
     // supabase.auth.getUser(). A simple mistake could make it very hard to debug
     // issues with users being randomly logged out.
 
-    const {
-        data: { session },
-    } = await supabase.auth.getSession()
-    const user = session?.user
-
-    const url = new URL(request.url)
-    if (session?.user.id) {
-        if (url.pathname === "/login") {
-            return NextResponse.redirect(new URL("/dashboard", request.url))
-        }
-        return supabaseResponse
-    } else {
-        if (protectedPaths.includes(url.pathname)) {
-            return NextResponse.redirect(
-                new URL("/login?next=" + url.pathname, request.url),
-            )
-        }
-        return supabaseResponse
-    }
-
     // const {
-    //     data: { user },
-    // } = await supabase.auth.getUser()
+    //     data: { session },
+    // } = await supabase.auth.getSession()
+    // const user = session?.user
 
     // const url = new URL(request.url)
-    // if (user.id) {
+    // if (session?.user.id) {
     //     if (url.pathname === "/login") {
     //         return NextResponse.redirect(new URL("/dashboard", request.url))
     //     }
@@ -72,6 +53,25 @@ export async function updateSession(request: NextRequest) {
     //     }
     //     return supabaseResponse
     // }
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser()
+
+    const url = new URL(request.url)
+    if (user?.id) {
+        if (url.pathname === "/login") {
+            return NextResponse.redirect(new URL("/dashboard", request.url))
+        }
+        return supabaseResponse
+    } else {
+        if (protectedPaths.includes(url.pathname)) {
+            return NextResponse.redirect(
+                new URL("/login?next=" + url.pathname, request.url),
+            )
+        }
+        return supabaseResponse
+    }
 
     // if (
     //     !user &&
@@ -112,3 +112,4 @@ export async function updateSession(request: NextRequest) {
 
     return supabaseResponse
 }
+

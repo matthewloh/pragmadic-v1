@@ -9,10 +9,10 @@ import {
     regions,
     regionIdSchema,
 } from "@/lib/db/schema/regions"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 
 export const createRegion = async (region: NewRegionParams) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const newRegion = insertRegionSchema.parse({
         ...region,
         userId: session?.user.id,
@@ -31,7 +31,7 @@ export const updateRegion = async (
     id: RegionId,
     region: UpdateRegionParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: regionId } = regionIdSchema.parse({ id })
     const newRegion = updateRegionSchema.parse({
         ...region,
@@ -57,7 +57,7 @@ export const updateRegion = async (
 }
 
 export const deleteRegion = async (id: RegionId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: regionId } = regionIdSchema.parse({ id })
     try {
         const [r] = await db

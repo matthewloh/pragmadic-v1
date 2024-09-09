@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/index"
 import { eq, and } from "drizzle-orm"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 import {
     type VisaApplicationId,
     visaApplicationIdSchema,
@@ -25,7 +25,7 @@ import {
 } from "@/lib/db/schema/workContractProofs"
 
 export const getVisaApplications = async () => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const rows = await db
         .select({ visaApplication: visaApplications, region: regions })
         .from(visaApplications)
@@ -36,7 +36,7 @@ export const getVisaApplications = async () => {
 }
 
 export const getVisaApplicationById = async (id: VisaApplicationId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: visaApplicationId } = visaApplicationIdSchema.parse({ id })
     const [row] = await db
         .select({ visaApplication: visaApplications, region: regions })
@@ -55,7 +55,7 @@ export const getVisaApplicationById = async (id: VisaApplicationId) => {
 
 export const getVisaApplicationByIdWithHealthClearanceInfoAndFinancialProofsAndAccommodationProofsAndWorkContractProofs =
     async (id: VisaApplicationId) => {
-        const { session } = await checkAuth()
+        const { session } = await getUserAuth()
         const { id: visaApplicationId } = visaApplicationIdSchema.parse({ id })
         const rows = await db
             .select({

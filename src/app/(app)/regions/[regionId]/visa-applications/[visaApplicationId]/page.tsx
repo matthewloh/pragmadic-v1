@@ -1,17 +1,16 @@
-import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
-import { getVisaApplicationByIdWithHealthClearanceInfoAndFinancialProofsAndAccommodationProofsAndWorkContractProofs } from "@/lib/api/visaApplications/queries"
-import { getRegions } from "@/lib/api/regions/queries"
 import OptimisticVisaApplication from "@/app/(app)/visa-applications/[visaApplicationId]/OptimisticVisaApplication"
-import { checkAuth } from "@/lib/auth/utils"
-import HealthClearanceInfoList from "@/components/healthClearanceInfo/HealthClearanceInfoList"
-import FinancialProofList from "@/components/financialProofs/FinancialProofList"
 import AccommodationProofList from "@/components/accommodationProofs/AccommodationProofList"
+import FinancialProofList from "@/components/financialProofs/FinancialProofList"
+import HealthClearanceInfoList from "@/components/healthClearanceInfo/HealthClearanceInfoList"
 import WorkContractProofList from "@/components/workContractProofs/WorkContractProofList"
+import { getRegions } from "@/lib/api/regions/queries"
+import { getVisaApplicationByIdWithHealthClearanceInfoAndFinancialProofsAndAccommodationProofsAndWorkContractProofs } from "@/lib/api/visaApplications/queries"
 
-import { BackButton } from "@/components/shared/BackButton"
 import Loading from "@/app/loading"
+import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
@@ -28,7 +27,6 @@ export default async function VisaApplicationPage({
 }
 
 const VisaApplication = async ({ id }: { id: string }) => {
-    await checkAuth()
 
     const {
         visaApplication,

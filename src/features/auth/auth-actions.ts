@@ -13,10 +13,10 @@ import { isAuthApiError } from "@supabase/supabase-js"
 
 export async function login({
     credentials,
-    formData,
+    next,
 }: {
     credentials: LoginValues
-    formData: FormData
+    next: string
 }): Promise<{ error: string }> {
     const supabase = createClient()
     const { email, password } = loginSchema.parse(credentials)
@@ -24,12 +24,11 @@ export async function login({
     // } catch (error) {}
     // type-casting here for convenience
     // in practice, you should validate your inputs
-    const next = formData.get("next") as string
     const data = {
         email: email,
         password: password,
     }
-
+    console.log(next)
     const { error } = await supabase.auth.signInWithPassword(data)
 
     if (error) {
@@ -54,19 +53,18 @@ export async function signout({ next }: { next?: string }) {
         console.log(error)
         redirect("/error")
     }
-    revalidatePath("/", "layout")
+    revalidatePath("/")
+
     console.log(next)
 
     if (next === "/") {
-        revalidatePath("/", "layout")
-        revalidatePath("/")
         revalidateTag("current_user")
         console.log("redirecting to /")
         redirect("/")
     } else if (next) {
         revalidatePath(`${next}`, "layout")
         console.log("redirecting to huh")
-        redirect(`login?next=${next}`)
+        redirect(`/login?next=${next}`)
     } else {
         revalidatePath("/", "layout")
         console.log("redirecting to what")

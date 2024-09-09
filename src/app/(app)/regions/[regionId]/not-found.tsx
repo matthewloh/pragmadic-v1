@@ -1,12 +1,14 @@
+"use client"
+import { BackButton } from "@/components/shared/BackButton"
 import Image from "next/image"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import { BackButton } from "@/components/shared/BackButton"
+import { usePathname } from "next/navigation"
 
 export default function NotFound() {
+    const pathname = usePathname()
+    console.log(pathname)
     return (
-        <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex min-h-screen min-w-full flex-col bg-background">
             <main className="flex flex-grow items-center justify-center px-4 sm:px-6 lg:px-8">
                 <div className="w-full max-w-md space-y-8 text-center">
                     <Image
@@ -21,10 +23,10 @@ export default function NotFound() {
                     </h1>
                     <p className="mt-2 text-sm text-muted-foreground">
                         The page you&apos;re looking for doesn&apos;t exist or
-                        has been moved.
+                        has been moved away.
                     </p>
                     <div className="mt-6">
-                        <BackButton currentResource="" />
+                        <BackButton currentResource={pathname} />
                     </div>
                     <p className="mt-6 text-xs text-muted-foreground">
                         Lost? Check out our{" "}

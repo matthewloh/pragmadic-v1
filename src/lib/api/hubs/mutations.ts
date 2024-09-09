@@ -9,10 +9,10 @@ import {
     hubs,
     hubIdSchema,
 } from "@/lib/db/schema/hubs"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 
 export const createHub = async (hub: NewHubParams) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const newHub = insertHubSchema.parse({ ...hub, userId: session!.user.id! })
     try {
         const [h] = await db.insert(hubs).values(newHub).returning()
@@ -25,7 +25,7 @@ export const createHub = async (hub: NewHubParams) => {
 }
 
 export const updateHub = async (id: HubId, hub: UpdateHubParams) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: hubId } = hubIdSchema.parse({ id })
     const newHub = updateHubSchema.parse({ ...hub, userId: session!.user.id! })
     try {
@@ -43,7 +43,7 @@ export const updateHub = async (id: HubId, hub: UpdateHubParams) => {
 }
 
 export const deleteHub = async (id: HubId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: hubId } = hubIdSchema.parse({ id })
     try {
         const [h] = await db

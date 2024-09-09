@@ -9,12 +9,12 @@ import {
     visaApplications,
     visaApplicationIdSchema,
 } from "@/lib/db/schema/visaApplications"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 
 export const createVisaApplication = async (
     visaApplication: NewVisaApplicationParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const newVisaApplication = insertVisaApplicationSchema.parse({
         ...visaApplication,
         userId: session?.user.id!,
@@ -36,7 +36,7 @@ export const updateVisaApplication = async (
     id: VisaApplicationId,
     visaApplication: UpdateVisaApplicationParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: visaApplicationId } = visaApplicationIdSchema.parse({ id })
     const newVisaApplication = updateVisaApplicationSchema.parse({
         ...visaApplication,
@@ -62,7 +62,7 @@ export const updateVisaApplication = async (
 }
 
 export const deleteVisaApplication = async (id: VisaApplicationId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: visaApplicationId } = visaApplicationIdSchema.parse({ id })
     try {
         const [v] = await db

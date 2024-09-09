@@ -2,9 +2,8 @@ import { Suspense } from "react"
 
 import Loading from "@/app/loading"
 import ReviewList from "@/components/reviews/ReviewList"
-import { getReviews } from "@/lib/api/reviews/queries"
 import { getHubs } from "@/lib/api/hubs/queries"
-import { checkAuth } from "@/lib/auth/utils"
+import { getReviews } from "@/lib/api/reviews/queries"
 
 export const revalidate = 0
 
@@ -22,7 +21,6 @@ export default async function ReviewsPage() {
 }
 
 const Reviews = async () => {
-    await checkAuth()
 
     const { reviews } = await getReviews()
     const { hubs } = await getHubs()

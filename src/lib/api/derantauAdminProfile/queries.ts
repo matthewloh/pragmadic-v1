@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/index"
 import { eq, and } from "drizzle-orm"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 import {
     type DerantauAdminProfileId,
     derantauAdminProfileIdSchema,
@@ -9,7 +9,7 @@ import {
 import { regions } from "@/lib/db/schema/regions"
 
 export const getDerantauAdminProfiles = async () => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const rows = await db
         .select({ derantauAdminProfile: derantauAdminProfile, region: regions })
         .from(derantauAdminProfile)
@@ -22,7 +22,7 @@ export const getDerantauAdminProfiles = async () => {
 export const getDerantauAdminProfileById = async (
     id: DerantauAdminProfileId,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: derantauAdminProfileId } = derantauAdminProfileIdSchema.parse({
         id,
     })

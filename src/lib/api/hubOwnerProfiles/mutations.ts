@@ -9,12 +9,12 @@ import {
     hubOwnerProfiles,
     hubOwnerProfileIdSchema,
 } from "@/lib/db/schema/hubOwnerProfiles"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 
 export const createHubOwnerProfile = async (
     hubOwnerProfile: NewHubOwnerProfileParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const newHubOwnerProfile = insertHubOwnerProfileSchema.parse({
         ...hubOwnerProfile,
         userId: session?.user.id!,
@@ -36,7 +36,7 @@ export const updateHubOwnerProfile = async (
     id: HubOwnerProfileId,
     hubOwnerProfile: UpdateHubOwnerProfileParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: hubOwnerProfileId } = hubOwnerProfileIdSchema.parse({ id })
     const newHubOwnerProfile = updateHubOwnerProfileSchema.parse({
         ...hubOwnerProfile,
@@ -62,7 +62,7 @@ export const updateHubOwnerProfile = async (
 }
 
 export const deleteHubOwnerProfile = async (id: HubOwnerProfileId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: hubOwnerProfileId } = hubOwnerProfileIdSchema.parse({ id })
     try {
         const [h] = await db

@@ -4,8 +4,6 @@ import Loading from "@/app/loading"
 import RegionList from "@/components/regions/RegionList"
 import { getRegions } from "@/lib/api/regions/queries"
 
-import { checkAuth } from "@/lib/auth/utils"
-
 export const revalidate = 0
 
 export default async function RegionsPage() {
@@ -22,8 +20,6 @@ export default async function RegionsPage() {
 }
 
 const Regions = async () => {
-    await checkAuth()
-
     const { regions } = await getRegions()
 
     return (
@@ -32,3 +28,4 @@ const Regions = async () => {
         </Suspense>
     )
 }
+

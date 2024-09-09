@@ -1,15 +1,14 @@
-import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
-import { getHubByIdWithEventsAndReviews } from "@/lib/api/hubs/queries"
-import { getStates } from "@/lib/api/states/queries"
 import OptimisticHub from "@/app/(app)/hubs/[hubId]/OptimisticHub"
-import { checkAuth } from "@/lib/auth/utils"
 import EventList from "@/components/events/EventList"
 import ReviewList from "@/components/reviews/ReviewList"
+import { getHubByIdWithEventsAndReviews } from "@/lib/api/hubs/queries"
+import { getStates } from "@/lib/api/states/queries"
 
-import { BackButton } from "@/components/shared/BackButton"
 import Loading from "@/app/loading"
+import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
@@ -26,7 +25,6 @@ export default async function HubPage({
 }
 
 const Hub = async ({ id }: { id: string }) => {
-    await checkAuth()
 
     const { hub, events, reviews } = await getHubByIdWithEventsAndReviews(id)
     const { states } = await getStates()

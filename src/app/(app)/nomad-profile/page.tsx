@@ -4,7 +4,6 @@ import Loading from "@/app/loading"
 import NomadProfileList from "@/components/nomadProfile/NomadProfileList"
 import { getNomadProfiles } from "@/lib/api/nomadProfile/queries"
 
-import { checkAuth } from "@/lib/auth/utils"
 
 export const revalidate = 0
 
@@ -24,7 +23,6 @@ export default async function NomadProfilePage() {
 }
 
 const NomadProfile = async () => {
-    await checkAuth()
 
     const { nomadProfile } = await getNomadProfiles()
 

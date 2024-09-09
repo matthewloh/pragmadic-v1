@@ -1,5 +1,7 @@
 import { createClient } from "@/utils/supabase/server"
 import { AuthSession, UserMetadata } from "./types"
+import { getSession } from "../../../supabase/queries/cached-queries"
+import { redirect } from "next/navigation"
 
 // export const checkAuth = async (): Promise<AuthSession> => {
 //     const supabase = createClient()
@@ -18,7 +20,14 @@ import { AuthSession, UserMetadata } from "./types"
 //     }
 // }
 
-export const checkAuth = async (): Promise<AuthSession> => {
+export const checkAuth = async () => {
+    const {
+        data: { session },
+    } = await getSession()
+    if (!session) redirect("/login")
+}
+
+export const getUserAuth = async (): Promise<AuthSession> => {
     const supabase = createClient()
     const {
         data: { session },
@@ -34,3 +43,4 @@ export const checkAuth = async (): Promise<AuthSession> => {
         },
     }
 }
+

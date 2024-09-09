@@ -4,7 +4,6 @@ import Loading from "@/app/loading"
 import HubList from "@/components/hubs/HubList"
 import { getHubs } from "@/lib/api/hubs/queries"
 import { getStates } from "@/lib/api/states/queries"
-import { checkAuth } from "@/lib/auth/utils"
 
 export const revalidate = 0
 
@@ -22,7 +21,6 @@ export default async function HubsPage() {
 }
 
 const Hubs = async () => {
-    await checkAuth()
 
     const { hubs } = await getHubs()
     const { states } = await getStates()

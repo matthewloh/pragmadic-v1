@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/index"
 import { eq, and } from "drizzle-orm"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 import {
     type NomadProfileId,
     nomadProfileIdSchema,
@@ -8,7 +8,7 @@ import {
 } from "@/lib/db/schema/nomadProfile"
 
 export const getNomadProfiles = async () => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const rows = await db
         .select()
         .from(nomadProfile)
@@ -18,7 +18,7 @@ export const getNomadProfiles = async () => {
 }
 
 export const getNomadProfileById = async (id: NomadProfileId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: nomadProfileId } = nomadProfileIdSchema.parse({ id })
     const [row] = await db
         .select()

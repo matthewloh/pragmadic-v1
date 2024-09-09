@@ -1,14 +1,13 @@
-import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
-import { getRegionByIdWithStatesAndVisaApplications } from "@/lib/api/regions/queries"
-import OptimisticRegion from "./OptimisticRegion"
-import { checkAuth } from "@/lib/auth/utils"
 import StateList from "@/components/states/StateList"
 import VisaApplicationList from "@/components/visaApplications/VisaApplicationList"
+import { getRegionByIdWithStatesAndVisaApplications } from "@/lib/api/regions/queries"
+import OptimisticRegion from "./OptimisticRegion"
 
-import { BackButton } from "@/components/shared/BackButton"
 import Loading from "@/app/loading"
+import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
@@ -25,8 +24,6 @@ export default async function RegionPage({
 }
 
 const Region = async ({ id }: { id: string }) => {
-    await checkAuth()
-
     const { region, states, visaApplications } =
         await getRegionByIdWithStatesAndVisaApplications(id)
 
@@ -56,3 +53,4 @@ const Region = async ({ id }: { id: string }) => {
         </Suspense>
     )
 }
+

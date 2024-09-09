@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/index"
 import { eq, and } from "drizzle-orm"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 import { type RegionId, regionIdSchema, regions } from "@/lib/db/schema/regions"
 import { states, type CompleteState } from "@/lib/db/schema/states"
 import {
@@ -9,7 +9,7 @@ import {
 } from "@/lib/db/schema/visaApplications"
 
 export const getRegions = async () => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const rows = await db
         .select()
         .from(regions)
@@ -19,7 +19,7 @@ export const getRegions = async () => {
 }
 
 export const getRegionById = async (id: RegionId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: regionId } = regionIdSchema.parse({ id })
     const [row] = await db
         .select()
@@ -38,7 +38,7 @@ export const getRegionById = async (id: RegionId) => {
 export const getRegionByIdWithStatesAndVisaApplications = async (
     id: RegionId,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: regionId } = regionIdSchema.parse({ id })
     const rows = await db
         .select({

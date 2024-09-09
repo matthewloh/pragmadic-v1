@@ -9,10 +9,10 @@ import {
     events,
     eventIdSchema,
 } from "@/lib/db/schema/events"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 
 export const createEvent = async (event: NewEventParams) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const newEvent = insertEventSchema.parse({
         ...event,
         userId: session?.user.id!,
@@ -28,7 +28,7 @@ export const createEvent = async (event: NewEventParams) => {
 }
 
 export const updateEvent = async (id: EventId, event: UpdateEventParams) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: eventId } = eventIdSchema.parse({ id })
     const newEvent = updateEventSchema.parse({
         ...event,
@@ -54,7 +54,7 @@ export const updateEvent = async (id: EventId, event: UpdateEventParams) => {
 }
 
 export const deleteEvent = async (id: EventId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: eventId } = eventIdSchema.parse({ id })
     try {
         const [e] = await db

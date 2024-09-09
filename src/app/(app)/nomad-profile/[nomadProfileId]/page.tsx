@@ -1,12 +1,11 @@
-import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { getNomadProfileById } from "@/lib/api/nomadProfile/queries"
 import OptimisticNomadProfile from "./OptimisticNomadProfile"
-import { checkAuth } from "@/lib/auth/utils"
 
-import { BackButton } from "@/components/shared/BackButton"
 import Loading from "@/app/loading"
+import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
@@ -23,7 +22,6 @@ export default async function NomadProfilePage({
 }
 
 const NomadProfile = async ({ id }: { id: string }) => {
-    await checkAuth()
 
     const { nomadProfile } = await getNomadProfileById(id)
 

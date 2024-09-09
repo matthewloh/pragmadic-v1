@@ -9,12 +9,12 @@ import {
     nomadProfile as nomadProfileSchema,
     nomadProfileIdSchema,
 } from "@/lib/db/schema/nomadProfile"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 
 export const createNomadProfile = async (
     nomadProfile: NewNomadProfileParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const newNomadProfile = insertNomadProfileSchema.parse({
         ...nomadProfile,
         userId: session?.user.id!,
@@ -36,7 +36,7 @@ export const updateNomadProfile = async (
     id: NomadProfileId,
     nomadProfile: UpdateNomadProfileParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: nomadProfileId } = nomadProfileIdSchema.parse({ id })
     const newNomadProfile = updateNomadProfileSchema.parse({
         ...nomadProfile,
@@ -62,7 +62,7 @@ export const updateNomadProfile = async (
 }
 
 export const deleteNomadProfile = async (id: NomadProfileId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: nomadProfileId } = nomadProfileIdSchema.parse({ id })
     try {
         const [n] = await db

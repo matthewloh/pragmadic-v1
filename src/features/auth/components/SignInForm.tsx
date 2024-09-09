@@ -26,6 +26,7 @@ import { useForm } from "react-hook-form"
 import LoadingButton from "@/components/LoadingButton"
 import { PasswordInput } from "./PasswordInput"
 import { toast } from "sonner"
+import { revalidatePath } from "next/cache"
 
 export function SignInForm() {
     const [error, setError] = useState<string>()
@@ -76,9 +77,10 @@ export function SignInForm() {
         startTransition(async () => {
             const { error } = await login({
                 credentials: values,
-                formData: new FormData(),
+                next: next,
             })
             if (error) setError(error)
+            revalidatePath("/")
         })
     }
 
@@ -164,3 +166,4 @@ export function SignInForm() {
         </Form>
     )
 }
+

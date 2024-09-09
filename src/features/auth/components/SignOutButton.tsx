@@ -6,11 +6,14 @@ import { useState } from "react"
 import { LogOut, LogOutIcon } from "lucide-react"
 import { toast } from "sonner"
 import { usePathname } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
+import { revalidatePath } from "next/cache"
 
 export function SignOut() {
     const [isLoading, setLoading] = useState(false)
     const params = usePathname()
     const next = params ?? ""
+    const queryClient = useQueryClient()
     const handleSignOut = async () => {
         toast.info("Signing out...", {
             description: `You will be redirected to the login page from ${params}`,
@@ -19,6 +22,7 @@ export function SignOut() {
         })
         setLoading(true)
         signout({ next })
+        queryClient.invalidateQueries({ queryKey: ["current-user"] })
     }
 
     return (
@@ -28,3 +32,4 @@ export function SignOut() {
         </DropdownMenuItem>
     )
 }
+

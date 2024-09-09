@@ -1,13 +1,12 @@
-import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
-import { getReviewById } from "@/lib/api/reviews/queries"
-import { getHubs } from "@/lib/api/hubs/queries"
 import OptimisticReview from "@/app/(app)/reviews/[reviewId]/OptimisticReview"
-import { checkAuth } from "@/lib/auth/utils"
+import { getHubs } from "@/lib/api/hubs/queries"
+import { getReviewById } from "@/lib/api/reviews/queries"
 
-import { BackButton } from "@/components/shared/BackButton"
 import Loading from "@/app/loading"
+import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
@@ -24,7 +23,6 @@ export default async function ReviewPage({
 }
 
 const Review = async ({ id }: { id: string }) => {
-    await checkAuth()
 
     const { review } = await getReviewById(id)
     const { hubs } = await getHubs()

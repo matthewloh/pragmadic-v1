@@ -4,7 +4,6 @@ import Loading from "@/app/loading"
 import EventList from "@/components/events/EventList"
 import { getEvents } from "@/lib/api/events/queries"
 import { getHubs } from "@/lib/api/hubs/queries"
-import { checkAuth } from "@/lib/auth/utils"
 
 export const revalidate = 0
 
@@ -22,7 +21,6 @@ export default async function EventsPage() {
 }
 
 const Events = async () => {
-    await checkAuth()
 
     const { events } = await getEvents()
     const { hubs } = await getHubs()

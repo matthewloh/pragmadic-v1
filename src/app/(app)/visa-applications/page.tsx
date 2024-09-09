@@ -2,9 +2,8 @@ import { Suspense } from "react"
 
 import Loading from "@/app/loading"
 import VisaApplicationList from "@/components/visaApplications/VisaApplicationList"
-import { getVisaApplications } from "@/lib/api/visaApplications/queries"
 import { getRegions } from "@/lib/api/regions/queries"
-import { checkAuth } from "@/lib/auth/utils"
+import { getVisaApplications } from "@/lib/api/visaApplications/queries"
 
 export const revalidate = 0
 
@@ -24,7 +23,6 @@ export default async function VisaApplicationsPage() {
 }
 
 const VisaApplications = async () => {
-    await checkAuth()
 
     const { visaApplications } = await getVisaApplications()
     const { regions } = await getRegions()

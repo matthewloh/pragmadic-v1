@@ -11,18 +11,14 @@ import { Home, Loader, UserRound } from "lucide-react"
 import Link from "next/link"
 import { useUser } from "../hooks/use-current-user"
 import { SignOut } from "./SignOutButton"
+import { type User } from "@supabase/supabase-js"
 
-export default function UserButton() {
-    const { data, isLoading, isFetching } = useUser()
-
-    if (isLoading || isFetching) {
-        return <Loader className="size-4 animate-spin text-muted-foreground" />
-    }
-    if (!data) {
+export default function UserButton({ user }: { user: User }) {
+    if (!user) {
         return null
     }
-    console.log(data)
-    const { user_metadata } = data
+    console.log(user)
+    const { user_metadata } = user
     const { full_name, avatar_url } = user_metadata
     if (!full_name) {
         return null
@@ -47,13 +43,13 @@ export default function UserButton() {
                         <div className="flex flex-col">
                             <span className="truncate">{full_name}</span>
                             <span className="truncate text-xs font-normal text-[#606060]">
-                                {data.email}
+                                {user.email}
                             </span>
                         </div>
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuItem asChild>
-                    <Link href={`/profile/${data.id}`}>
+                    <Link href={`/profile/${user.id}`}>
                         <UserRound className="mr-2 size-4" />
                         Profile
                     </Link>
@@ -70,3 +66,4 @@ export default function UserButton() {
         </DropdownMenu>
     )
 }
+

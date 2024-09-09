@@ -9,12 +9,12 @@ import {
     derantauAdminProfile as derantauAdminProfileSchema,
     derantauAdminProfileIdSchema,
 } from "@/lib/db/schema/derantauAdminProfile"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 
 export const createDerantauAdminProfile = async (
     derantauAdminProfile: NewDerantauAdminProfileParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const newDerantauAdminProfile = insertDerantauAdminProfileSchema.parse({
         ...derantauAdminProfile,
         userId: session?.user.id!,
@@ -36,7 +36,7 @@ export const updateDerantauAdminProfile = async (
     id: DerantauAdminProfileId,
     derantauAdminProfile: UpdateDerantauAdminProfileParams,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: derantauAdminProfileId } = derantauAdminProfileIdSchema.parse({
         id,
     })
@@ -66,7 +66,7 @@ export const updateDerantauAdminProfile = async (
 export const deleteDerantauAdminProfile = async (
     id: DerantauAdminProfileId,
 ) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: derantauAdminProfileId } = derantauAdminProfileIdSchema.parse({
         id,
     })
@@ -87,3 +87,4 @@ export const deleteDerantauAdminProfile = async (
         throw { error: message }
     }
 }
+

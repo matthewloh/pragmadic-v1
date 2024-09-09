@@ -1,4 +1,3 @@
-"use client"
 import georgetown from "@/assets/georgetown.jpg"
 import muralwall from "@/assets/muralwall.jpg"
 import {
@@ -8,15 +7,14 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import UserButton from "@/features/auth/components/UserButton"
+import { useUser } from "@/features/auth/hooks/use-current-user"
 import { cn } from "@/lib/utils"
-import { createClient } from "@/utils/supabase/client"
-import { type User } from "@supabase/supabase-js"
 import { motion } from "framer-motion"
 import { Building2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
     FcAbout,
     FcAdvertising,
@@ -49,18 +47,8 @@ export function LandingHeader() {
     const [isOpen, setOpen] = useState(false)
     const [showBlur, setShowBlur] = useState(false)
     const [hidden, setHidden] = useState(false)
-    const [user, setUser] = useState<User>()
-    const supabase = createClient()
 
-    useEffect(() => {
-        async function getUser() {
-            const {
-                data: { user },
-            } = await supabase.auth.getUser()
-            if (user) setUser(user)
-        }
-        getUser()
-    }, [supabase])
+    const { data } = useUser()
 
     const lastPath = `/${pathname.split("/").pop()}`
 
@@ -141,6 +129,9 @@ export function LandingHeader() {
         },
     ]
 
+    if (pathname.includes("chat")) {
+        return null
+    }
     return (
         <header
             className={cn(
@@ -235,22 +226,12 @@ export function LandingHeader() {
                         />
                     </svg>
                 </button>
-                {user ? (
-                    <UserButton user={user} />
-                ) : (
-                    // <Link
-                    //     href="/dashboard"
-                    //     className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
-                    // >
-                    //     Dashboard
-                    // </Link>
-                    <Link
-                        className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
-                        href="/login"
-                    >
-                        Sign in
-                    </Link>
-                )}
+                <Link
+                    className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
+                    href="/login"
+                >
+                    Sign in
+                </Link>
             </nav>
             {isOpen && (
                 <motion.div
@@ -370,22 +351,26 @@ export function LandingHeader() {
                                 className="mt-auto border-t-[1px] pt-8"
                                 variants={itemVariant}
                             >
-                                {user ? (
-                                    <UserButton user={user} />
+                                {/* {data ? (
+                                    <SidebarTooltipWrapper
+                                        description={"Go to Dashboard"}
+                                    >
+                                        <UserButton />
+                                    </SidebarTooltipWrapper>
                                 ) : (
-                                    // <Link
-                                    //     href="/dashboard"
-                                    //     className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
-                                    // >
-                                    //     Dashboard
-                                    // </Link>
                                     <Link
-                                        className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
+                                        className="text-xl text-primary-foreground"
                                         href="/login"
                                     >
                                         Sign in
                                     </Link>
-                                )}
+                                )} */}
+                                <Link
+                                    className="text-xl text-primary-foreground"
+                                    href="/login"
+                                >
+                                    Sign in
+                                </Link>
                             </motion.li>
                         </motion.ul>
                     </div>
@@ -401,4 +386,3 @@ export function LandingHeader() {
         </header>
     )
 }
-

@@ -18,12 +18,16 @@ type TOpenModal = (region?: Region) => void
 export default function RegionList({ regions }: { regions: CompleteRegion[] }) {
     const { optimisticRegions, addOptimisticRegion } =
         useOptimisticRegions(regions)
+
     const [open, setOpen] = useState(false)
+
     const [activeRegion, setActiveRegion] = useState<Region | null>(null)
+
     const openModal = (region?: Region) => {
         setOpen(true)
         region ? setActiveRegion(region) : setActiveRegion(null)
     }
+
     const closeModal = () => setOpen(false)
 
     return (
@@ -112,3 +116,4 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
         </div>
     )
 }
+

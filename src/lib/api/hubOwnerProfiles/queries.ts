@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/index"
 import { eq, and } from "drizzle-orm"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 import {
     type HubOwnerProfileId,
     hubOwnerProfileIdSchema,
@@ -8,7 +8,7 @@ import {
 } from "@/lib/db/schema/hubOwnerProfiles"
 
 export const getHubOwnerProfiles = async () => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const rows = await db
         .select()
         .from(hubOwnerProfiles)
@@ -18,7 +18,7 @@ export const getHubOwnerProfiles = async () => {
 }
 
 export const getHubOwnerProfileById = async (id: HubOwnerProfileId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: hubOwnerProfileId } = hubOwnerProfileIdSchema.parse({ id })
     const [row] = await db
         .select()

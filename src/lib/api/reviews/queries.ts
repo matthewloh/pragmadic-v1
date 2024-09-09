@@ -1,11 +1,11 @@
 import { db } from "@/lib/db/index"
 import { eq, and } from "drizzle-orm"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 import { type ReviewId, reviewIdSchema, reviews } from "@/lib/db/schema/reviews"
 import { hubs } from "@/lib/db/schema/hubs"
 
 export const getReviews = async () => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const rows = await db
         .select({ review: reviews, hub: hubs })
         .from(reviews)
@@ -16,7 +16,7 @@ export const getReviews = async () => {
 }
 
 export const getReviewById = async (id: ReviewId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: reviewId } = reviewIdSchema.parse({ id })
     const [row] = await db
         .select({ review: reviews, hub: hubs })

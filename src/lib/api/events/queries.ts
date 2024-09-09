@@ -1,11 +1,11 @@
 import { db } from "@/lib/db/index"
 import { eq, and } from "drizzle-orm"
-import { checkAuth } from "@/lib/auth/utils"
+import { getUserAuth } from "@/lib/auth/utils"
 import { type EventId, eventIdSchema, events } from "@/lib/db/schema/events"
 import { hubs } from "@/lib/db/schema/hubs"
 
 export const getEvents = async () => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const rows = await db
         .select({ event: events, hub: hubs })
         .from(events)
@@ -16,7 +16,7 @@ export const getEvents = async () => {
 }
 
 export const getEventById = async (id: EventId) => {
-    const { session } = await checkAuth()
+    const { session } = await getUserAuth()
     const { id: eventId } = eventIdSchema.parse({ id })
     const [row] = await db
         .select({ event: events, hub: hubs })
