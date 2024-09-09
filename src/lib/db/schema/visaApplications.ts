@@ -13,7 +13,7 @@ export const visaApplications = pgTable("visa_applications", {
         .$defaultFn(() => nanoid()),
     status: varchar("status", { length: 256 }).notNull(),
     approvedAt: date("approved_at").notNull(),
-    expiry: timestamp("expiry"),
+    expiry: timestamp("expiry", { mode: "date" }),
     applicationType: varchar("application_type", { length: 256 }).notNull(),
     isRenewal: boolean("is_renewal"),
     applicationDate: date("application_date").notNull(),
@@ -41,7 +41,7 @@ export const insertVisaApplicationSchema =
 export const insertVisaApplicationParams = baseSchema
     .extend({
         approvedAt: z.coerce.string().min(1),
-        expiry: z.coerce.string().min(1),
+        expiry: z.coerce.date(),
         isRenewal: z.coerce.boolean(),
         applicationDate: z.coerce.string().min(1),
         healthClearanceStatus: z.coerce.boolean(),
@@ -57,7 +57,7 @@ export const updateVisaApplicationSchema = baseSchema
 export const updateVisaApplicationParams = baseSchema
     .extend({
         approvedAt: z.coerce.string().min(1),
-        expiry: z.coerce.string().min(1),
+        expiry: z.coerce.date(),
         isRenewal: z.coerce.boolean(),
         applicationDate: z.coerce.string().min(1),
         healthClearanceStatus: z.coerce.boolean(),

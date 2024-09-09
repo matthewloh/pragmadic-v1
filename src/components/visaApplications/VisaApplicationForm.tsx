@@ -124,6 +124,7 @@ const VisaApplicationForm = ({
             ...values,
             expiry: expiry ? new Date(expiry) : null,
         }
+
         try {
             startMutation(async () => {
                 addOptimistic &&
@@ -197,7 +198,7 @@ const VisaApplicationForm = ({
                     Approved At
                 </Label>
                 <br />
-                <Popover>
+                <Popover modal={true}>
                     <Input
                         name="approvedAt"
                         onChange={() => {}}
@@ -257,7 +258,7 @@ const VisaApplicationForm = ({
                     Expiry
                 </Label>
                 <br />
-                <Popover>
+                <Popover modal={true}>
                     <Input
                         name="expiry"
                         onChange={() => {}}
@@ -366,7 +367,7 @@ const VisaApplicationForm = ({
                     Application Date
                 </Label>
                 <br />
-                <Popover>
+                <Popover modal={true}>
                     <Input
                         name="applicationDate"
                         onChange={() => {}}
@@ -529,7 +530,7 @@ const VisaApplicationForm = ({
                                     key={region.id}
                                     value={region.id.toString()}
                                 >
-                                    {region.id}
+                                    {region.name}
                                     {/* TODO: Replace with a field from the region model */}
                                 </SelectItem>
                             ))}
