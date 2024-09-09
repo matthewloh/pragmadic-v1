@@ -57,6 +57,13 @@
       "when": 1725878636095,
       "tag": "0007_overrated_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1725894392978,
+      "tag": "0008_fresh_norman_osborn",
+      "breakpoints": true
     }
   ]
 }

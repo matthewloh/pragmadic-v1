@@ -21,7 +21,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { db } from "@/lib/db"
-import { profileTable } from "@/lib/db/schema"
+import { profile } from "@/lib/db/schema"
 import { ProfilePage } from "@/features/profile/components/profile"
 import { createClient } from "@/utils/supabase/server"
 import { eq } from "drizzle-orm"
@@ -53,38 +53,13 @@ export default async function Profile({
         throw new Error("User not found")
     }
 
-    const data = await db?.query.profileTable.findFirst({
-        where: eq(profileTable.userId, user!.id),
+    const data = await db?.query.profile.findFirst({
+        where: eq(profile.userId, user!.id),
     })
+
     if (!data) {
         throw new Error("Profile not found")
     }
-    // const [user, setUser] = useState({
-    //     name: "Sarah Johnson",
-    //     email: "sarah.johnson@example.com",
-    //     avatar: "https://i.pravatar.cc/150?u=sarah.johnson@example.com",
-    //     occupation: "UX Designer",
-    //     location: "Penang, Malaysia",
-    //     bio: "Digital nomad passionate about creating user-centric designs and exploring new cultures.",
-    //     visaStatus: "Approved",
-    //     notificationsEnabled: true,
-    //     language: "en",
-    //     timezone: "Asia/Kuala_Lumpur",
-    // })
-
-    // const handleInputChange = (
-    //     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    // ) => {
-    //     setUser({ ...user, [e.target.name]: e.target.value })
-    // }
-
-    // const handleSwitchChange = (checked: boolean) => {
-    //     setUser({ ...user, notificationsEnabled: checked })
-    // }
-
-    // const handleSelectChange = (name: string, value: string) => {
-    //     setUser({ ...user, [name]: value })
-
     return (
         <ProfilePage user={user} profile={data} />
         // <div className="mx-auto py-8">

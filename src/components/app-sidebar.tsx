@@ -19,8 +19,7 @@ import {
     Settings,
     User,
     UserPen,
-    UserPlus,
-    Users,
+    Users
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -36,7 +35,6 @@ import {
     SidebarItem,
     SidebarLabel,
 } from "@/components/ui/sidebar"
-import { useUser } from "@/features/auth/hooks/use-current-user"
 
 const data = {
     teams: [
