@@ -38,4 +38,3 @@ export const useOptimisticProfile = (profile: Profile | undefined) => {
 
     return { addOptimisticProfile, optimisticProfile }
 }
-

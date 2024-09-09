@@ -44,4 +44,3 @@ export const getProfileById = async (id: ProfileId) => {
     const p = row
     return { profile: p }
 }
-

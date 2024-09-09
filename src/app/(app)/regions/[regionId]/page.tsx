@@ -53,4 +53,3 @@ const Region = async ({ id }: { id: string }) => {
         </Suspense>
     )
 }
-

@@ -22,7 +22,6 @@ export default async function NomadProfilePage({
 }
 
 const NomadProfile = async ({ id }: { id: string }) => {
-
     const { nomadProfile } = await getNomadProfileById(id)
 
     if (!nomadProfile) notFound()

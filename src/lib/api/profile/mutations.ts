@@ -86,4 +86,3 @@ export const deleteProfile = async (id: ProfileId) => {
         throw { error: message }
     }
 }
-

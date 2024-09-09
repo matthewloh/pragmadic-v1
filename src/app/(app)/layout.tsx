@@ -13,9 +13,11 @@ export default function DashboardLayout({
             defaultOpen={cookies().get("sidebar:state")?.value === "true"}
         >
             <AppSidebar />
-            <main className="flex flex-1 flex-col transition-all duration-300 ease-in-out space-y-4">
+            <main className="flex min-h-full flex-1 flex-col space-y-4 transition-all duration-300 ease-in-out">
                 <MainNavBar />
-                <div className="container mx-auto">{children}</div>
+                <main className="container mx-auto flex h-full flex-1 flex-col border border-border">
+                    {children}
+                </main>
             </main>
         </SidebarLayout>
     )

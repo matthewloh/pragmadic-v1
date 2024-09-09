@@ -23,7 +23,6 @@ export default async function VisaApplicationsPage() {
 }
 
 const VisaApplications = async () => {
-
     const { visaApplications } = await getVisaApplications()
     const { regions } = await getRegions()
     return (

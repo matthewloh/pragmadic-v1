@@ -68,4 +68,3 @@ export type HubOwnerProfileId = z.infer<typeof hubOwnerProfileIdSchema>["id"]
 export type CompleteHubOwnerProfile = Awaited<
     ReturnType<typeof getHubOwnerProfiles>
 >["hubOwnerProfiles"][number]
-

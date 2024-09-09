@@ -25,7 +25,6 @@ export default async function HubPage({
 }
 
 const Hub = async ({ id }: { id: string }) => {
-
     const { hub, events, reviews } = await getHubByIdWithEventsAndReviews(id)
     const { states } = await getStates()
 

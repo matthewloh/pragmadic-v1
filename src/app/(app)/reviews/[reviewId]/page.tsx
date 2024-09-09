@@ -23,7 +23,6 @@ export default async function ReviewPage({
 }
 
 const Review = async ({ id }: { id: string }) => {
-
     const { review } = await getReviewById(id)
     const { hubs } = await getHubs()
 

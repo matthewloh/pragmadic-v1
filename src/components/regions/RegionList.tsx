@@ -116,4 +116,3 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
         </div>
     )
 }
-

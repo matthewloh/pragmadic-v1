@@ -135,4 +135,3 @@ export async function signup({
     revalidatePath("/", "layout")
     redirect("/")
 }
-

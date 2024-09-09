@@ -17,4 +17,3 @@ export const protectedPaths = [
     "/visa-applications",
     "/work-contract-proofs",
 ]
-

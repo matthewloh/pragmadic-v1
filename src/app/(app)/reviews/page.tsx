@@ -21,7 +21,6 @@ export default async function ReviewsPage() {
 }
 
 const Reviews = async () => {
-
     const { reviews } = await getReviews()
     const { hubs } = await getHubs()
     return (

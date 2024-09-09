@@ -60,4 +60,3 @@ export const deleteNomadProfileAction = async (input: NomadProfileId) => {
         return handleErrors(e)
     }
 }
-

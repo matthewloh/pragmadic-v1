@@ -21,7 +21,6 @@ export default async function EventsPage() {
 }
 
 const Events = async () => {
-
     const { events } = await getEvents()
     const { hubs } = await getHubs()
     return (

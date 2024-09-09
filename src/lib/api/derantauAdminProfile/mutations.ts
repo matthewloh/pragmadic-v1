@@ -87,4 +87,3 @@ export const deleteDerantauAdminProfile = async (
         throw { error: message }
     }
 }
-

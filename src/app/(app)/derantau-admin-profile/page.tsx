@@ -23,7 +23,6 @@ export default async function DerantauAdminProfilePage() {
 }
 
 const DerantauAdminProfile = async () => {
-
     const { derantauAdminProfile } = await getDerantauAdminProfiles()
     const { regions } = await getRegions()
     return (
@@ -35,4 +34,3 @@ const DerantauAdminProfile = async () => {
         </Suspense>
     )
 }
-

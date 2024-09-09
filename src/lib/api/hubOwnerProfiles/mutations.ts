@@ -81,4 +81,3 @@ export const deleteHubOwnerProfile = async (id: HubOwnerProfileId) => {
         throw { error: message }
     }
 }
-

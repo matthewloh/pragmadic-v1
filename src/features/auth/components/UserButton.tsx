@@ -66,4 +66,3 @@ export default function UserButton({ user }: { user: User }) {
         </DropdownMenu>
     )
 }
-

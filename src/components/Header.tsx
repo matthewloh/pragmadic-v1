@@ -401,4 +401,3 @@ export function LandingHeader() {
         </header>
     )
 }
-

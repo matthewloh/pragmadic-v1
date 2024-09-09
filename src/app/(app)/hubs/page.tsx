@@ -21,7 +21,6 @@ export default async function HubsPage() {
 }
 
 const Hubs = async () => {
-
     const { hubs } = await getHubs()
     const { states } = await getStates()
     return (

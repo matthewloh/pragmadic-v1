@@ -39,4 +39,3 @@ const DerantauAdminProfile = async ({ id }: { id: string }) => {
         </Suspense>
     )
 }
-

@@ -43,4 +43,3 @@ export const getUserAuth = async (): Promise<AuthSession> => {
         },
     }
 }
-

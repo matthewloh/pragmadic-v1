@@ -371,4 +371,3 @@ export function ProfilePage({ user, profile }: ProfileProps) {
         </div>
     )
 }
-

@@ -27,4 +27,3 @@ const Profile = async () => {
         </Suspense>
     )
 }
-

@@ -4,7 +4,6 @@ import Loading from "@/app/loading"
 import NomadProfileList from "@/components/nomadProfile/NomadProfileList"
 import { getNomadProfiles } from "@/lib/api/nomadProfile/queries"
 
-
 export const revalidate = 0
 
 export default async function NomadProfilePage() {
@@ -23,7 +22,6 @@ export default async function NomadProfilePage() {
 }
 
 const NomadProfile = async () => {
-
     const { nomadProfile } = await getNomadProfiles()
 
     return (

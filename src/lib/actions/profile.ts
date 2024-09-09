@@ -56,4 +56,3 @@ export const deleteProfileAction = async (input: ProfileId) => {
         return handleErrors(e)
     }
 }
-

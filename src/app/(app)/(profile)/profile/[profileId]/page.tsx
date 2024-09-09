@@ -37,4 +37,3 @@ const Profile = async ({ id }: { id: string }) => {
         </Suspense>
     )
 }
-

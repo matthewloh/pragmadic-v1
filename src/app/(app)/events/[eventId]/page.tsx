@@ -36,4 +36,3 @@ const Event = async ({ id }: { id: string }) => {
         </Suspense>
     )
 }
-

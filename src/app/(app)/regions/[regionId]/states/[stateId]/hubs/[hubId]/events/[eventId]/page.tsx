@@ -23,7 +23,6 @@ export default async function EventPage({
 }
 
 const Event = async ({ id }: { id: string }) => {
-
     const { event } = await getEventById(id)
     const { hubs } = await getHubs()
 

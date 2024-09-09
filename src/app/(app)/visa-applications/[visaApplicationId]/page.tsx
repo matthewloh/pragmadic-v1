@@ -27,7 +27,6 @@ export default async function VisaApplicationPage({
 }
 
 const VisaApplication = async ({ id }: { id: string }) => {
-
     const {
         visaApplication,
         healthClearanceInfo,

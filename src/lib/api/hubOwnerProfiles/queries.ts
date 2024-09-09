@@ -33,4 +33,3 @@ export const getHubOwnerProfileById = async (id: HubOwnerProfileId) => {
     const h = row
     return { hubOwnerProfile: h }
 }
-
