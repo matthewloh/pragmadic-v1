@@ -23,7 +23,6 @@ export default async function CommunityEventsPage() {
 }
 
 const CommunityEvents = async () => {
-
     const { communityEvents } = await getCommunityEvents()
     const { communities } = await getCommunities()
     return (

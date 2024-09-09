@@ -4,7 +4,6 @@ import Loading from "@/app/loading"
 import CommunityList from "@/components/communities/CommunityList"
 import { getCommunities } from "@/lib/api/communities/queries"
 
-
 export const revalidate = 0
 
 export default async function CommunitiesPage() {
@@ -21,7 +20,6 @@ export default async function CommunitiesPage() {
 }
 
 const Communities = async () => {
-
     const { communities } = await getCommunities()
 
     return (

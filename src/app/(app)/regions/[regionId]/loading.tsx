@@ -13,7 +13,7 @@ export default function Loading() {
                 Loading...
             </h2>
             <div className="mt-4 h-1 w-48 overflow-hidden rounded-full bg-gray-700">
-                <div className="animate-progressBar h-full bg-blue-500"></div>
+                <div className="h-full animate-progressBar bg-blue-500"></div>
             </div>
         </div>
     )
