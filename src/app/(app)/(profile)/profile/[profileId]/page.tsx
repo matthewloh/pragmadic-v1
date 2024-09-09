@@ -3,7 +3,6 @@ import { notFound } from "next/navigation"
 
 import { getProfileById } from "@/lib/api/profile/queries"
 import OptimisticProfile from "./OptimisticProfile"
-import { checkAuth } from "@/lib/auth/utils"
 
 import { BackButton } from "@/components/shared/BackButton"
 import Loading from "@/app/loading"
@@ -23,8 +22,6 @@ export default async function ProfilePage({
 }
 
 const Profile = async ({ id }: { id: string }) => {
-    await checkAuth()
-
     const { profile } = await getProfileById(id)
 
     if (!profile) notFound()

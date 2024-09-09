@@ -156,7 +156,7 @@ const data = {
         },
         {
             title: "Community",
-            url: "/community",
+            url: "/communities",
             icon: Users,
             items: [
                 {
@@ -166,14 +166,14 @@ const data = {
                     description: "Discover local events",
                 },
                 {
-                    title: "Forum",
-                    url: "/community/forum",
+                    title: "Community Events",
+                    url: "/community-events",
                     icon: MessageSquare,
                     description: "Connect with other digital nomads",
                 },
                 {
-                    title: "Resources",
-                    url: "/community/resources",
+                    title: "Community Posts",
+                    url: "/community-posts",
                     icon: HelpCircle,
                     description: "Access community resources",
                 },

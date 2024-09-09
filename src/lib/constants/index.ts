@@ -1,6 +1,11 @@
 export const protectedPaths = [
     "/profile",
     "/accommodation-proofs",
+    "/communities",
+    "/community-event-invites",
+    "/community-events",
+    "/community-post-replies",
+    "/community-posts",
     "/dashboard",
     "/chat",
     "/derantau-admin-profile",
