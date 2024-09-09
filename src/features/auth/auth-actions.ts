@@ -39,7 +39,7 @@ export async function login({
         console.log(error)
     }
 
-    revalidatePath("/", "layout")
+    revalidatePath("/")
     if (next) {
         redirect(`${next}`)
     } else {
@@ -137,3 +137,4 @@ export async function signup({
     revalidatePath("/", "layout")
     redirect("/")
 }
+
