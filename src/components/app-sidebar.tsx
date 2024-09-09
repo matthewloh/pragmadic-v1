@@ -17,6 +17,8 @@ import {
     MessageSquare,
     Send,
     Settings,
+    User,
+    UserPen,
     UserPlus,
     Users,
 } from "lucide-react"
@@ -75,7 +77,25 @@ const data = {
                 {
                     title: "Profile",
                     url: "/profile",
-                    icon: UserPlus,
+                    icon: User,
+                    description: "Manage your profile",
+                },
+                {
+                    title: "Nomad Profile",
+                    url: "/nomad-profile",
+                    icon: UserPen,
+                    description: "Manage your profile",
+                },
+                {
+                    title: "DE Rantau Profile",
+                    url: "/derantau-admin-profile",
+                    icon: User,
+                    description: "Manage your profile",
+                },
+                {
+                    title: "Hub Owner Profile",
+                    url: "/hub-owner-profile",
+                    icon: User,
                     description: "Manage your profile",
                 },
                 {
@@ -259,8 +279,6 @@ const data = {
 }
 
 export function AppSidebar() {
-    const { data: user } = useUser()
-
     return (
         <Sidebar>
             <SidebarHeader className="h-[60px]">
