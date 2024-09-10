@@ -20,8 +20,8 @@ export const profile = pgTable("profile", {
     socialLinks: text("social_links"),
     userId: uuid("user_id")
         .references(() => userTable.id, { onDelete: "cascade" })
-        .notNull(),
-
+        .notNull()
+        .unique(),
     createdAt: timestamp("created_at")
         .notNull()
         .default(sql`now()`),
