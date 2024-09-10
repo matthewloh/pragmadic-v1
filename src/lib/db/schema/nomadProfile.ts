@@ -3,7 +3,7 @@ import { text, varchar, timestamp, pgTable, uuid } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 
-import { userTable } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/auth-users"
 import { type getNomadProfiles } from "@/lib/api/nomadProfile/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"
@@ -19,8 +19,9 @@ export const nomadProfile = pgTable("nomad_profile", {
     contactInformation: text("contact_information"),
     userId: uuid("user_id")
         .defaultRandom()
-        .references(() => userTable.id, { onDelete: "cascade" })
-        .notNull(),
+        .references(() => users.id, { onDelete: "cascade" })
+        .notNull()
+        .unique(),
 
     createdAt: timestamp("created_at")
         .notNull()

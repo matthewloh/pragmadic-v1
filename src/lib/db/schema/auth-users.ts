@@ -14,7 +14,7 @@ export const authUsers = authSchema.table("users", {
     id: uuid("id").primaryKey(),
 })
 
-export const userTable = pgTable("user", {
+export const users = pgTable("user", {
     createdAt: timestamp("created_at").defaultNow(),
     id: uuid("id")
         .default(sql`gen_random_uuid()`)
@@ -26,4 +26,4 @@ export const userTable = pgTable("user", {
     image_url: text("image_url"),
 })
 
-export type SelectUser = typeof userTable.$inferSelect
+export type SelectUser = typeof users.$inferSelect

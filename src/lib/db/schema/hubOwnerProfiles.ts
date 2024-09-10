@@ -4,7 +4,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 
 import { type getHubOwnerProfiles } from "@/lib/api/hubOwnerProfiles/queries"
-import { userTable } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/auth-users"
 
 import { nanoid, timestamps } from "@/lib/utils"
 
@@ -26,8 +26,9 @@ export const hubOwnerProfiles = pgTable("hub_owner_profiles", {
     socialMediaHandles: text("social_media_handles"),
     websiteUrl: varchar("website_url", { length: 256 }),
     userId: uuid("user_id")
-        .references(() => userTable.id, { onDelete: "cascade" })
-        .notNull(),
+        .references(() => users.id, { onDelete: "cascade" })
+        .notNull()
+        .unique(),
 
     createdAt: timestamp("created_at")
         .notNull()

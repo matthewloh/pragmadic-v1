@@ -49,7 +49,7 @@ export default function UserButton({ user }: { user: User }) {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuItem asChild>
-                    <Link href={`/profile/${user.id}`}>
+                    <Link href={`/profile`}>
                         <UserRound className="mr-2 size-4" />
                         Profile
                     </Link>

@@ -3,7 +3,7 @@ import { text, varchar, timestamp, pgTable, uuid } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 import { communityPosts } from "./communityPosts"
-import { userTable } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/auth-users"
 import { type getCommunityPostReplies } from "@/lib/api/communityPostReplies/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"
@@ -17,7 +17,7 @@ export const communityPostReplies = pgTable("community_post_replies", {
         .references(() => communityPosts.id, { onDelete: "cascade" })
         .notNull(),
     userId: uuid("user_id")
-        .references(() => userTable.id, { onDelete: "cascade" })
+        .references(() => users.id, { onDelete: "cascade" })
         .notNull(),
 
     createdAt: timestamp("created_at")

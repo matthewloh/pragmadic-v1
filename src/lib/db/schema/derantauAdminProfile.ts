@@ -3,7 +3,7 @@ import { varchar, timestamp, pgTable, uuid } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 import { regions } from "./regions"
-import { userTable } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/auth-users"
 import { type getDerantauAdminProfiles } from "@/lib/api/derantauAdminProfile/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"
@@ -19,8 +19,9 @@ export const derantauAdminProfile = pgTable("derantau_admin_profile", {
         .references(() => regions.id)
         .notNull(),
     userId: uuid("user_id")
-        .references(() => userTable.id, { onDelete: "cascade" })
-        .notNull(),
+        .references(() => users.id, { onDelete: "cascade" })
+        .notNull()
+        .unique(),
     createdAt: timestamp("created_at")
         .notNull()
         .default(sql`now()`),

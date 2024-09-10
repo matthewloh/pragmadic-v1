@@ -4,7 +4,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 
 import { type getProfiles } from "@/lib/api/profile/queries"
-import { userTable } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/auth-users"
 
 import { nanoid, timestamps } from "@/lib/utils"
 
@@ -19,7 +19,7 @@ export const profile = pgTable("profile", {
     contactNumber: varchar("contact_number", { length: 256 }),
     socialLinks: text("social_links"),
     userId: uuid("user_id")
-        .references(() => userTable.id, { onDelete: "cascade" })
+        .references(() => users.id, { onDelete: "cascade" })
         .notNull()
         .unique(),
     createdAt: timestamp("created_at")
@@ -57,16 +57,16 @@ export type CompleteProfile = Awaited<
     ReturnType<typeof getProfiles>
 >["profile"][number]
 
-export const usersRelations = relations(userTable, ({ one }) => ({
+export const usersRelations = relations(users, ({ one }) => ({
     profile: one(profile, {
-        fields: [userTable.id],
+        fields: [users.id],
         references: [profile.userId],
     }),
 }))
 
 export const profileRelations = relations(profile, ({ one }) => ({
-    user: one(userTable, {
+    user: one(users, {
         fields: [profile.userId],
-        references: [userTable.id],
+        references: [users.id],
     }),
 }))

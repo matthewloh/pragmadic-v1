@@ -1,6 +1,6 @@
 "use client"
-import Link from "next/link"
 
+import LoadingButton from "@/components/LoadingButton"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -11,22 +11,18 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { login } from "@/features/auth/auth-actions"
-import { SignInFlow } from "../types"
-import { useState, useTransition } from "react"
 import { Separator } from "@/components/ui/separator"
-import { FcGoogle } from "react-icons/fc"
-import { FaGithub } from "react-icons/fa"
+import { login } from "@/features/auth/auth-actions"
 import { createClient } from "@/utils/supabase/client"
-import { useSearchParams } from "next/navigation"
-import { loginSchema, LoginValues } from "../zod/schemas/validation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useSearchParams } from "next/navigation"
+import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
-import LoadingButton from "@/components/LoadingButton"
-import { PasswordInput } from "./PasswordInput"
+import { FaGithub } from "react-icons/fa"
+import { FcGoogle } from "react-icons/fc"
 import { toast } from "sonner"
-import { revalidatePath } from "next/cache"
+import { loginSchema, LoginValues } from "../zod/schemas/validation"
+import { PasswordInput } from "./PasswordInput"
 
 export function SignInForm() {
     const [error, setError] = useState<string>()
@@ -80,7 +76,6 @@ export function SignInForm() {
                 next: next,
             })
             if (error) setError(error)
-            revalidatePath("/")
         })
     }
 

@@ -13,7 +13,7 @@ import MainNavBar from "@/features/dashboard/components/MainNavBar"
 import { db } from "@/lib/db"
 
 export default async function Page() {
-    const userDB = await db?.query.userTable.findMany()
+    const userDB = await db?.query.users.findMany()
 
     return (
         <div className="flex min-h-screen flex-col bg-gradient-to-br from-emerald-700 to-purple-300">

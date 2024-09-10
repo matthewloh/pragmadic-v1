@@ -10,7 +10,7 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 import { communities } from "./communities"
-import { userTable } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/auth-users"
 import { type getCommunityPosts } from "@/lib/api/communityPosts/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"
@@ -27,7 +27,7 @@ export const communityPosts = pgTable("community_posts", {
         .references(() => communities.id, { onDelete: "cascade" })
         .notNull(),
     userId: uuid("user_id")
-        .references(() => userTable.id, { onDelete: "cascade" })
+        .references(() => users.id, { onDelete: "cascade" })
         .notNull(),
 
     createdAt: timestamp("created_at")
