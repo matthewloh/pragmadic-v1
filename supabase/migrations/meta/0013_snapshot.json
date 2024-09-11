@@ -1,6 +1,6 @@
 {
-    "id": "7aed27bf-751f-4d97-bd46-451851773910",
-    "prevId": "54bcbf2d-f236-47f5-96bc-e432158ea5b8",
+    "id": "45be59a6-3674-45f6-ad28-3b233bd9deba",
+    "prevId": "7aed27bf-751f-4d97-bd46-451851773910",
     "version": "7",
     "dialect": "postgresql",
     "tables": {
@@ -86,6 +86,56 @@
             "compositePrimaryKeys": {},
             "uniqueConstraints": {}
         },
+        "public.assistant_responses": {
+            "name": "assistant_responses",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "varchar(191)",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "tool_invocations": {
+                    "name": "tool_invocations",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "usage": {
+                    "name": "usage",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "finish_reason": {
+                    "name": "finish_reason",
+                    "type": "varchar(256)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "message_id": {
+                    "name": "message_id",
+                    "type": "varchar(256)",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "assistant_responses_message_id_messages_id_fk": {
+                    "name": "assistant_responses_message_id_messages_id_fk",
+                    "tableFrom": "assistant_responses",
+                    "tableTo": "messages",
+                    "columnsFrom": ["message_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {}
+        },
         "auth.users": {
             "name": "users",
             "schema": "auth",
@@ -147,6 +197,64 @@
                     "tableTo": "users",
                     "schemaTo": "auth",
                     "columnsFrom": ["id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {}
+        },
+        "public.chats": {
+            "name": "chats",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "varchar(191)",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "name": {
+                    "name": "name",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "chats_user_id_user_id_fk": {
+                    "name": "chats_user_id_user_id_fk",
+                    "tableFrom": "chats",
+                    "tableTo": "user",
+                    "columnsFrom": ["user_id"],
                     "columnsTo": ["id"],
                     "onDelete": "cascade",
                     "onUpdate": "no action"
@@ -1740,6 +1848,64 @@
             },
             "indexes": {},
             "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {}
+        },
+        "public.messages": {
+            "name": "messages",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "varchar(191)",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "role": {
+                    "name": "role",
+                    "type": "varchar(256)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "content": {
+                    "name": "content",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "chat_id": {
+                    "name": "chat_id",
+                    "type": "varchar(256)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "messages_chat_id_chats_id_fk": {
+                    "name": "messages_chat_id_chats_id_fk",
+                    "tableFrom": "messages",
+                    "tableTo": "chats",
+                    "columnsFrom": ["chat_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
             "compositePrimaryKeys": {},
             "uniqueConstraints": {}
         },

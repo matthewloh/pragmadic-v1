@@ -1,6 +1,6 @@
 "use client"
+import { useState, useEffect, useRef } from "react"
 import { CornerDownLeft, Mic, Paperclip } from "lucide-react"
-
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -10,41 +10,105 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
-
 import { useChat } from "ai/react"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-export function ChatComponent() {
+import { motion, AnimatePresence } from "framer-motion"
+import { cn } from "@/lib/utils"
+
+type ReferencedDocument = {
+    id: string
+    title: string
+    content: string
+    relevance: number
+}
+
+interface ChatComponentProps {
+    onDocumentsReferenced: (docs: ReferencedDocument[]) => void
+    isDocPanelOpen: boolean
+}
+
+export function ChatComponent({
+    onDocumentsReferenced,
+    isDocPanelOpen,
+}: ChatComponentProps) {
     const { messages, input, handleInputChange, handleSubmit } = useChat({
         api: "/api/chat",
         maxToolRoundtrips: 2,
     })
+    const scrollAreaRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (scrollAreaRef.current) {
+            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
+        }
+    }, [messages])
+
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        handleSubmit(e)
+        // Simulate document referencing (replace with actual logic)
+        setTimeout(() => {
+            onDocumentsReferenced([
+                {
+                    id: "1",
+                    title: "Sample Document",
+                    content: "This is a sample referenced document.",
+                    relevance: 0.95,
+                },
+            ])
+        }, 1000)
+    }
 
     return (
-        <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-4 lg:col-span-2">
-            <Badge variant="outline" className="absolute right-3 top-3">
-                Output
-            </Badge>
-            <div className="flex-1 overflow-auto">
-                <ScrollArea className="h-full">
-                    {messages.map((m) => (
-                        <div key={m.id} className="mb-4 whitespace-pre-wrap">
-                            <div className="font-bold">{m.role}</div>
-                            {m.content.length > 0 ? (
-                                <Markdown>{m.content}</Markdown>
-                            ) : (
-                                <span className="font-light italic">
-                                    {"calling tool: " +
-                                        m?.toolInvocations?.[0].toolName}
-                                </span>
-                            )}
-                        </div>
-                    ))}
+        <div className="flex h-full flex-col">
+            <div className="relative flex-1 overflow-hidden">
+                <Badge
+                    variant="outline"
+                    className="absolute right-3 top-3 z-10"
+                >
+                    Output
+                </Badge>
+                <ScrollArea className="h-full pr-4" ref={scrollAreaRef}>
+                    <AnimatePresence initial={false}>
+                        {messages.map((m) => (
+                            <motion.div
+                                key={m.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.3 }}
+                                className={cn(
+                                    "mb-4 rounded-lg p-3",
+                                    m.role === "user"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "bg-muted",
+                                )}
+                            >
+                                <div className="mb-1 font-bold">
+                                    {m.role === "user" ? "You" : "Assistant"}
+                                </div>
+                                {m.content.length > 0 ? (
+                                    <Markdown className="prose dark:prose-invert">
+                                        {m.content}
+                                    </Markdown>
+                                ) : (
+                                    <span className="font-light italic">
+                                        {"Calling tool: " +
+                                            m?.toolInvocations?.[0].toolName}
+                                    </span>
+                                )}
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 </ScrollArea>
             </div>
-            <form
-                onSubmit={handleSubmit}
-                className="relative overflow-hidden rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring"
+            <motion.form
+                onSubmit={handleFormSubmit}
+                className="relative mt-4 overflow-hidden rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring"
+                initial={false}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
             >
                 <Label htmlFor="message" className="sr-only">
                     Message
@@ -82,40 +146,7 @@ export function ChatComponent() {
                         <CornerDownLeft className="size-3.5" />
                     </Button>
                 </div>
-            </form>
+            </motion.form>
         </div>
     )
 }
-
-// <div className="stretch mx-auto flex w-full max-w-md flex-col py-24">
-//     <div className="space-y-4">
-//         {messages.map((m) => (
-//             <div key={m.id} className="whitespace-pre-wrap">
-//                 <div>
-//                     <div className="font-bold">{m.role}</div>
-//                     <p>
-//                         {m.content.length > 0 ? (
-//                             m.content
-//                         ) : (
-//                             <span className="font-light italic">
-//                                 {"calling tool: " +
-//                                     m?.toolInvocations?.[0].toolName}
-//                             </span>
-//                         )}
-//                     </p>
-//                 </div>
-//             </div>
-//         ))}
-//     </div>
-
-//     <form onSubmit={handleSubmit}>
-//         <input
-//             className="fixed bottom-0 mb-8 w-full max-w-md rounded border border-gray-300 p-2 shadow-xl"
-//             value={input}
-//             placeholder="Say something..."
-//             onChange={handleInputChange}
-//         />
-//     </form>
-// </div>
-// )
-// }

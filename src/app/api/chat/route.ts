@@ -37,6 +37,12 @@ export async function POST(req: Request) {
                 execute: async ({ question }) => findRelevantContent(question),
             }),
         },
+        async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
+            // implement your own storage logic:
+            // await saveChat({ text, toolCalls, toolResults });
+            console.log(messages)
+            console.log({ text, toolCalls, toolResults, usage, finishReason })
+        },
     })
 
     return result.toDataStreamResponse()

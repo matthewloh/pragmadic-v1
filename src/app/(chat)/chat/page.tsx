@@ -1,518 +1,160 @@
-import {
-    Bird,
-    Book,
-    Bot,
-    Code2,
-    Home,
-    LifeBuoy,
-    Rabbit,
-    Settings,
-    Settings2,
-    Share,
-    Triangle,
-    Turtle,
-} from "lucide-react"
-import { AiFillOpenAI } from "react-icons/ai"
+"use client"
+
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import {
-    Drawer,
-    DrawerContent,
-    DrawerDescription,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-} from "@/components/ui/drawer"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
-import Link from "next/link"
-import UserButtonSupabase from "@/features/auth/components/UserButtonSupabase"
 import { ChatComponent } from "@/features/chat/components/ChatComponent"
-import Image from "next/image"
+import ChatHeader from "@/features/chat/components/ChatHeader"
+import {
+    ResizableHandle,
+    ResizablePanel,
+    ResizablePanelGroup,
+} from "@/components/ui/resizable"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { X, Maximize2 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 type ChatPageSearchParams = {
     model?: string
+    chatId?: string
+}
+
+type ReferencedDocument = {
+    id: string
+    title: string
+    content: string
+    relevance: number
 }
 
 export default function ChatPage({
-    searchParams: { model },
+    searchParams,
 }: {
     searchParams: ChatPageSearchParams
 }) {
-    const modelString = model ? `- ${model}` : ""
+    const modelString = searchParams.model ? `- ${searchParams.model}` : ""
+    const chatId = searchParams.chatId ? searchParams.chatId : ""
+
+    const [referencedDocs, setReferencedDocs] = useState<ReferencedDocument[]>(
+        [],
+    )
+    const [isDocPanelOpen, setIsDocPanelOpen] = useState(true)
+    const [isTransitioning, setIsTransitioning] = useState(false)
+
+    useEffect(() => {
+        setIsTransitioning(true)
+        const timer = setTimeout(() => setIsTransitioning(false), 300) // Match this with the CSS transition duration
+        return () => clearTimeout(timer)
+    }, [isDocPanelOpen])
+
+    const updateReferencedDocs = (newDocs: ReferencedDocument[]) => {
+        setReferencedDocs(newDocs)
+        if (newDocs.length > 0 && !isDocPanelOpen) {
+            setIsDocPanelOpen(true)
+        }
+    }
+
     return (
-        <div className="grid h-screen w-full pl-[56px]">
-            <aside className="inset-y fixed left-0 z-20 flex h-full flex-col border-r">
-                <div className="border-b p-2">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Home"
-                        className="h-10 w-10 rounded-lg p-0"
+        <div className="flex h-screen w-full flex-col">
+            <ChatHeader modelString={modelString} />
+            <div className="flex-1 overflow-hidden">
+                <ResizablePanelGroup direction="horizontal" className="h-full">
+                    <ResizablePanel
+                        defaultSize={70}
+                        minSize={50}
+                        maxSize={100}
+                        className={cn(
+                            "transition-all duration-300 ease-in-out",
+                            isTransitioning && "resize-none",
+                        )}
                     >
-                        <Link href="/dashboard">
-                            <div className="relative h-6 w-6">
-                                <Image
-                                    src="/pragmadic.svg"
-                                    fill
-                                    sizes="32px"
-                                    alt="PRAGmadic Logo"
-                                    className="object-contain"
-                                    priority
-                                />
-                            </div>
-                        </Link>
-                    </Button>
-                </div>
-                <nav className="grid gap-1 p-2">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                asChild
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-lg"
-                                aria-label="Home"
-                            >
-                                <Link href="/">
-                                    <Home className="size-5" />
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" sideOffset={5}>
-                            Home
-                        </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
+                        <div className="container mx-auto h-full overflow-auto p-4 animate-in">
+                            <ChatComponent
+                                onDocumentsReferenced={updateReferencedDocs}
+                                isDocPanelOpen={isDocPanelOpen}
+                            />
+                        </div>
+                    </ResizablePanel>
+                    <ResizableHandle
+                        withHandle
+                        className={cn(
+                            "transition-opacity duration-300 ease-in-out",
+                            !isDocPanelOpen && "pointer-events-none opacity-0",
+                        )}
+                    />
+                    <ResizablePanel
+                        defaultSize={30}
+                        minSize={0}
+                        maxSize={50}
+                        className={cn(
+                            "transition-all duration-300 ease-in-out",
+                            !isDocPanelOpen && "w-0 min-w-0 max-w-0 opacity-0",
+                            isTransitioning && "resize-none",
+                        )}
+                    >
+                        <div
+                            className={cn(
+                                "relative h-full overflow-hidden transition-all duration-300 ease-in-out",
+                                !isDocPanelOpen &&
+                                    "pointer-events-none opacity-0",
+                            )}
+                        >
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="rounded-lg"
-                                aria-label="Models"
+                                className="absolute right-2 top-2 z-10"
+                                onClick={() => setIsDocPanelOpen(false)}
                             >
-                                <Bot className="size-5" />
+                                <X className="h-4 w-4" />
                             </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" sideOffset={5}>
-                            Models
-                        </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-lg"
-                                aria-label="API"
-                            >
-                                <Code2 className="size-5" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" sideOffset={5}>
-                            API
-                        </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-lg"
-                                aria-label="Documentation"
-                            >
-                                <Book className="size-5" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" sideOffset={5}>
-                            Documentation
-                        </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-lg"
-                                aria-label="Settings"
-                            >
-                                <Settings2 className="size-5" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" sideOffset={5}>
-                            Settings
-                        </TooltipContent>
-                    </Tooltip>
-                </nav>
-                <nav className="mt-auto grid gap-1 p-2">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="mt-auto rounded-lg"
-                                aria-label="Help"
-                            >
-                                <LifeBuoy className="size-5" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" sideOffset={5}>
-                            Help
-                        </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div>
-                                <UserButtonSupabase className="" />
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" sideOffset={5}>
-                            Account
-                        </TooltipContent>
-                    </Tooltip>
-                </nav>
-            </aside>
-            <div className="flex flex-col">
-                <header className="sticky top-0 z-10 flex h-[57px] items-center gap-1 border-b bg-background px-4">
-                    <h1 className="text-xl font-semibold">{`RAG Chat ${modelString}`}</h1>
-                    <Drawer>
-                        <DrawerTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="md:hidden"
-                            >
-                                <Settings className="size-4" />
-                                <span className="sr-only">Settings</span>
-                            </Button>
-                        </DrawerTrigger>
-                        <DrawerContent className="max-h-[80vh]">
-                            <DrawerHeader>
-                                <DrawerTitle>Configuration</DrawerTitle>
-                                <DrawerDescription>
-                                    Configure the settings for the model and
-                                    messages.
-                                </DrawerDescription>
-                            </DrawerHeader>
-                            <form className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
-                                <fieldset className="grid gap-6 rounded-lg border p-4">
-                                    <legend className="-ml-1 px-1 text-sm font-medium">
-                                        Settings
-                                    </legend>
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="model">Model</Label>
-                                        <Select>
-                                            <SelectTrigger
-                                                id="model"
-                                                className="items-start [&_[data-description]]:hidden"
+                            <ScrollArea className="h-full p-4">
+                                <h2 className="mb-4 text-lg font-semibold">
+                                    Referenced Documents
+                                </h2>
+                                {referencedDocs.length > 0 ? (
+                                    <ul className="space-y-4">
+                                        {referencedDocs.map((doc) => (
+                                            <li
+                                                key={doc.id}
+                                                className="rounded-lg border p-4"
                                             >
-                                                <SelectValue placeholder="Select a model" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="genesis">
-                                                    <div className="flex items-start gap-3 text-muted-foreground">
-                                                        <AiFillOpenAI className="size-5" />
-                                                        {/* <Rabbit className="size-5" /> */}
-                                                        <div className="grid gap-0.5">
-                                                            <p>
-                                                                OpenAI{" "}
-                                                                <span className="font-medium text-foreground">
-                                                                    GPT-4o-Mini
-                                                                </span>
-                                                            </p>
-                                                            <p
-                                                                className="text-xs"
-                                                                data-description
-                                                            >
-                                                                Our fastest
-                                                                model for
-                                                                general use
-                                                                cases.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </SelectItem>
-                                                <SelectItem value="explorer">
-                                                    <div className="flex items-start gap-3 text-muted-foreground">
-                                                        <Bird className="size-5" />
-                                                        <div className="grid gap-0.5">
-                                                            <p>
-                                                                Neural{" "}
-                                                                <span className="font-medium text-foreground">
-                                                                    Explorer
-                                                                </span>
-                                                            </p>
-                                                            <p
-                                                                className="text-xs"
-                                                                data-description
-                                                            >
-                                                                Performance and
-                                                                speed for
-                                                                efficiency.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </SelectItem>
-                                                <SelectItem value="quantum">
-                                                    <div className="flex items-start gap-3 text-muted-foreground">
-                                                        <Turtle className="size-5" />
-                                                        <div className="grid gap-0.5">
-                                                            <p>
-                                                                Neural{" "}
-                                                                <span className="font-medium text-foreground">
-                                                                    Quantum
-                                                                </span>
-                                                            </p>
-                                                            <p
-                                                                className="text-xs"
-                                                                data-description
-                                                            >
-                                                                The most
-                                                                powerful model
-                                                                for complex
-                                                                computations.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="temperature">
-                                            Temperature
-                                        </Label>
-                                        <Input
-                                            id="temperature"
-                                            type="number"
-                                            placeholder="0.4"
-                                        />
-                                    </div>
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="top-p">Top P</Label>
-                                        <Input
-                                            id="top-p"
-                                            type="number"
-                                            placeholder="0.7"
-                                        />
-                                    </div>
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="top-k">Top K</Label>
-                                        <Input
-                                            id="top-k"
-                                            type="number"
-                                            placeholder="0.0"
-                                        />
-                                    </div>
-                                </fieldset>
-                                <fieldset className="grid gap-6 rounded-lg border p-4">
-                                    <legend className="-ml-1 px-1 text-sm font-medium">
-                                        Messages
-                                    </legend>
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="role">Role</Label>
-                                        <Select defaultValue="system">
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select a role" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="system">
-                                                    System
-                                                </SelectItem>
-                                                <SelectItem value="user">
-                                                    User
-                                                </SelectItem>
-                                                <SelectItem value="assistant">
-                                                    Assistant
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="content">Content</Label>
-                                        <Textarea
-                                            id="content"
-                                            placeholder="You are a..."
-                                        />
-                                    </div>
-                                </fieldset>
-                            </form>
-                        </DrawerContent>
-                    </Drawer>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="ml-auto gap-1.5 text-sm"
-                    >
-                        <Share className="size-3.5" />
-                        Share
-                    </Button>
-                </header>
-                <main className="grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3">
-                    <div
-                        className="relative hidden flex-col items-start gap-8 md:flex"
-                        x-chunk="dashboard-03-chunk-0"
-                    >
-                        <form className="grid w-full items-start gap-6">
-                            <fieldset className="grid gap-6 rounded-lg border p-4">
-                                <legend className="-ml-1 px-1 text-sm font-medium">
-                                    Settings
-                                </legend>
-                                <div className="grid gap-3">
-                                    <Label htmlFor="model">Model</Label>
-                                    <Select>
-                                        <SelectTrigger
-                                            id="model"
-                                            className="items-start [&_[data-description]]:hidden"
-                                        >
-                                            <SelectValue placeholder="Select a model" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="genesis">
-                                                <div className="flex items-start gap-3 text-muted-foreground">
-                                                    <AiFillOpenAI className="size-5" />
-                                                    {/* <Rabbit className="size-5" /> */}
-                                                    <div className="grid gap-0.5">
-                                                        <p>
-                                                            OpenAI{" "}
-                                                            <span className="font-medium text-foreground">
-                                                                GPT-4o-Mini
-                                                            </span>
-                                                        </p>
-                                                        <p
-                                                            className="text-xs"
-                                                            data-description
-                                                        >
-                                                            Our fastest model
-                                                            for general use
-                                                            cases.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </SelectItem>
-                                            <SelectItem value="explorer">
-                                                <div className="flex items-start gap-3 text-muted-foreground">
-                                                    <Bird className="size-5" />
-                                                    <div className="grid gap-0.5">
-                                                        <p>
-                                                            Neural{" "}
-                                                            <span className="font-medium text-foreground">
-                                                                Explorer
-                                                            </span>
-                                                        </p>
-                                                        <p
-                                                            className="text-xs"
-                                                            data-description
-                                                        >
-                                                            Performance and
-                                                            speed for
-                                                            efficiency.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </SelectItem>
-                                            <SelectItem value="quantum">
-                                                <div className="flex items-start gap-3 text-muted-foreground">
-                                                    <Turtle className="size-5" />
-                                                    <div className="grid gap-0.5">
-                                                        <p>
-                                                            Neural{" "}
-                                                            <span className="font-medium text-foreground">
-                                                                Quantum
-                                                            </span>
-                                                        </p>
-                                                        <p
-                                                            className="text-xs"
-                                                            data-description
-                                                        >
-                                                            The most powerful
-                                                            model for complex
-                                                            computations.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid gap-3">
-                                    <Label htmlFor="temperature">
-                                        Temperature
-                                    </Label>
-                                    <Input
-                                        id="temperature"
-                                        type="number"
-                                        placeholder="0.4"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="top-p">Top P</Label>
-                                        <Input
-                                            id="top-p"
-                                            type="number"
-                                            placeholder="0.7"
-                                        />
-                                    </div>
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="top-k">Top K</Label>
-                                        <Input
-                                            id="top-k"
-                                            type="number"
-                                            placeholder="0.0"
-                                        />
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <fieldset className="grid gap-6 rounded-lg border p-4">
-                                <legend className="-ml-1 px-1 text-sm font-medium">
-                                    Messages
-                                </legend>
-                                <div className="grid gap-3">
-                                    <Label htmlFor="role">Role</Label>
-                                    <Select defaultValue="system">
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a role" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="system">
-                                                System
-                                            </SelectItem>
-                                            <SelectItem value="user">
-                                                User
-                                            </SelectItem>
-                                            <SelectItem value="assistant">
-                                                Assistant
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid gap-3">
-                                    <Label htmlFor="content">Content</Label>
-                                    <Textarea
-                                        id="content"
-                                        placeholder="You are a..."
-                                        className="min-h-[9.5rem]"
-                                    />
-                                </div>
-                            </fieldset>
-                        </form>
-                    </div>
-                    <ChatComponent />
-                </main>
+                                                <h3 className="mb-2 font-medium">
+                                                    {doc.title}
+                                                </h3>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {doc.content.substring(
+                                                        0,
+                                                        150,
+                                                    )}
+                                                    ...
+                                                </p>
+                                                <span className="mt-2 inline-block text-xs text-muted-foreground">
+                                                    Relevance:{" "}
+                                                    {doc.relevance.toFixed(2)}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-muted-foreground">
+                                        No documents referenced yet.
+                                    </p>
+                                )}
+                            </ScrollArea>
+                        </div>
+                    </ResizablePanel>
+                </ResizablePanelGroup>
             </div>
+            <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                    "absolute bottom-4 right-4 transition-all duration-300 ease-in-out",
+                    isDocPanelOpen && "pointer-events-none opacity-0",
+                )}
+                onClick={() => setIsDocPanelOpen(true)}
+            >
+                <Maximize2 className="mr-2 h-4 w-4" />
+                Show References
+            </Button>
         </div>
     )
 }
