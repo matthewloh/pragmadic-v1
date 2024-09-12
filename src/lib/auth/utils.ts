@@ -32,7 +32,10 @@ export const getUserAuth = async (): Promise<AuthSession> => {
     const {
         data: { session },
     } = await supabase.auth.getSession()
-    if (!session) return { session: null }
+    if (!session?.user.id) {
+        redirect("/login")
+        return { session: null }
+    }
     return {
         session: {
             user: {

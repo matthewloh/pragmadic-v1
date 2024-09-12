@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button"
 export function useBackPath(currentResource: string) {
     const pathname = usePathname()
     const segmentCount = pathname.slice(1).split("/")
+    const currentResourceIndex = pathname.indexOf(currentResource)
     const backPath =
-        segmentCount.length > 2
-            ? pathname.slice(0, pathname.indexOf(currentResource) - 1)
+        segmentCount.length > 2 && currentResourceIndex !== -1
+            ? pathname.slice(0, currentResourceIndex - 1)
             : pathname.slice(0, pathname.indexOf(segmentCount[1]))
     return backPath
 }

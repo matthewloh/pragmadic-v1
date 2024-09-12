@@ -1,17 +1,36 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ChatComponent } from "@/features/chat/components/ChatComponent"
-import ChatHeader from "@/features/chat/components/ChatHeader"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
+import {
+    History,
+    Home,
+    LineChart,
+    Package,
+    Package2,
+    Settings,
+    ShoppingCart,
+    Users2,
+} from "lucide-react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+
 import {
     ResizableHandle,
     ResizablePanel,
     ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { X, Maximize2 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { ChatComponent } from "@/features/chat/components/ChatComponent"
+import ChatHeader from "@/features/chat/components/ChatHeader"
+import { Maximize2, X } from "lucide-react"
+import { AiFillOpenAI } from "react-icons/ai"
+import ChatSettingsSidebarIconComponent from "@/features/chat/components/ChatSettingsSidebarIconComponent"
 
 type ChatPageSearchParams = {
     model?: string
@@ -57,6 +76,40 @@ export default function ChatPage({
             <ChatHeader modelString={modelString} />
             <div className="flex-1 overflow-hidden">
                 <ResizablePanelGroup direction="horizontal" className="h-full">
+                    <aside className="hidden w-[60px] flex-col border-r bg-background sm:flex">
+                        <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
+                            {/* <Link
+                                href="#"
+                                className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
+                            >
+                                <History className="h-4 w-4 transition-all group-hover:scale-110" />
+                                <span className="sr-only">Acme Inc</span>
+                            </Link> */}
+                            <ChatSettingsSidebarIconComponent
+                                icon={Home}
+                                label="Home"
+                                href="/dashboard"
+                            />
+                            <ChatSettingsSidebarIconComponent
+                                icon={AiFillOpenAI}
+                                label="Models"
+                                href={`/models`}
+                            />
+
+                            <ChatSettingsSidebarIconComponent
+                                icon={History}
+                                label="History"
+                                href="/chat/history"
+                            />
+                        </nav>
+                        <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+                            <ChatSettingsSidebarIconComponent
+                                icon={Settings}
+                                label="Settings"
+                                href="/chat/settings"
+                            />
+                        </nav>
+                    </aside>
                     <ResizablePanel
                         defaultSize={70}
                         minSize={50}

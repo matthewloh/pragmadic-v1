@@ -1,20 +1,20 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
-import { CornerDownLeft, Mic, Paperclip } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import Markdown from "react-markdown"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useChat } from "ai/react"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useChat } from "ai/react"
+import { AnimatePresence, motion } from "framer-motion"
+import { CornerDownLeft, Mic, Paperclip } from "lucide-react"
+import { useEffect, useRef } from "react"
+import Markdown from "react-markdown"
 
 type ReferencedDocument = {
     id: string
@@ -65,11 +65,11 @@ export function ChatComponent({
             <div className="relative flex-1 overflow-hidden">
                 <Badge
                     variant="outline"
-                    className="absolute right-3 top-3 z-10"
+                    className="absolute right-4 top-2 z-10"
                 >
                     Output
                 </Badge>
-                <ScrollArea className="h-full pr-4" ref={scrollAreaRef}>
+                <ScrollArea className="mt-10 h-full pr-4" ref={scrollAreaRef}>
                     <AnimatePresence initial={false}>
                         {messages.map((m) => (
                             <motion.div
