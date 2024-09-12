@@ -34,10 +34,16 @@ export const profile = pgTable("profile", {
 const baseSchema = createSelectSchema(profile).omit(timestamps)
 
 export const insertProfileSchema = createInsertSchema(profile).omit(timestamps)
-export const insertProfileParams = baseSchema.extend({}).omit({
-    id: true,
-    userId: true,
-})
+export const insertProfileParams = baseSchema
+    .extend({
+        bio: z.string().min(1).describe("Your bio is incomplete"),
+        website: z.string().min(1),
+        userId: z.string().min(1),
+    })
+    .omit({
+        id: true,
+        userId: true,
+    })
 
 export const updateProfileSchema = baseSchema
 export const updateProfileParams = baseSchema.extend({}).omit({

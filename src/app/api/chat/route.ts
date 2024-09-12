@@ -8,8 +8,9 @@ import { z } from "zod"
 export const maxDuration = 30
 
 export async function POST(req: Request) {
-    const { messages } = await req.json()
-
+    const data = await req.json()
+    console.log(data)
+    const messages = data.messages
     const result = await streamText({
         model: openai("gpt-4o-mini"),
         system: `You are a helpful assistant. Check your knowledge base before answering any questions.

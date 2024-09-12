@@ -2,23 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import {
-    History,
-    Home,
-    LineChart,
-    Package,
-    Package2,
-    Settings,
-    ShoppingCart,
-    Users2,
-} from "lucide-react"
-import Link from "next/link"
+import { History, Home, Settings } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import {
@@ -27,15 +12,10 @@ import {
     ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { ChatComponent } from "@/features/chat/components/ChatComponent"
-import ChatHeader from "@/features/chat/components/ChatHeader"
+import ChatSettingsSidebarIconComponent from "@/features/chat/components/ChatSettingsSidebarIconComponent"
 import { Maximize2, X } from "lucide-react"
 import { AiFillOpenAI } from "react-icons/ai"
-import ChatSettingsSidebarIconComponent from "@/features/chat/components/ChatSettingsSidebarIconComponent"
-
-type ChatPageSearchParams = {
-    model?: string
-    chatId?: string
-}
+import { CreateChatAction } from "@/lib/actions/chats"
 
 type ReferencedDocument = {
     id: string
@@ -44,14 +24,11 @@ type ReferencedDocument = {
     relevance: number
 }
 
-export default function ChatPage({
-    searchParams,
+export default function ChatContentClient({
+    createChatAction,
 }: {
-    searchParams: ChatPageSearchParams
+    createChatAction: CreateChatAction
 }) {
-    const modelString = searchParams.model ? `- ${searchParams.model}` : ""
-    const chatId = searchParams.chatId ? searchParams.chatId : ""
-
     const [referencedDocs, setReferencedDocs] = useState<ReferencedDocument[]>(
         [],
     )
@@ -72,8 +49,7 @@ export default function ChatPage({
     }
 
     return (
-        <div className="flex h-screen w-full flex-col">
-            <ChatHeader modelString={modelString} />
+        <>
             <div className="flex-1 overflow-hidden">
                 <ResizablePanelGroup direction="horizontal" className="h-full">
                     <aside className="hidden w-[60px] flex-col border-r bg-background sm:flex">
@@ -119,10 +95,11 @@ export default function ChatPage({
                             isTransitioning && "resize-none",
                         )}
                     >
-                        <div className="container mx-auto h-full overflow-auto p-4 animate-in">
+                        <div className="container mx-auto h-full overflow-auto bg-emerald-800 p-4 animate-in">
                             <ChatComponent
                                 onDocumentsReferenced={updateReferencedDocs}
                                 isDocPanelOpen={isDocPanelOpen}
+                                createChatAction={createChatAction}
                             />
                         </div>
                     </ResizablePanel>
@@ -208,6 +185,6 @@ export default function ChatPage({
                 <Maximize2 className="mr-2 h-4 w-4" />
                 Show References
             </Button>
-        </div>
+        </>
     )
 }

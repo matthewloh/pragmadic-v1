@@ -9,6 +9,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { CreateChatAction } from "@/lib/actions/chats"
 import { cn } from "@/lib/utils"
 import { useChat } from "ai/react"
 import { AnimatePresence, motion } from "framer-motion"
@@ -26,11 +27,13 @@ type ReferencedDocument = {
 interface ChatComponentProps {
     onDocumentsReferenced: (docs: ReferencedDocument[]) => void
     isDocPanelOpen: boolean
+    createChatAction: CreateChatAction
 }
 
 export function ChatComponent({
     onDocumentsReferenced,
     isDocPanelOpen,
+    createChatAction,
 }: ChatComponentProps) {
     const { messages, input, handleInputChange, handleSubmit } = useChat({
         api: "/api/chat",
@@ -46,7 +49,11 @@ export function ChatComponent({
 
     const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        handleSubmit(e)
+        handleSubmit(e, {
+            body: {
+                chatId: "123",
+            },
+        })
         // Simulate document referencing (replace with actual logic)
         setTimeout(() => {
             onDocumentsReferenced([

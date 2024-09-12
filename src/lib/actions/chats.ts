@@ -52,3 +52,5 @@ export const deleteChatAction = async (input: ChatId) => {
         return handleErrors(e)
     }
 }
+
+export type CreateChatAction = typeof createChatAction
