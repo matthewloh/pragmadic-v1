@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation"
 
 export default function NotFound() {
     const pathname = usePathname()
-    console.log(pathname)
     return (
         <div className="flex min-h-screen min-w-full flex-col bg-background">
             <main className="flex flex-grow items-center justify-center px-4 sm:px-6 lg:px-8">

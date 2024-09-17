@@ -3,19 +3,22 @@ import { findRelevantContent } from "@/lib/ai/embeddings"
 import { openai } from "@ai-sdk/openai"
 import { convertToCoreMessages, streamText, tool } from "ai"
 import { z } from "zod"
-
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
-
-export async function POST(req: Request) {
+export async function POST(
+    req: Request,
+    { params }: { params: { chatId: string } },
+) {
     const data = await req.json()
+    const chatId = params.chatId
+    console.log(chatId)
     console.log(data)
     const messages = data.messages
     const result = await streamText({
         model: openai("gpt-4o-mini"),
         system: `You are a helpful assistant. Check your knowledge base before answering any questions.
     Only respond to questions using information from tool calls. Prioritize using the tools to answer questions.
-    if no relevant information is found in the tool calls, respond, "Sorry, I don't know.". Attempt to use tools before responding.`,
+    if no relevant information is found in the tool calls, respond, "Sorry, I don't know.". Attempt to use tools before responding.Preface each message with the chatID ${chatId}`,
         messages: convertToCoreMessages(messages),
         tools: {
             addResource: tool({
@@ -41,7 +44,7 @@ export async function POST(req: Request) {
         async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
             // implement your own storage logic:
             // await saveChat({ text, toolCalls, toolResults });
-            console.log(messages)
+            console.log(messages, chatId)
             console.log({ text, toolCalls, toolResults, usage, finishReason })
         },
     })

@@ -36,8 +36,9 @@ export function ChatComponent({
     createChatAction,
 }: ChatComponentProps) {
     const { messages, input, handleInputChange, handleSubmit } = useChat({
-        api: "/api/chat",
+        api: "/api/chat/1234",
         maxToolRoundtrips: 2,
+        body: { message: "Hello" },
     })
     const scrollAreaRef = useRef<HTMLDivElement>(null)
 
@@ -47,13 +48,14 @@ export function ChatComponent({
         }
     }, [messages])
 
-    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        handleSubmit(e, {
-            body: {
-                chatId: "123",
-            },
-        })
+        // const newChat = await createChatAction({
+        //     name: "Sample Chat",
+        //     description: "This is a sample chat.",
+        // })
+        // console.log("New chat created:", newChat)
+        handleSubmit(e)
         // Simulate document referencing (replace with actual logic)
         setTimeout(() => {
             onDocumentsReferenced([
