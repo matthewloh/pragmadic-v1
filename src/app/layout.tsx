@@ -5,6 +5,7 @@ import NextTopLoader from "nextjs-toploader"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
 import { Providers } from "@/components/providers"
+import { TailwindIndicator } from "@/components/tailwind-indicator"
 const fontSans = FontSans({
     subsets: ["latin"],
     variable: "--font-sans",
@@ -40,6 +41,7 @@ export default function RootLayout({
             >
                 <Providers>
                     <NextTopLoader />
+                    <TailwindIndicator />
                     {children}
                     <Toaster />
                 </Providers>

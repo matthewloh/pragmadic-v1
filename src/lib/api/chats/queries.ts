@@ -3,6 +3,7 @@ import { eq, and } from "drizzle-orm"
 import { getUserAuth } from "@/lib/auth/utils"
 import { type ChatId, chatIdSchema, chats } from "@/lib/db/schema/chats"
 import { messages, type CompleteMessage } from "@/lib/db/schema/messages"
+import { UserId } from "@/lib/db/schema"
 
 export const getChats = async () => {
     const { session } = await getUserAuth()

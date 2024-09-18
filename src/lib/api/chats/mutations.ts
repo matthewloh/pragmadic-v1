@@ -67,3 +67,23 @@ export const deleteChat = async (id: ChatId) => {
         throw { error: message }
     }
 }
+
+export const saveChat = async (id: ChatId) => {
+    const { session } = await getUserAuth()
+    const { id: chatId } = chatIdSchema.parse({ id })
+    try {
+        const [c] = await db
+            .insert(chats)
+            .values({ id: chatId!, userId: session?.user.id! })
+            .onConflictDoUpdate({
+                target: chats.id,
+                set: { updatedAt: new Date() },
+            })
+            .returning()
+        return { chat: c }
+    } catch (err) {
+        const message = (err as Error).message ?? "Error, please try again"
+        console.error(message)
+        throw { error: message }
+    }
+}

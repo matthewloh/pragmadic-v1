@@ -1,3 +1,4 @@
+import { timestamps } from "@/lib/utils"
 import { sql } from "drizzle-orm"
 import {
     pgSchema,
@@ -7,6 +8,8 @@ import {
     uuid,
     varchar,
 } from "drizzle-orm/pg-core"
+import { createSelectSchema } from "drizzle-zod"
+import { z } from "zod"
 
 const authSchema = pgSchema("auth")
 
@@ -27,3 +30,6 @@ export const users = pgTable("user", {
 })
 
 export type SelectUser = typeof users.$inferSelect
+const baseSchema = createSelectSchema(users)
+export const userIdSchema = baseSchema.pick({ id: true })
+export type UserId = z.infer<typeof userIdSchema>["id"]

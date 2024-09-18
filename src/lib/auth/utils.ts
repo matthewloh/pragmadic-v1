@@ -26,7 +26,15 @@ export const checkAuth = async () => {
     } = await getSession()
     if (!session) redirect("/login")
 }
-
+export type Session = {
+    session: {
+        user: {
+            id: string
+            email: string
+            user_metadata: UserMetadata
+        }
+    }
+}
 export const getUserAuth = async (): Promise<AuthSession> => {
     const supabase = createClient()
     const {

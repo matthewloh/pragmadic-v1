@@ -2,6 +2,9 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarLayout } from "@/components/ui/sidebar"
 import { cookies } from "next/headers"
 
+
+
+
 export default function ChatLayout({
     children,
 }: {
