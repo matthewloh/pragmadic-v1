@@ -1,5 +1,7 @@
 import { createResource } from "@/lib/actions/resources"
 import { findRelevantContent } from "@/lib/ai/embeddings"
+import { createChatWithMessages } from "@/lib/api/chats/mutations"
+import { db } from "@/lib/db"
 import { openai } from "@ai-sdk/openai"
 import { convertToCoreMessages, streamText, tool } from "ai"
 import { z } from "zod"
@@ -11,8 +13,6 @@ export async function POST(
 ) {
     const data = await req.json()
     const chatId = params.chatId
-    console.log(chatId)
-    console.log(data)
     const messages = data.messages
     const result = await streamText({
         model: openai("gpt-4o-mini"),
@@ -45,7 +45,16 @@ export async function POST(
             // implement your own storage logic:
             // await saveChat({ text, toolCalls, toolResults });
             console.log(messages, chatId)
-            console.log({ text, toolCalls, toolResults, usage, finishReason })
+            // await createChatWithMessages(
+            //     {
+            //         id: chatId,
+            //         name: `Chat For ${chatId}`,
+            //         description: "wip",
+            //     },
+            //     messages,
+            // )
+            console.log(text)
+            // console.log({ text, toolCalls, toolResults, usage, finishReason })
         },
     })
 

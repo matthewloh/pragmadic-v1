@@ -22,11 +22,11 @@ type ReferencedDocument = {
     relevance: number
 }
 
-export default function ChatContentClient({
-    createChatAction,
-}: {
-    createChatAction: CreateChatAction
-}) {
+type ChatContentProps = {
+    chatId: string
+}
+
+export default function ChatContentClient({ chatId }: ChatContentProps) {
     const [referencedDocs, setReferencedDocs] = useState<ReferencedDocument[]>(
         [],
     )
@@ -64,7 +64,7 @@ export default function ChatContentClient({
                             <ChatComponent
                                 onDocumentsReferenced={updateReferencedDocs}
                                 isDocPanelOpen={isDocPanelOpen}
-                                createChatAction={createChatAction}
+                                chatId={chatId}
                             />
                         </div>
                     </ResizablePanel>

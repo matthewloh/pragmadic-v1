@@ -78,9 +78,9 @@ const ChatForm = ({
         const pendingChat: Chat = {
             updatedAt: chat?.updatedAt ?? new Date(),
             createdAt: chat?.createdAt ?? new Date(),
-            id: chat?.id ?? "",
             userId: chat?.userId ?? "",
             ...values,
+            id: chat?.id ?? "",
         }
         try {
             startMutation(async () => {

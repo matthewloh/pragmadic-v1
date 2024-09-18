@@ -29,13 +29,9 @@ export const messages = pgTable("messages", {
 const baseSchema = createSelectSchema(messages).omit(timestamps)
 
 export const insertMessageSchema = createInsertSchema(messages).omit(timestamps)
-export const insertMessageParams = baseSchema
-    .extend({
-        chatId: z.coerce.string().min(1),
-    })
-    .omit({
-        id: true,
-    })
+export const insertMessageParams = baseSchema.extend({}).omit({
+    id: true,
+})
 
 export const updateMessageSchema = baseSchema
 export const updateMessageParams = baseSchema.extend({

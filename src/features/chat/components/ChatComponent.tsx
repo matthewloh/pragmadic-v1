@@ -10,7 +10,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { CreateChatAction } from "@/lib/actions/chats"
-import { cn } from "@/lib/utils"
+import { cn, nanoid } from "@/lib/utils"
 import { useChat } from "ai/react"
 import { AnimatePresence, motion } from "framer-motion"
 import { CornerDownLeft, Mic, Paperclip } from "lucide-react"
@@ -27,18 +27,20 @@ type ReferencedDocument = {
 interface ChatComponentProps {
     onDocumentsReferenced: (docs: ReferencedDocument[]) => void
     isDocPanelOpen: boolean
-    createChatAction: CreateChatAction
+    chatId: string
 }
 
 export function ChatComponent({
     onDocumentsReferenced,
     isDocPanelOpen,
-    createChatAction,
+    chatId,
 }: ChatComponentProps) {
     const { messages, input, handleInputChange, handleSubmit } = useChat({
-        api: "/api/chat/1234",
+        api: `/api/chat/${chatId}`,
         maxToolRoundtrips: 2,
         body: { message: "Hello" },
+        id: chatId,
+        generateId: nanoid,
     })
     const scrollAreaRef = useRef<HTMLDivElement>(null)
 

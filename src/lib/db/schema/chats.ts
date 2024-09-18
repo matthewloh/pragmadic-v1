@@ -31,7 +31,6 @@ const baseSchema = createSelectSchema(chats).omit(timestamps)
 
 export const insertChatSchema = createInsertSchema(chats).omit(timestamps)
 export const insertChatParams = baseSchema.extend({}).omit({
-    id: true,
     userId: true,
 })
 
