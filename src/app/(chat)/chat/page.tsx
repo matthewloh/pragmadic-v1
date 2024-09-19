@@ -3,29 +3,20 @@ import { AI } from "@/lib/ai/actions"
 import { getUserAuth } from "@/lib/auth/utils"
 import { nanoid } from "@/lib/utils"
 
-type ChatPageSearchParams = {
-    model?: string
-    chatId?: string
+export const metadata = {
+    title: "RAG Chatbot",
 }
 
-export default async function ChatPage({
-    searchParams,
-    params,
-}: {
-    searchParams: ChatPageSearchParams
-    params: { chatId: string }
-}) {
-    const id = nanoid()
+export default async function ChatIndexPage() {
+    const chatId = nanoid()
     const session = await getUserAuth()
-    const modelString = searchParams.model ? `- ${searchParams.model}` : ""
-    const chatId = params.chatId ? params.chatId : ""
+    // const modelString = searchParams.model ? `- ${searchParams.model}` : ""
 
     return (
-        <AI initialAIState={{ chatId: id, messages: [] }}>
-            <div className="flex h-screen w-full flex-col">
-                <ChatRSC id={id} session={session} />
-                {/* server component */}
-                {/* <ChatHeader modelString={modelString} />
+        <AI initialAIState={{ chatId: chatId, messages: [] }}>
+            <ChatRSC id={chatId} session={session} />
+            {/* server component */}
+            {/* <ChatHeader modelString={modelString} />
                 {chatId ? (
                     <Suspense fallback={<div className="flex-1">Loading</div>}>
                         <ExistingChat chatId={chatId} />
@@ -33,7 +24,8 @@ export default async function ChatPage({
                 ) : (
                     <ChatContentClient createChatAction={createChatAction} />
                 )} */}
-            </div>
+            {/* <div className="flex h-screen w-full flex-col">
+            </div> */}
         </AI>
     )
 }

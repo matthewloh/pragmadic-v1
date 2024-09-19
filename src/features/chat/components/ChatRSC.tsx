@@ -63,12 +63,7 @@ export function ChatRSC({ id, className, session }: ChatProps) {
                 className={cn("pb-[200px] pt-4 md:pt-10", className)}
                 ref={messagesRef}
             >
-              <ChatList
-                  messages={messages}
-                  isShared={false}
-                  session={session}
-              />
-                {/* {messages.length ? (
+                {messages.length ? (
                     <ChatList
                         messages={messages}
                         isShared={false}
@@ -76,7 +71,7 @@ export function ChatRSC({ id, className, session }: ChatProps) {
                     />
                 ) : (
                     <EmptyScreen />
-                )} */}
+                )}
                 <div className="h-px w-full" ref={visibilityRef} />
             </div>
             <ChatPanel

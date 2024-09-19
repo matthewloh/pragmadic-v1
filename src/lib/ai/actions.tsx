@@ -59,6 +59,7 @@ async function submitUserMessage(content: string) {
     const result = await streamUI({
         model: openai("gpt-4o-mini"),
         initial: <SpinnerMessage />,
+        system: systemPrompt,
         messages: [
             ...aiState.get().messages.map((message: any) => ({
                 role: message.role,
@@ -109,7 +110,8 @@ async function submitUserMessage(content: string) {
                 generate: async function* ({ content }) {
                     yield <BotCard>Loading...</BotCard>
                     await sleep(1000)
-                    createResource({ content })
+                    // Call the execute function directly
+                    await createResource({ content }) // Updated to match new structure
                     const toolCallId = nanoid()
                     aiState.done({
                         ...aiState.get(),
@@ -145,7 +147,6 @@ async function submitUserMessage(content: string) {
                     return (
                         <BotCard>
                             <pre>{JSON.stringify(content)}</pre>
-                            {/* <Stocks props={stocks} /> */}
                         </BotCard>
                     )
                 },
@@ -158,7 +159,8 @@ async function submitUserMessage(content: string) {
                 generate: async function* ({ question }) {
                     yield <BotCard>Loading...</BotCard>
                     await sleep(1000)
-                    const result = findRelevantContent(question)
+                    // Call the execute function directly
+                    const result = await findRelevantContent(question) // Updated to match new structure
                     const toolCallId = nanoid()
                     aiState.done({
                         ...aiState.get(),
@@ -191,11 +193,7 @@ async function submitUserMessage(content: string) {
                         ],
                     })
 
-                    return (
-                        <BotCard>
-                            <pre>{JSON.stringify(result)}</pre>
-                        </BotCard>
-                    )
+                    return <BotCard>{result.map((r) => r.name)}</BotCard>
                 },
             },
         },

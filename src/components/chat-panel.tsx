@@ -35,24 +35,24 @@ export function ChatPanel({
 
     const exampleMessages = [
         {
-            heading: "What are the",
-            subheading: "trending memecoins today?",
-            message: `What are the trending memecoins today?`,
+            heading: "Tell me about",
+            subheading: "Derantau's features",
+            message: "What are the main features of Derantau?",
         },
         {
-            heading: "What is the price of",
-            subheading: "$DOGE right now?",
-            message: "What is the price of $DOGE right now?",
+            heading: "How can I",
+            subheading: "connect with digital nomads?",
+            message: "How can I connect with other digital nomads using Derantau?",
         },
         {
-            heading: "I would like to buy",
-            subheading: "42 $DOGE",
-            message: `I would like to buy 42 $DOGE`,
+            heading: "What are the best",
+            subheading: "coworking spaces in Bali?",
+            message: "What are the top-rated coworking spaces in Bali according to Derantau users?",
         },
         {
-            heading: "What are some",
-            subheading: `recent events about $DOGE?`,
-            message: `What are some recent events about $DOGE?`,
+            heading: "How do I",
+            subheading: "plan my nomad journey?",
+            message: "How can Derantau help me plan my digital nomad journey?",
         },
     ]
 
