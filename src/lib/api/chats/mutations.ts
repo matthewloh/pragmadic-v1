@@ -61,7 +61,7 @@ export async function createChatWithMessages(
                 ...message,
                 chatId: newChat.id,
             }))
-
+            console.log(messagesToInsert)
             await tx
                 .insert(messages)
                 .values(

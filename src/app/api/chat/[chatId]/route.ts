@@ -45,15 +45,21 @@ export async function POST(
             // implement your own storage logic:
             // await saveChat({ text, toolCalls, toolResults });
             console.log(messages, chatId)
-            // await createChatWithMessages(
-            //     {
-            //         id: chatId,
-            //         name: `Chat For ${chatId}`,
-            //         description: "wip",
-            //     },
-            //     messages,
-            // )
-            console.log(text)
+            const assistantResponse = {
+                role: "assistant",
+                content: text,
+            }
+            console.log(assistantResponse)
+            messages.push(assistantResponse)
+            console.log(messages)
+            await createChatWithMessages(
+                {
+                    id: chatId,
+                    name: `Chat For ${chatId}`,
+                    description: "wip",
+                },
+                messages,
+            )
             // console.log({ text, toolCalls, toolResults, usage, finishReason })
         },
     })
