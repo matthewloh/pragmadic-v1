@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm"
 import {
+    pgEnum,
     pgSchema,
     pgTable,
     text,
@@ -10,10 +11,11 @@ import {
 
 const authSchema = pgSchema("auth")
 
+export const userRoleEnum = pgEnum("user_role", ["regular", "owner", "admin"])
+
 export const authUsers = authSchema.table("users", {
     id: uuid("id").primaryKey(),
 })
-
 export const users = pgTable("user", {
     createdAt: timestamp("created_at").defaultNow(),
     id: uuid("id")
@@ -21,9 +23,10 @@ export const users = pgTable("user", {
         .primaryKey()
         .notNull()
         .references(() => authUsers.id, { onDelete: "cascade" }),
-    email: text("email"),
+    email: text("email").unique().notNull(),
     display_name: varchar("display_name", { length: 256 }),
     image_url: text("image_url"),
+    role: userRoleEnum("role").default("regular").notNull(),
 })
 
 export type SelectUser = typeof users.$inferSelect

@@ -82,19 +82,13 @@ const data = {
                     title: "Nomad Profile",
                     url: "/nomad-profile",
                     icon: UserPen,
-                    description: "Manage your profile",
-                },
-                {
-                    title: "DE Rantau Profile",
-                    url: "/derantau-admin-profile",
-                    icon: User,
-                    description: "Manage your profile",
+                    description: "Manage your nomad profile",
                 },
                 {
                     title: "Hub Owner Profile",
                     url: "/hub-owner-profile",
                     icon: User,
-                    description: "Manage your profile",
+                    description: "Manage your hub owner profile",
                 },
                 {
                     title: "Settings",
@@ -130,25 +124,25 @@ const data = {
             items: [
                 {
                     title: "Health Clearance Info",
-                    url: "/health-clearance-info/",
+                    url: "/visa-applications/health-clearance-info",
                     icon: Hospital,
                     description: "Manage your health clearance info",
                 },
                 {
                     title: "Accommodation Proofs",
-                    url: "accommodation-proofs",
+                    url: "/visa-applications/accommodation-proofs",
                     icon: House,
                     description: "Manage your accommodation proofs",
                 },
                 {
                     title: "Financial Proofs",
-                    url: "/financial-proofs",
+                    url: "/visa-applications/financial-proofs",
                     icon: Briefcase,
                     description: "Manage your financial proofs",
                 },
                 {
                     title: "Work Contract Proofs",
-                    url: "/work-contract-proofs",
+                    url: "/visa-applications/work-contract-proofs",
                     icon: Briefcase,
                     description: "Manage your work contract proofs",
                 },
@@ -156,24 +150,24 @@ const data = {
         },
         {
             title: "Community",
-            url: "/communities",
+            url: "/community",
             icon: Users,
             items: [
                 {
                     title: "Events",
-                    url: "/events",
+                    url: "/community/events",
                     icon: Calendar,
                     description: "Discover local events",
                 },
                 {
                     title: "Community Events",
-                    url: "/community-events",
+                    url: "/community/community-events",
                     icon: MessageSquare,
                     description: "Connect with other digital nomads",
                 },
                 {
                     title: "Community Posts",
-                    url: "/community-posts",
+                    url: "/community/posts",
                     icon: HelpCircle,
                     description: "Access community resources",
                 },
@@ -211,7 +205,7 @@ const data = {
             items: [
                 {
                     title: "States",
-                    url: "/states",
+                    url: "/regions/states",
                     icon: MapPin,
                     description: "Explore the states available in DE Rantau",
                 },
@@ -233,17 +227,17 @@ const data = {
     projects: [
         {
             name: "Penang Digital Nomad Guide",
-            url: "/projects/penang-guide",
+            url: "/resources/penang-guide",
             icon: Globe,
         },
         {
             name: "Community Events",
-            url: "/projects/community-events",
+            url: "/community/events",
             icon: Calendar,
         },
         {
             name: "Local Business Directory",
-            url: "/projects/business-directory",
+            url: "/hubs/businesses",
             icon: Building,
         },
     ],
@@ -251,7 +245,7 @@ const data = {
         {
             title: "DE Rantau Visa Application Process",
             teaser: "Learn about the step-by-step process for applying for the DE Rantau visa program for digital nomads in Malaysia.",
-            url: "/visa-application/process",
+            url: "/visa-applications/process",
         },
         {
             title: "Coworking Spaces in Penang",

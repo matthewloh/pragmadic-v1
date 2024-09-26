@@ -22,7 +22,7 @@ export function SignOut() {
         })
         setLoading(true)
         signout({ next })
-        queryClient.invalidateQueries({ queryKey: ["current-user"] })
+        queryClient.clear()
     }
 
     return (

@@ -1,3 +1,4 @@
+import { getUserRole } from "@/lib/auth/get-user-role"
 import { protectedPaths } from "@/lib/constants"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
@@ -58,10 +59,19 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    // Get the user's role using the custom getUserRole function
+    const role = await getUserRole()
+
     const url = new URL(request.url)
+
     if (user?.id) {
         if (url.pathname === "/login") {
             return NextResponse.redirect(new URL("/dashboard", request.url))
+        }
+        if (request.nextUrl.pathname.startsWith("/admin") && role !== "admin") {
+            const url = request.nextUrl.clone()
+            url.pathname = "/"
+            return NextResponse.redirect(url)
         }
         return supabaseResponse
     } else {

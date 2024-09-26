@@ -110,6 +110,9 @@ export default async function Page() {
                                                 Joined:{" "}
                                                 {user.createdAt?.toLocaleDateString()}
                                             </p>
+                                            <p className="text-xs text-gray-400">
+                                                Role: {user.role}
+                                            </p>
                                         </CardContent>
                                     </Card>
                                 ))}
