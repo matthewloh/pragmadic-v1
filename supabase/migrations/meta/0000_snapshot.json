@@ -1,95 +1,9 @@
 {
-  "id": "bb5d40d7-529a-46c8-9bc7-ac9d6cf6d1f0",
+  "id": "50c45600-b83a-4fcb-b625-1e34b180dee4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.accommodation_proofs": {
-      "name": "accommodation_proofs",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(191)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "submission_date": {
-          "name": "submission_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "accommodation_details": {
-          "name": "accommodation_details",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "accommodation_type": {
-          "name": "accommodation_type",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verification_status": {
-          "name": "verification_status",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "remarks": {
-          "name": "remarks",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "visa_application_id": {
-          "name": "visa_application_id",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "accommodation_proofs_visa_application_id_visa_applications_id_fk": {
-          "name": "accommodation_proofs_visa_application_id_visa_applications_id_fk",
-          "tableFrom": "accommodation_proofs",
-          "tableTo": "visa_applications",
-          "columnsFrom": [
-            "visa_application_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.assistant_responses": {
       "name": "assistant_responses",
       "schema": "",
@@ -182,7 +96,7 @@
           "name": "email",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "display_name": {
           "name": "display_name",
@@ -223,7 +137,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      }
     },
     "public.chats": {
       "name": "chats",
@@ -250,6 +172,12 @@
         "user_id": {
           "name": "user_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "messages": {
+          "name": "messages",
+          "type": "json",
           "primaryKey": false,
           "notNull": true
         },
@@ -1070,172 +998,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.financial_proofs": {
-      "name": "financial_proofs",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(191)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "submission_date": {
-          "name": "submission_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "document_links": {
-          "name": "document_links",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "declared_amount": {
-          "name": "declared_amount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "verification_status": {
-          "name": "verification_status",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "remarks": {
-          "name": "remarks",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "visa_application_id": {
-          "name": "visa_application_id",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "financial_proofs_visa_application_id_visa_applications_id_fk": {
-          "name": "financial_proofs_visa_application_id_visa_applications_id_fk",
-          "tableFrom": "financial_proofs",
-          "tableTo": "visa_applications",
-          "columnsFrom": [
-            "visa_application_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.health_clearance_info": {
-      "name": "health_clearance_info",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(191)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "clearance_date": {
-          "name": "clearance_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "health_facility_name": {
-          "name": "health_facility_name",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "medical_report": {
-          "name": "medical_report",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "health_conditions": {
-          "name": "health_conditions",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "visa_application_id": {
-          "name": "visa_application_id",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "health_clearance_info_visa_application_id_visa_applications_id_fk": {
-          "name": "health_clearance_info_visa_application_id_visa_applications_id_fk",
-          "tableFrom": "health_clearance_info",
-          "tableTo": "visa_applications",
-          "columnsFrom": [
-            "visa_application_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.hub_owner_profiles": {
       "name": "hub_owner_profiles",
       "schema": "",
@@ -1579,208 +1341,6 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.work_contract_proofs": {
-      "name": "work_contract_proofs",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(191)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "submission_date": {
-          "name": "submission_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "document_links": {
-          "name": "document_links",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "employer_details": {
-          "name": "employer_details",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "contract_details": {
-          "name": "contract_details",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verification_status": {
-          "name": "verification_status",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "remarks": {
-          "name": "remarks",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "visa_application_id": {
-          "name": "visa_application_id",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "work_contract_proofs_visa_application_id_visa_applications_id_fk": {
-          "name": "work_contract_proofs_visa_application_id_visa_applications_id_fk",
-          "tableFrom": "work_contract_proofs",
-          "tableTo": "visa_applications",
-          "columnsFrom": [
-            "visa_application_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.visa_applications": {
-      "name": "visa_applications",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(191)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "approved_at": {
-          "name": "approved_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expiry": {
-          "name": "expiry",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "application_type": {
-          "name": "application_type",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_renewal": {
-          "name": "is_renewal",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "application_date": {
-          "name": "application_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "health_clearance_status": {
-          "name": "health_clearance_status",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "financial_proof_status": {
-          "name": "financial_proof_status",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "work_contract_status": {
-          "name": "work_contract_status",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "region_id": {
-          "name": "region_id",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "visa_applications_region_id_regions_id_fk": {
-          "name": "visa_applications_region_id_regions_id_fk",
-          "tableFrom": "visa_applications",
-          "tableTo": "regions",
-          "columnsFrom": [
-            "region_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },

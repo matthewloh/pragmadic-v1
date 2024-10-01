@@ -29,5 +29,5 @@
         ".next/types/**/*.ts",
         ".next/types/app/(app)/hubs/[hubId]/events/[eventId]/page.tsx"
     ],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules", "supabase"]
 }

@@ -1,6 +1,5 @@
 export const protectedPaths = [
     "/profile",
-    "/accommodation-proofs",
     "/communities",
     "/community-event-invites",
     "/community-events",
@@ -10,8 +9,6 @@ export const protectedPaths = [
     "/chat",
     "/derantau-admin-profile",
     "/events",
-    "/financial-proofs",
-    "/health-clearance-info",
     "/hub-owner-profile",
     "/hubs",
     "/nomad-profile",
@@ -19,6 +16,4 @@ export const protectedPaths = [
     "/reviews",
     "/settings",
     "/states",
-    "/visa-applications",
-    "/work-contract-proofs",
 ]

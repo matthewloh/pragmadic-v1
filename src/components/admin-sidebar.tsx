@@ -95,31 +95,6 @@ const adminData = {
             ],
         },
         {
-            title: "Visa Applications",
-            url: "/admin/visa-applications",
-            icon: FileText,
-            items: [
-                {
-                    title: "Pending Applications",
-                    url: "/admin/visa-applications/pending",
-                    icon: FileText,
-                    description: "Review pending visa applications",
-                },
-                {
-                    title: "Approved Applications",
-                    url: "/admin/visa-applications/approved",
-                    icon: FileText,
-                    description: "View approved visa applications",
-                },
-                {
-                    title: "Rejected Applications",
-                    url: "/admin/visa-applications/rejected",
-                    icon: FileText,
-                    description: "View rejected visa applications",
-                },
-            ],
-        },
-        {
             title: "DE Rantau Hubs",
             url: "/admin/hubs",
             icon: Building,
@@ -213,11 +188,6 @@ const adminData = {
             title: "User Management",
             teaser: "Manage user accounts, roles, and permissions for the DE Rantau platform.",
             url: "/admin/users",
-        },
-        {
-            title: "Visa Application Review",
-            teaser: "Review and process pending visa applications for digital nomads.",
-            url: "/admin/visa-applications/pending",
         },
         {
             title: "Hub Partner Management",

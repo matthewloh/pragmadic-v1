@@ -124,37 +124,6 @@ const data = {
             ],
         },
         {
-            title: "Visa Application",
-            url: "/visa-applications",
-            icon: FileText,
-            items: [
-                {
-                    title: "Health Clearance Info",
-                    url: "/health-clearance-info/",
-                    icon: Hospital,
-                    description: "Manage your health clearance info",
-                },
-                {
-                    title: "Accommodation Proofs",
-                    url: "accommodation-proofs",
-                    icon: House,
-                    description: "Manage your accommodation proofs",
-                },
-                {
-                    title: "Financial Proofs",
-                    url: "/financial-proofs",
-                    icon: Briefcase,
-                    description: "Manage your financial proofs",
-                },
-                {
-                    title: "Work Contract Proofs",
-                    url: "/work-contract-proofs",
-                    icon: Briefcase,
-                    description: "Manage your work contract proofs",
-                },
-            ],
-        },
-        {
             title: "Community",
             url: "/communities",
             icon: Users,
@@ -248,11 +217,6 @@ const data = {
         },
     ],
     searchResults: [
-        {
-            title: "DE Rantau Visa Application Process",
-            teaser: "Learn about the step-by-step process for applying for the DE Rantau visa program for digital nomads in Malaysia.",
-            url: "/visa-application/process",
-        },
         {
             title: "Coworking Spaces in Penang",
             teaser: "Discover the best coworking spaces for digital nomads in Penang, including amenities, pricing, and locations.",

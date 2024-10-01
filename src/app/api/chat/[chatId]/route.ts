@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { openai } from "@ai-sdk/openai"
 import { convertToCoreMessages, streamText, tool } from "ai"
 import { z } from "zod"
+import { getSession } from "../../../../../supabase/queries/cached-queries"
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
 export async function POST(
@@ -12,13 +13,26 @@ export async function POST(
     { params }: { params: { chatId: string } },
 ) {
     const data = await req.json()
+
+    const {
+        data: { session },
+    } = await getSession()
+
+    if (!session) {
+        return new Response("Unauthorized", { status: 401 })
+    }
+
     const chatId = params.chatId
+    const id = data.id
+    console.log(id)
     const messages = data.messages
     const result = await streamText({
         model: openai("gpt-4o-mini"),
         system: `You are a helpful assistant. Check your knowledge base before answering any questions.
     Only respond to questions using information from tool calls. Prioritize using the tools to answer questions.
-    if no relevant information is found in the tool calls, respond, "Sorry, I don't know.". Attempt to use tools before responding.Preface each message with the chatID ${chatId}`,
+    if no relevant information is found in the tool calls, respond, "Sorry, I don't know.". Attempt to use tools before responding.
+    Preface each message with the chatID ${chatId}`,
+        // TODO: Remove chatID
         messages: convertToCoreMessages(messages),
         tools: {
             addResource: tool({
@@ -57,6 +71,7 @@ export async function POST(
                     id: chatId,
                     name: `Chat For ${chatId}`,
                     description: "wip",
+                    messages,
                 },
                 messages,
             )

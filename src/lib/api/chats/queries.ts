@@ -1,5 +1,5 @@
-import { db } from "@/lib/db/index"
 import { eq, and } from "drizzle-orm"
+import { db } from "@/lib/db/index"
 import { getUserAuth } from "@/lib/auth/utils"
 import { type ChatId, chatIdSchema, chats } from "@/lib/db/schema/chats"
 import { messages, type CompleteMessage } from "@/lib/db/schema/messages"

@@ -130,6 +130,7 @@ export async function signup({
         if (isAuthApiError(error) && error.code === "user_already_exists") {
             return { error: "User already exists" }
         }
+        console.log(error)
         redirect("/error")
     }
     revalidatePath("/", "layout")
