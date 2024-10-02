@@ -11,7 +11,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 
 import { type getChats } from "@/lib/api/chats/queries"
-import { users } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/users"
 
 import { nanoid, timestamps } from "@/lib/utils"
 import { Message } from "ai"

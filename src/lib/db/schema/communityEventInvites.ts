@@ -3,7 +3,7 @@ import { varchar, timestamp, text, pgTable, uuid } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 import { communityEvents } from "./communityEvents"
-import { users } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/users"
 import { type getCommunityEventInvites } from "@/lib/api/communityEventInvites/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"

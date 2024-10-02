@@ -775,6 +775,24 @@ export type Database = {
           },
         ]
       }
+      role_permissions: {
+        Row: {
+          id: string
+          permission: Database["public"]["Enums"]["user_app_permissions"]
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          id: string
+          permission: Database["public"]["Enums"]["user_app_permissions"]
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          id?: string
+          permission?: Database["public"]["Enums"]["user_app_permissions"]
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: []
+      }
       states: {
         Row: {
           approved_at: string | null
@@ -850,6 +868,32 @@ export type Database = {
             columns: ["id"]
             isOneToOne: true
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_user_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
             referencedColumns: ["id"]
           },
         ]
@@ -1083,6 +1127,20 @@ export type Database = {
     Enums: {
       invite_role_type: "admin" | "member"
       invite_status: "pending" | "accepted" | "rejected"
+      user_app_permissions:
+        | "hubs.create"
+        | "hubs.delete"
+        | "hubs.posts.create"
+        | "communities.posts.create"
+      user_community_permissions:
+        | "admin.invite"
+        | "admin.remove"
+        | "admin.ban"
+        | "admin.edit"
+        | "member.invite"
+        | "member.remove"
+        | "member.ban"
+        | "member.edit"
       user_role: "regular" | "owner" | "admin"
     }
     CompositeTypes: {

@@ -10,7 +10,7 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 import { communities } from "./communities"
-import { users } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/users"
 import { type getCommunityPosts } from "@/lib/api/communityPosts/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"

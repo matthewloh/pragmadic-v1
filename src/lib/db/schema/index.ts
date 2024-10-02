@@ -1,5 +1,5 @@
 export * from "./embeddings"
-export * from "./auth-users"
+export * from "./users"
 export * from "./events"
 export * from "./hubs"
 export * from "./profile"

@@ -12,7 +12,7 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 
-import { users } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/users"
 import { type getCommunities } from "@/lib/api/communities/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"
@@ -82,6 +82,17 @@ export const inviteStatusEnum = pgEnum("invite_status", [
 ])
 
 export const inviteRoleType = pgEnum("invite_role_type", ["admin", "member"])
+
+export const userCommunityPerms = pgEnum("user_community_permissions", [
+    "admin.invite",
+    "admin.remove",
+    "admin.ban",
+    "admin.edit",
+    "member.invite",
+    "member.remove",
+    "member.ban",
+    "member.edit",
+])
 
 export const usersRelations = relations(users, ({ many }) => ({
     usersToCommunities: many(usersToCommunities),

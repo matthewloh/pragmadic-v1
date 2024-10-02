@@ -8,6 +8,13 @@
       "when": 1727791326665,
       "tag": "0000_smooth_thor_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1727896728460,
+      "tag": "0001_sparkling_chimera",
+      "breakpoints": true
     }
   ]
 }

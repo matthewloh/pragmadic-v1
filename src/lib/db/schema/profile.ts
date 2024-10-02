@@ -4,7 +4,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 
 import { type getProfiles } from "@/lib/api/profile/queries"
-import { users } from "@/lib/db/schema/auth-users"
+import { users } from "@/lib/db/schema/users"
 
 import { nanoid, timestamps } from "@/lib/utils"
 

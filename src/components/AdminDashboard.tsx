@@ -19,7 +19,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SelectUser } from "@/lib/db/schema/auth-users"
+import { SelectUser } from "@/lib/db/schema/users"
 import {
     ArrowUpRight,
     BarChart3,
