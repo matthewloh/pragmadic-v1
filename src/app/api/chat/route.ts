@@ -1,18 +1,19 @@
 import { createResource } from "@/lib/actions/resources"
 import { findRelevantContent } from "@/lib/ai/embeddings"
-import { createChatWithMessages } from "@/lib/api/chats/mutations"
+import {
+    createChatWithMessages,
+    createMessage,
+} from "@/lib/api/chats/mutations"
 import { db } from "@/lib/db"
 import { openai } from "@ai-sdk/openai"
 import { convertToCoreMessages, streamText, tool } from "ai"
 import { z } from "zod"
-import { getSession } from "../../../../../supabase/queries/cached-queries"
+import { getSession } from "../../../../supabase/queries/cached-queries"
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
-export async function POST(
-    req: Request,
-    { params }: { params: { chatId: string } },
-) {
-    const data = await req.json()
+
+export async function POST(req: Request) {
+    const { chatId, messages } = await req.json()
 
     const {
         data: { session },
@@ -22,17 +23,12 @@ export async function POST(
         return new Response("Unauthorized", { status: 401 })
     }
 
-    const chatId = params.chatId
-    const id = data.id
-    console.log(id)
-    const messages = data.messages
     const result = await streamText({
         model: openai("gpt-4o-mini"),
         system: `You are a helpful assistant. Check your knowledge base before answering any questions.
     Only respond to questions using information from tool calls. Prioritize using the tools to answer questions.
     if no relevant information is found in the tool calls, respond, "Sorry, I don't know.". Attempt to use tools before responding.
     Preface each message with the chatID ${chatId}`,
-        // TODO: Remove chatID
         messages: convertToCoreMessages(messages),
         tools: {
             addResource: tool({
@@ -58,24 +54,10 @@ export async function POST(
         async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
             // implement your own storage logic:
             // await saveChat({ text, toolCalls, toolResults });
-            console.log(messages, chatId)
-            const assistantResponse = {
-                role: "assistant",
-                content: text,
-            }
-            console.log(assistantResponse)
-            messages.push(assistantResponse)
-            console.log(messages)
-            await createChatWithMessages(
-                {
-                    id: chatId,
-                    name: `Chat For ${chatId}`,
-                    description: "wip",
-                    messages,
-                },
-                messages,
-            )
-            // console.log({ text, toolCalls, toolResults, usage, finishReason })
+            await createMessage({
+                id: chatId,
+                messages: [...messages, { role: "assistant", content: text }],
+            })
         },
     })
 

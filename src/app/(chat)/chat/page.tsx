@@ -19,14 +19,12 @@ export default async function ChatPage({
 }) {
     const chatId = await nanoid()
     const modelString = searchParams.model ? `- ${searchParams.model}` : ""
-    // const chatId = params.chatId ? params.chatId : ""
-    console.log("new id",chatId)
 
     return (
         <div className="flex h-screen w-full flex-col">
             {/* server component */}
             <ChatHeader modelString={modelString} />
-            <ChatContentClient chatId={chatId} />
+            <ChatContentClient chatId={chatId} initialMessages={[]} />
             {/* {chatId ? (
                 <Suspense fallback={<div className="flex-1">Loading</div>}>
                     <ExistingChat chatId={chatId} />

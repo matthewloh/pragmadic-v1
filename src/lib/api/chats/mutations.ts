@@ -16,6 +16,7 @@ import {
     NewMessageParams,
 } from "@/lib/db/schema/messages"
 import { ZodError } from "zod"
+import { Json } from "@/utils/supabase/types"
 
 export const createChat = async (chat: NewChatParams) => {
     const { session } = await getUserAuth()
@@ -31,6 +32,36 @@ export const createChat = async (chat: NewChatParams) => {
         console.error(message)
         throw { error: message }
     }
+}
+
+export async function createMessage({
+    id,
+    messages,
+}: {
+    id: string
+    messages: Json
+}) {
+    const { session } = await getUserAuth()
+    const userId = session?.user.id!
+
+    const selectedChats = await db.select().from(chats).where(eq(chats.id, id))
+
+    if (selectedChats.length > 0) {
+        return await db
+            .update(chats)
+            .set({
+                messages: JSON.stringify(messages),
+            })
+            .where(eq(chats.id, id))
+    }
+
+    return await db.insert(chats).values({
+        id,
+        messages: JSON.stringify(messages),
+        userId,
+        name: "Test Name",
+        description: "Test Description",
+    })
 }
 
 export async function createChatWithMessages(
@@ -61,7 +92,6 @@ export async function createChatWithMessages(
                 ...message,
                 chatId: newChat.id,
             }))
-            console.log(messagesToInsert)
             await tx
                 .insert(messages)
                 .values(

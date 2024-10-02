@@ -14,6 +14,7 @@ import { ChatComponent } from "@/features/chat/components/ChatComponent"
 import ChatSettingsSidebar from "@/features/chat/components/ChatSettingsSidebar"
 import { CreateChatAction } from "@/lib/actions/chats"
 import { Maximize2, X } from "lucide-react"
+import { Message } from "ai"
 
 type ReferencedDocument = {
     id: string
@@ -24,13 +25,18 @@ type ReferencedDocument = {
 
 type ChatContentProps = {
     chatId: string
+    initialMessages: Array<Message> | undefined
 }
 
-export default function ChatContentClient({ chatId }: ChatContentProps) {
+export default function ChatContentClient({
+    chatId,
+    initialMessages,
+}: ChatContentProps) {
     const [referencedDocs, setReferencedDocs] = useState<ReferencedDocument[]>(
         [],
     )
-    const [isDocPanelOpen, setIsDocPanelOpen] = useState(true)
+
+    const [isDocPanelOpen, setIsDocPanelOpen] = useState(false)
     const [isTransitioning, setIsTransitioning] = useState(false)
 
     useEffect(() => {
@@ -45,11 +51,13 @@ export default function ChatContentClient({ chatId }: ChatContentProps) {
             setIsDocPanelOpen(true)
         }
     }
-
     return (
         <>
-            <div className="flex-1 overflow-hidden">
-                <ResizablePanelGroup direction="horizontal" className="h-full">
+            <div className="flex h-full flex-col">
+                <ResizablePanelGroup
+                    direction="horizontal"
+                    className="h-full flex-1"
+                >
                     <ChatSettingsSidebar />
                     <ResizablePanel
                         defaultSize={70}
@@ -60,11 +68,12 @@ export default function ChatContentClient({ chatId }: ChatContentProps) {
                             isTransitioning && "resize-none",
                         )}
                     >
-                        <div className="container mx-auto h-full overflow-auto bg-emerald-800 p-4 animate-in">
+                        <div className="container mx-auto h-full bg-background p-0 animate-in">
                             <ChatComponent
+                                chatId={chatId}
+                                initialMessages={initialMessages}
                                 onDocumentsReferenced={updateReferencedDocs}
                                 isDocPanelOpen={isDocPanelOpen}
-                                chatId={chatId}
                             />
                         </div>
                     </ResizablePanel>
@@ -139,16 +148,13 @@ export default function ChatContentClient({ chatId }: ChatContentProps) {
                 </ResizablePanelGroup>
             </div>
             <Button
-                variant="outline"
-                size="sm"
                 className={cn(
-                    "absolute bottom-4 right-4 transition-all duration-300 ease-in-out",
+                    "fixed bottom-36 right-8 rounded-full p-2 transition-all duration-300 ease-in-out",
                     isDocPanelOpen && "pointer-events-none opacity-0",
                 )}
                 onClick={() => setIsDocPanelOpen(true)}
             >
-                <Maximize2 className="mr-2 h-4 w-4" />
-                Show References
+                <Maximize2 className="h-5 w-5" />
             </Button>
         </>
     )

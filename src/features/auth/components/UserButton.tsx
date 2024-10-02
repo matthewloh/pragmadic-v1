@@ -17,7 +17,6 @@ export default function UserButton({ user }: { user: User }) {
     if (!user) {
         return null
     }
-    console.log(user)
     const { user_metadata } = user
     const { full_name, avatar_url } = user_metadata
     if (!full_name) {

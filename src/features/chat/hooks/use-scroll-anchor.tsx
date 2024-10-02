@@ -53,14 +53,10 @@ export const useScrollAnchor = () => {
 
     useEffect(() => {
         if (visibilityRef.current) {
-            let observer = new IntersectionObserver(
+            const observer = new IntersectionObserver(
                 (entries) => {
                     entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            setIsVisible(true)
-                        } else {
-                            setIsVisible(false)
-                        }
+                        setIsVisible(entry.isIntersecting)
                     })
                 },
                 {
@@ -74,7 +70,7 @@ export const useScrollAnchor = () => {
                 observer.disconnect()
             }
         }
-    })
+    }, [])
 
     return {
         messagesRef,
