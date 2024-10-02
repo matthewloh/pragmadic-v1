@@ -1,37 +1,12 @@
 import ChatContentClient from "@/features/chat/components/ChatContentClient"
-import ChatHeader from "@/features/chat/components/ChatHeader"
-import ExistingChat from "@/features/chat/components/ExistingChat"
-import { createChatAction } from "@/lib/actions/chats"
+import ChatSettingsSidebar from "@/features/chat/components/ChatSettingsSidebar"
 import { nanoid } from "@/lib/utils"
-import { Suspense } from "react"
 
-type ChatPageSearchParams = {
-    model?: string
-    chatId?: string
-}
-
-export default async function ChatPage({
-    searchParams,
-    params,
-}: {
-    searchParams: ChatPageSearchParams
-    params: { chatId: string }
-}) {
+export default async function ChatPage({}: {}) {
     const chatId = await nanoid()
-    const modelString = searchParams.model ? `- ${searchParams.model}` : ""
-
     return (
         <div className="flex h-screen w-full flex-col">
-            {/* server component */}
-            <ChatHeader modelString={modelString} />
             <ChatContentClient chatId={chatId} initialMessages={[]} />
-            {/* {chatId ? (
-                <Suspense fallback={<div className="flex-1">Loading</div>}>
-                    <ExistingChat chatId={chatId} />
-                </Suspense>
-            ) : (
-                <ChatContentClient createChatAction={createChatAction} />
-            )} */}
         </div>
     )
 }

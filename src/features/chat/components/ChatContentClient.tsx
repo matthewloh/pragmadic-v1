@@ -12,9 +12,8 @@ import {
 } from "@/components/ui/resizable"
 import { ChatComponent } from "@/features/chat/components/ChatComponent"
 import ChatSettingsSidebar from "@/features/chat/components/ChatSettingsSidebar"
-import { CreateChatAction } from "@/lib/actions/chats"
-import { Maximize2, X } from "lucide-react"
 import { Message } from "ai"
+import { Maximize2, X } from "lucide-react"
 
 type ReferencedDocument = {
     id: string

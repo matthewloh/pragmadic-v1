@@ -1,30 +1,32 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {
-    Home,
-    LucideIcon,
-    Settings,
-    Search,
-    History as HistoryIcon,
-} from "lucide-react"
-import Link from "next/link"
-import { AiFillOpenAI } from "react-icons/ai"
-import { IconType } from "react-icons/lib"
+import { Input } from "@/components/ui/input"
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { format, formatDistanceToNow } from "date-fns"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Chat } from "@/lib/db/schema/chats"
+import { format, formatDistanceToNow } from "date-fns"
+import {
+    History as HistoryIcon,
+    Home,
+    LucideIcon,
+    Search,
+    Settings,
+} from "lucide-react"
+import Link from "next/link"
+import { useMemo, useState } from "react"
+import { AiFillOpenAI } from "react-icons/ai"
+import { IconType } from "react-icons/lib"
+import { useChatHistory } from "../hooks/use-chat-history"
 
 type ChatSettingsSidebarIconComponentProps = {
     icon: LucideIcon | IconType
@@ -32,81 +34,34 @@ type ChatSettingsSidebarIconComponentProps = {
     href: string
 }
 
-type ChatHistoryItem = {
-    id: string
-    title: string
-    date: Date
-    preview: string
-}
-
-const chatHistoryItems: ChatHistoryItem[] = [
-    {
-        id: "1",
-        title: "AI Ethics Discussion",
-        date: new Date(2023, 4, 15),
-        preview: "We discussed the implications of AI in society...",
-    },
-    {
-        id: "2",
-        title: "Machine Learning Basics",
-        date: new Date(2023, 4, 14),
-        preview: "Covered fundamental concepts of machine learning...",
-    },
-    {
-        id: "3",
-        title: "Natural Language Processing",
-        date: new Date(2023, 4, 13),
-        preview: "Explored various NLP techniques and applications...",
-    },
-    {
-        id: "4",
-        title: "Computer Vision Projects",
-        date: new Date(2023, 4, 12),
-        preview: "Brainstormed ideas for computer vision projects...",
-    },
-    {
-        id: "5",
-        title: "Reinforcement Learning",
-        date: new Date(2023, 4, 11),
-        preview: "Discussed the basics of reinforcement learning...",
-    },
-    {
-        id: "6",
-        title: "Deep Learning Architectures",
-        date: new Date(2023, 3, 30),
-        preview: "Compared different deep learning architectures...",
-    },
-    {
-        id: "7",
-        title: "AI in Healthcare",
-        date: new Date(2023, 3, 25),
-        preview: "Explored potential applications of AI in healthcare...",
-    },
-]
-
 export default function ChatSettingsSidebar() {
     const [searchTerm, setSearchTerm] = useState("")
     const [isOpen, setIsOpen] = useState(false)
+    const { data: chats, isPending } = useChatHistory()
 
     const filteredAndGroupedHistory = useMemo(() => {
-        const filtered = chatHistoryItems.filter(
-            (item) =>
-                item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.preview.toLowerCase().includes(searchTerm.toLowerCase()),
+        if (!chats) return {}
+
+        const filtered = chats.filter(
+            (chat) =>
+                chat.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                chat.messages[0]?.content
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()),
         )
 
         return filtered.reduce(
-            (acc, item) => {
-                const dateKey = format(item.date, "yyyy-MM-dd")
+            (acc, chat) => {
+                const dateKey = format(new Date(chat.createdAt), "yyyy-MM-dd")
                 if (!acc[dateKey]) {
                     acc[dateKey] = []
                 }
-                acc[dateKey].push(item)
+                acc[dateKey].push(chat)
                 return acc
             },
-            {} as Record<string, ChatHistoryItem[]>,
+            {} as Record<string, Chat[]>,
         )
-    }, [searchTerm])
+    }, [chats, searchTerm])
 
     return (
         <aside className="hidden w-[60px] flex-col border-r bg-background sm:flex">
@@ -147,38 +102,54 @@ export default function ChatSettingsSidebar() {
                         </div>
                         <Separator />
                         <div className="max-h-[calc(100vh-900px)] overflow-y-auto">
-                            {Object.entries(filteredAndGroupedHistory).map(
-                                ([date, items]) => (
-                                    <div key={date}>
-                                        <div className="sticky top-0 bg-background p-2 text-xs font-semibold text-muted-foreground">
-                                            {format(
-                                                new Date(date),
-                                                "MMMM d, yyyy",
-                                            )}
+                            {isPending ? (
+                                <div className="p-3 text-center text-sm text-muted-foreground">
+                                    Loading...
+                                </div>
+                            ) : chats && chats.length > 0 ? (
+                                Object.entries(filteredAndGroupedHistory).map(
+                                    ([date, items]) => (
+                                        <div key={date}>
+                                            <div className="sticky top-0 bg-background p-2 text-xs font-semibold text-muted-foreground">
+                                                {format(
+                                                    new Date(date),
+                                                    "MMMM d, yyyy",
+                                                )}
+                                            </div>
+                                            {items.map((chat) => (
+                                                <Link
+                                                    key={chat.id}
+                                                    href={`/chat/${chat.id}`}
+                                                    className="block p-3 hover:bg-muted"
+                                                    onClick={() =>
+                                                        setIsOpen(false)
+                                                    }
+                                                >
+                                                    <div className="text-sm font-medium">
+                                                        {chat.name}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {formatDistanceToNow(
+                                                            new Date(
+                                                                chat.createdAt,
+                                                            ),
+                                                            { addSuffix: true },
+                                                        )}
+                                                    </div>
+                                                    <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                                                        {chat.messages[0]
+                                                            ?.content ||
+                                                            "No messages"}
+                                                    </div>
+                                                </Link>
+                                            ))}
                                         </div>
-                                        {items.map((item) => (
-                                            <Link
-                                                key={item.id}
-                                                href={`/chat/${item.id}`}
-                                                className="block p-3 hover:bg-muted"
-                                                onClick={() => setIsOpen(false)}
-                                            >
-                                                <div className="text-sm font-medium">
-                                                    {item.title}
-                                                </div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    {formatDistanceToNow(
-                                                        item.date,
-                                                        { addSuffix: true },
-                                                    )}
-                                                </div>
-                                                <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                                                    {item.preview}
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                ),
+                                    ),
+                                )
+                            ) : (
+                                <div className="p-3 text-center text-sm text-muted-foreground">
+                                    No chat history found.
+                                </div>
                             )}
                         </div>
                     </PopoverContent>

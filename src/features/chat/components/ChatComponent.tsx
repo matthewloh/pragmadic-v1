@@ -1,25 +1,27 @@
-import { useEffect, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
-import { useChat } from "ai/react"
-import { Message } from "ai"
-import { nanoid } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {
-    BotIcon,
-    CornerDownLeft,
-    Mic,
-    Paperclip,
-    UserIcon,
-    ChevronDown,
-} from "lucide-react"
-import Markdown from "react-markdown"
 import { Textarea } from "@/components/ui/textarea"
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { nanoid } from "@/lib/utils"
+import { Message } from "ai"
+import { useChat } from "ai/react"
+import { AnimatePresence, motion } from "framer-motion"
+import {
+	BotIcon,
+	ChevronDown,
+	CornerDownLeft,
+	MessageSquare,
+	Mic,
+	Paperclip,
+	UserIcon,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import Markdown from "react-markdown"
 import { useScrollAnchor } from "../hooks/use-scroll-anchor"
 
 type ReferencedDocument = {
@@ -42,10 +44,15 @@ export function ChatComponent({
     isDocPanelOpen,
     initialMessages,
 }: ChatComponentProps) {
+    const router = useRouter()
     const { messages, input, handleInputChange, handleSubmit } = useChat({
         body: { chatId },
         initialMessages,
         maxSteps: 2,
+        onFinish: () => {
+            router.push(`/chat/${chatId}`)
+            window.history.replaceState(null, "", `/chat/${chatId}`)
+        },
     })
 
     const {
@@ -80,59 +87,77 @@ export function ChatComponent({
 
     return (
         <div className="flex h-full flex-col bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-            <ScrollArea className="p-4 pb-0" ref={scrollRef}>
+            <ScrollArea
+                className="flex h-full flex-1 flex-col p-4 pb-0"
+                ref={scrollRef}
+            >
                 <AnimatePresence initial={false}>
-                    {messages.map((m, index) => (
-                        <motion.div
-                            key={`${chatId}-${index}`}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.3 }}
-                            className={`mb-4 flex ${
-                                m.role === "user"
-                                    ? "justify-end"
-                                    : "justify-start"
-                            }`}
-                        >
-                            <div
-                                className={`max-w-[80%] rounded-lg p-3 ${
+                    {messages.length === 0 ? (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="flex flex-col items-center justify-center">
+                                <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
+                                <h3 className="mt-2 text-lg font-semibold text-gray-200">
+                                    No messages yet
+                                </h3>
+                                <p className="mt-1 text-sm text-gray-400">
+                                    Start a conversation to see messages here.
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        messages.map((m, index) => (
+                            <motion.div
+                                key={`${chatId}-${index}`}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.3 }}
+                                className={`mb-4 flex ${
                                     m.role === "user"
-                                        ? "bg-blue-600 text-white"
-                                        : "bg-gray-700 text-gray-100"
+                                        ? "justify-end"
+                                        : "justify-start"
                                 }`}
                             >
-                                <div className="mb-1 flex items-center gap-2">
-                                    {m.role === "user" ? (
-                                        <UserIcon className="h-4 w-4" />
+                                <div
+                                    className={`max-w-[80%] rounded-lg p-3 ${
+                                        m.role === "user"
+                                            ? "bg-blue-600 text-white"
+                                            : "bg-gray-700 text-gray-100"
+                                    }`}
+                                >
+                                    <div className="mb-1 flex items-center gap-2">
+                                        {m.role === "user" ? (
+                                            <UserIcon className="h-4 w-4" />
+                                        ) : (
+                                            <BotIcon className="h-4 w-4" />
+                                        )}
+                                        <span className="text-xs font-semibold">
+                                            {m.role === "user"
+                                                ? "You"
+                                                : "AI Assistant"}
+                                        </span>
+                                    </div>
+                                    {m.content.length > 0 ? (
+                                        <Markdown className="prose prose-sm prose-invert max-w-none">
+                                            {m.content}
+                                        </Markdown>
                                     ) : (
-                                        <BotIcon className="h-4 w-4" />
+                                        <span className="text-sm font-light italic">
+                                            {"Calling tool: " +
+                                                m?.toolInvocations?.[0]
+                                                    .toolName}
+                                        </span>
                                     )}
-                                    <span className="text-xs font-semibold">
-                                        {m.role === "user"
-                                            ? "You"
-                                            : "AI Assistant"}
-                                    </span>
                                 </div>
-                                {m.content.length > 0 ? (
-                                    <Markdown className="prose prose-sm prose-invert max-w-none">
-                                        {m.content}
-                                    </Markdown>
-                                ) : (
-                                    <span className="text-sm font-light italic">
-                                        {"Calling tool: " +
-                                            m?.toolInvocations?.[0].toolName}
-                                    </span>
-                                )}
-                            </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        ))
+                    )}
+                    <div
+                        ref={messagesRef}
+                        className="min-h-[4px] min-w-[4px] flex-shrink-0"
+                    />
+                    <div ref={visibilityRef} className="h-4 w-full" />
                 </AnimatePresence>
-                <div
-                    ref={messagesRef}
-                    className="min-h-[4px] min-w-[4px] flex-shrink-0"
-                />
-                <div ref={visibilityRef} className="h-4 w-full" />
             </ScrollArea>
             <motion.form
                 onSubmit={handleFormSubmit}
@@ -203,7 +228,7 @@ export function ChatComponent({
             {!!isAtBottom && (
                 <Button
                     onClick={scrollToBottom}
-                    className="absolute bottom-20 right-8 rounded-full bg-blue-600 p-2 text-white hover:bg-blue-700 z-10"
+                    className="absolute bottom-20 right-8 z-10 rounded-full bg-blue-600 p-2 text-white hover:bg-blue-700"
                 >
                     <ChevronDown className="h-5 w-5" />
                 </Button>

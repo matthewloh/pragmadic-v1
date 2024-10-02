@@ -1,15 +1,9 @@
-import { ChatComponent } from "@/features/chat/components/ChatComponent"
 import ChatContentClient from "@/features/chat/components/ChatContentClient"
-import ChatHeader from "@/features/chat/components/ChatHeader"
+import ChatSettingsSidebar from "@/features/chat/components/ChatSettingsSidebar"
 import { getChatById } from "@/lib/api/chats/queries"
 import { Chat } from "@/lib/db/schema/chats"
 import { type Message } from "ai"
 import { notFound } from "next/navigation"
-
-type ChatPageSearchParams = {
-    model?: string
-    chatId?: string
-}
 
 export default async function ChatById({
     params,
