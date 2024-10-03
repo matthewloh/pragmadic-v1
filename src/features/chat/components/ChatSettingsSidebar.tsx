@@ -101,7 +101,7 @@ export default function ChatSettingsSidebar() {
                             />
                         </div>
                         <Separator />
-                        <div className="max-h-[calc(100vh-900px)] overflow-y-auto">
+                        <div className="max-h-[calc(100vh-50%)] overflow-y-auto">
                             {isPending ? (
                                 <div className="p-3 text-center text-sm text-muted-foreground">
                                     Loading...

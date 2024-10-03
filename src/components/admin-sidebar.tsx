@@ -2,25 +2,18 @@
 
 import {
     BarChart,
-    Users,
-    Globe,
-    Settings,
-    HelpCircle,
-    Send,
-    UserCog,
     Building,
     FileText,
-    Briefcase,
-    MapPin,
+    Globe,
+    HelpCircle,
     Home,
+    MapPin,
+    Send,
+    Settings,
     User,
+    UserCog,
     UserPen,
-    BotMessageSquareIcon,
-    MessageSquare,
-    Hospital,
-    House,
-    Calendar,
-    Coffee,
+    Users
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"

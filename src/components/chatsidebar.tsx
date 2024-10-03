@@ -7,33 +7,20 @@ import {
     Building,
     Calendar,
     Coffee,
-    FileText,
     Globe,
     HelpCircle,
     Home,
-    Hospital,
-    House,
     MapPin,
     MessageSquare,
     Send,
     Settings,
     User,
     UserPen,
-    Users,
+    Users
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarItem,
-    SidebarLabel,
+    Sidebar
 } from "@/components/ui/sidebar"
 
 const data = {
@@ -240,25 +227,6 @@ const data = {
     ],
 }
 
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Upload } from "lucide-react"
-import { useState } from "react"
 
 export function ChatSidebar() {
     return (

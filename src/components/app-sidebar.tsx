@@ -7,19 +7,16 @@ import {
     Building,
     Calendar,
     Coffee,
-    FileText,
     Globe,
     HelpCircle,
     Home,
-    Hospital,
-    House,
     MapPin,
     MessageSquare,
     Send,
     Settings,
     User,
     UserPen,
-    Users,
+    Users
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -174,7 +171,7 @@ const data = {
             items: [
                 {
                     title: "States",
-                    url: "/regions/states",
+                    url: "/states",
                     icon: MapPin,
                     description: "Explore the states available in DE Rantau",
                 },
