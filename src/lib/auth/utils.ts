@@ -2,23 +2,7 @@ import { createClient } from "@/utils/supabase/server"
 import { AuthSession, UserMetadata } from "./types"
 import { getSession } from "../../../supabase/queries/cached-queries"
 import { redirect } from "next/navigation"
-
-// export const checkAuth = async (): Promise<AuthSession> => {
-//     const supabase = createClient()
-//     const {
-//         data: { user },
-//     } = await supabase.auth.getUser()
-//     if (!user) return { session: null }
-//     return {
-//         session: {
-//             user: {
-//                 id: user.id,
-//                 email: user.email!,
-//                 user_metadata: user.user_metadata! as UserMetadata,
-//             },
-//         },
-//     }
-// }
+import { getUserRole } from "./get-user-role"
 
 export const checkAuth = async () => {
     const {
@@ -28,13 +12,9 @@ export const checkAuth = async () => {
 }
 
 export const getUserAuth = async (): Promise<AuthSession> => {
-    const supabase = createClient()
-    const {
-        data: { session },
-    } = await supabase.auth.getSession()
+    const { session, role } = await getUserRole()
     if (!session?.user.id) {
         redirect("/login")
-        return { session: null }
     }
     return {
         session: {
@@ -43,6 +23,7 @@ export const getUserAuth = async (): Promise<AuthSession> => {
                 email: session.user.email!,
                 user_metadata: session.user.user_metadata! as UserMetadata,
             },
+            role: role || undefined,
         },
     }
 }

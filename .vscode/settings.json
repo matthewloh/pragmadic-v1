@@ -1,4 +1,5 @@
 {
+    "Prettier-SQL.SQLFlavourOverride": "postgresql",
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "deno.enable": false
 }

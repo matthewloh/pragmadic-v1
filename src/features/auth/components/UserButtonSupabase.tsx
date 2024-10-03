@@ -1,3 +1,4 @@
+"use client"
 import { ThemeSwitch } from "@/components/mode-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -10,25 +11,25 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { getSession } from "../../../../supabase/queries/cached-queries"
+import { useUserRole } from "@/features/auth/hooks/use-user-role" // Import the hook
 import { SignOut } from "./SignOutButton"
 
-export default async function UserButtonSupabase({
+export default function UserButtonSupabase({
     className,
 }: {
     className?: string
 }) {
-    const {
-        data: { session },
-    } = await getSession()
-    const user = session?.user
+    const { data: { session, user } = {} } = useUserRole() // Destructure session and user directly
+
     const avatarImageLink =
         user?.user_metadata.avatar_url ??
         user?.user_metadata.picture ??
-        `https://avatar.vercel.sh/${user?.user_metadata.name}`
+        `https://avatar.vercel.sh/${user?.user_metadata.full_name}`
+
     const avatarFallback = user?.user_metadata.full_name
         ?.charAt(0)
         .toUpperCase()
+
     return (
         <DropdownMenu modal={false}>
             <DropdownMenuTrigger className="relative outline-none">

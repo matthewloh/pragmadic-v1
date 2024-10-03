@@ -41,16 +41,8 @@ export function useUserRole() {
         return { session: null, user: null, role: null }
     }
 
-    const { data, error, isLoading } = useQuery<UserRoleData, AuthError>({
+    return useQuery<UserRoleData, AuthError>({
         queryKey: ["userRole"],
         queryFn: fetchUserRole,
     })
-
-    return {
-        loading: isLoading,
-        error,
-        session: data?.session ?? null,
-        user: data?.user ?? null,
-        role: data?.role ?? null,
-    }
 }

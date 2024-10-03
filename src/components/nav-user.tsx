@@ -27,7 +27,7 @@ import { useUserRole } from "@/features/auth/hooks/use-user-role"
 
 export function NavUser() {
     const { data: user, isPending } = useUser()
-    const { loading, role } = useUserRole()
+    const { isLoading, data } = useUserRole()
     if (!user) {
         return (
             <div className="flex w-full items-center gap-2 px-2 py-1.5">
@@ -118,7 +118,7 @@ export function NavUser() {
                         </div>
                         <ThemeSwitch />
                     </div>
-                    {role === "admin" && (
+                    {data?.role === "admin" && (
                         <DropdownMenuItem className="gap-2" asChild>
                             <Link href="/admin" className="cursor-pointer">
                                 <CreditCard className="h-4 w-4 text-muted-foreground" />

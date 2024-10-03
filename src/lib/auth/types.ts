@@ -12,6 +12,7 @@ export type AuthSession = {
             email: string
             user_metadata: UserMetadata
         }
+        role: string | undefined
     } | null
 }
 export interface Session {

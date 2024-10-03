@@ -32,6 +32,7 @@ import {
 import { useTheme } from "next-themes"
 import { useState } from "react"
 import { SidebarTrigger } from "./ui/sidebar"
+import MainNavBar from "@/features/dashboard/components/MainNavBar"
 
 interface AdminDashboardProps {
     initialUsers: SelectUser[]
@@ -52,58 +53,9 @@ export function AdminDashboard({ initialUsers }: AdminDashboardProps) {
 
     return (
         <div className="min-h-screen bg-background">
-            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="container flex h-14 items-center">
-                    <SidebarTrigger />
-                    <div className="mr-4 hidden md:flex">
-                        <h1 className="text-xl font-bold">DE Rantau Admin</h1>
-                    </div>
-                    <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-                        <div className="w-full flex-1 md:w-auto md:flex-none">
-                            <div className="relative">
-                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    placeholder="Search users..."
-                                    value={searchTerm}
-                                    onChange={(e) =>
-                                        setSearchTerm(e.target.value)
-                                    }
-                                    className="pl-8"
-                                />
-                            </div>
-                        </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="icon">
-                                    {theme === "dark" ? (
-                                        <Moon className="h-[1.2rem] w-[1.2rem]" />
-                                    ) : (
-                                        <Sun className="h-[1.2rem] w-[1.2rem]" />
-                                    )}
-                                    <span className="sr-only">
-                                        Toggle theme
-                                    </span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                    onClick={() => setTheme("light")}
-                                >
-                                    Light
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => setTheme("dark")}
-                                >
-                                    Dark
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => setTheme("system")}
-                                >
-                                    System
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+            <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm">
+                <div className="flex h-[60px] items-center justify-between">
+                    <MainNavBar />
                 </div>
             </header>
 
