@@ -1,7 +1,11 @@
 import { getUserAuth } from "@/lib/auth/utils"
 import { db } from "@/lib/db"
 import { users, userRoles, rolePermissions } from "@/lib/db/schema/users"
+import { createClient } from "@/utils/supabase/server"
 import { eq } from "drizzle-orm"
+import { unstable_cache } from "next/cache"
+import { Database } from "@/utils/supabase/types"
+import { Client } from "@/utils/supabase/types"
 
 export const getUsers = async () => {
     const { session } = await getUserAuth()
@@ -20,6 +24,27 @@ export const getUserRoles = async () => {
         },
     })
     return { userRoles: rows }
+}
+type roleEnums = Database["public"]["Enums"]["user_role"]
+
+
+export const getUserRolesSupa = async () => {
+    const supabase = createClient()
+    const { data, error } = await supabase.from("user_roles").select(
+        `
+            id,
+            role,
+            user (
+                display_name
+            )
+            `,
+    )
+    // .eq("role", "admin")
+    if (error) {
+        console.error(error)
+        return
+    }
+    return data
 }
 
 export const getRolePermissions = async () => {

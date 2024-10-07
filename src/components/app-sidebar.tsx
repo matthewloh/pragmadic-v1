@@ -193,7 +193,7 @@ const data = {
     projects: [
         {
             name: "Penang Digital Nomad Guide",
-            url: "/resources/penang-guide",
+            url: "/onboarding",
             icon: Globe,
         },
         {

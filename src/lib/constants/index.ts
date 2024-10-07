@@ -16,4 +16,5 @@ export const protectedPaths = [
     "/reviews",
     "/settings",
     "/states",
+    "/onboarding"
 ]

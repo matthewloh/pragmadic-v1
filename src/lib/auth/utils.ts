@@ -1,8 +1,7 @@
-import { createClient } from "@/utils/supabase/server"
-import { AuthSession, UserMetadata } from "./types"
-import { getSession } from "../../../supabase/queries/cached-queries"
 import { redirect } from "next/navigation"
+import { getSession } from "../../../supabase/queries/cached-queries"
 import { getUserRole } from "./get-user-role"
+import { AuthSession, UserMetadata } from "./types"
 
 export const checkAuth = async () => {
     const {

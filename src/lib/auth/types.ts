@@ -15,6 +15,7 @@ export type AuthSession = {
         role: string | undefined
     } | null
 }
+
 export interface Session {
     /**
      * The oauth provider token. If present, this can be used to make external API requests to the oauth provider used.

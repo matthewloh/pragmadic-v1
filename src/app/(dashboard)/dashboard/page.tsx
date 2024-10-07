@@ -18,7 +18,7 @@ export default async function DashboardPage() {
     const role = session.role
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm">
+            <header className="sticky top-0 z-10 border-b border-border backdrop-blur-sm">
                 <div className="flex h-[60px] items-center justify-between">
                     <MainNavBar />
                 </div>

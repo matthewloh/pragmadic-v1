@@ -4,13 +4,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import {
     Table,
     TableBody,
     TableCell,
@@ -19,20 +12,14 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import MainNavBar from "@/features/dashboard/components/MainNavBar"
+import { getUserRolesQuery } from "@/lib/api/users/client_queries"
 import { SelectUser } from "@/lib/db/schema/users"
-import {
-    ArrowUpRight,
-    BarChart3,
-    MapPin,
-    Moon,
-    Search,
-    Sun,
-    Users,
-} from "lucide-react"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
+import { ArrowUpRight, BarChart3, MapPin, Users } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useState } from "react"
-import { SidebarTrigger } from "./ui/sidebar"
-import MainNavBar from "@/features/dashboard/components/MainNavBar"
 
 interface AdminDashboardProps {
     initialUsers: SelectUser[]
@@ -41,7 +28,8 @@ interface AdminDashboardProps {
 export function AdminDashboard({ initialUsers }: AdminDashboardProps) {
     const [users, setUsers] = useState<SelectUser[]>(initialUsers)
     const [searchTerm, setSearchTerm] = useState("")
-    const { theme, setTheme } = useTheme()
+    const supabase = useSupabaseBrowser()
+    // const { data: userRoles, refetch } = useQuery(getUserRolesQuery(supabase))
 
     const filteredUsers = users.filter(
         (user) =>
@@ -125,7 +113,9 @@ export function AdminDashboard({ initialUsers }: AdminDashboardProps) {
                     <Tabs defaultValue="users" className="space-y-4">
                         <TabsList>
                             <TabsTrigger value="users">Users</TabsTrigger>
-                            <TabsTrigger value="regions">Regions</TabsTrigger>
+                            <TabsTrigger value="roles">
+                                System Role Management
+                            </TabsTrigger>
                             <TabsTrigger value="info">
                                 Additional Info
                             </TabsTrigger>
@@ -176,19 +166,59 @@ export function AdminDashboard({ initialUsers }: AdminDashboardProps) {
                                 </Table>
                             </div>
                         </TabsContent>
-                        <TabsContent value="regions">
+                        {/* <TabsContent value="roles">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Regions Management</CardTitle>
+                                    <CardTitle>Manage System Roles</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p>
-                                        Region management functionality to be
-                                        implemented.
-                                    </p>
+                                    <div className="flex flex-col space-y-4">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                refetch()
+                                            }}
+                                        >
+                                            Refresh
+                                        </Button>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Role</TableHead>
+                                                    <TableHead>User</TableHead>
+                                                    <TableHead>
+                                                        Actions
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {userRoles?.map((userRole) => (
+                                                    <TableRow key={userRole.id}>
+                                                        <TableCell>
+                                                            {userRole.role}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {userRole?.user
+                                                                ?.display_name ||
+                                                                "Unknown User"}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                            >
+                                                                Edit
+                                                            </Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
                                 </CardContent>
                             </Card>
-                        </TabsContent>
+                        </TabsContent> */}
                         <TabsContent value="info">
                             <Card>
                                 <CardHeader>
