@@ -9,7 +9,6 @@ export const getRegions = async () => {
     const rows = await db
         .select()
         .from(regions)
-        .where(eq(regions.userId, session?.user.id!))
     const r = rows
     return { regions: r }
 }

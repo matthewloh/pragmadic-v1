@@ -21,11 +21,12 @@ export default async function HubsPage() {
 }
 
 const Hubs = async () => {
-    const { hubs } = await getHubs()
+    const { hubs, role } = await getHubs()
     const { states } = await getStates()
     return (
         <Suspense fallback={<Loading />}>
             <HubList hubs={hubs} states={states} />
+            <div>{ role }</div>
         </Suspense>
     )
 }

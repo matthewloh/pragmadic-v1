@@ -4,9 +4,9 @@ import { ToolbarComponent } from "@/features/onboarding/components/ToolbarCompon
 
 export default function MapPage() {
     return (
-        <main className="flex h-full w-screen">
+        <main className="flex">
             <MapSidebar />
-            <div className="h-screen w-full">
+            <div className="w-full">
                 <MapComponent />
                 <ToolbarComponent />
             </div>

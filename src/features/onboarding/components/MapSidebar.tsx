@@ -22,7 +22,7 @@ export function MapSidebar() {
             initial={{ width: 0 }}
             animate={{
                 width: sidebarOpen ? 360 : 0,
-                height: "calc(100vh - 4rem)",
+                height: "calc(80vh - 4rem)",
             }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
         >
@@ -113,7 +113,6 @@ export function MapSidebar() {
                             </div>
                         </CardContent>
                     </Card>
-                    <SidebarTrigger />
                 </motion.div>
             </ScrollArea>
         </motion.div>

@@ -1,9 +1,10 @@
 import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarLayout, SidebarTrigger } from "@/components/ui/sidebar"
+import { PagesGradient } from "@/components/gradients"
+import { SidebarLayout } from "@/components/ui/sidebar"
 import MainNavBar from "@/features/dashboard/components/MainNavBar"
 import { cookies } from "next/headers"
 
-export default function DashboardLayout({
+export default function PagesLayout({
     children,
 }: {
     children: React.ReactNode
@@ -14,11 +15,16 @@ export default function DashboardLayout({
         >
             <AppSidebar />
             <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out">
-                <MainNavBar />
-                <main className="flex-1 overflow-hidden">
-                    <div className="max-w-9xl container mx-auto h-full px-4 py-6 sm:px-6 lg:px-8">
-                        <div className="relative h-full rounded-lg border border-dashed bg-gradient-to-br from-emerald-500 to-purple-300 shadow-sm">
-                            <div className="absolute inset-0 overflow-auto bg-background/65 p-4 sm:p-6 lg:p-8">
+                <PagesGradient />
+                <header className="sticky top-0 z-10 border-b border-border bg-background/40 backdrop-blur-3xl">
+                    <div className="flex h-[60px] items-center justify-between">
+                        <MainNavBar />
+                    </div>
+                </header>
+                <main className="flex overflow-hidden">
+                    <div className="flex-grow">
+                        <div className="relative h-full border border-dashed bg-gradient-to-tr from-emerald-500 to-purple-300 shadow-sm">
+                            <div className="h-full bg-transparent p-16">
                                 {children}
                             </div>
                         </div>

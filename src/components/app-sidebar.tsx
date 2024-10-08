@@ -116,24 +116,24 @@ const data = {
         },
         {
             title: "Community",
-            url: "/community",
+            url: "/communities",
             icon: Users,
             items: [
                 {
                     title: "Events",
-                    url: "/community/events",
+                    url: "/communities/events",
                     icon: Calendar,
                     description: "Discover local events",
                 },
                 {
-                    title: "Community Events",
-                    url: "/community/community-events",
+                    title: "Events",
+                    url: "/communities/community-events",
                     icon: MessageSquare,
                     description: "Connect with other digital nomads",
                 },
                 {
                     title: "Community Posts",
-                    url: "/community/posts",
+                    url: "/communities/posts",
                     icon: HelpCircle,
                     description: "Access community resources",
                 },
@@ -198,7 +198,7 @@ const data = {
         },
         {
             name: "Community Events",
-            url: "/community/events",
+            url: "/communities/events",
             icon: Calendar,
         },
         {
@@ -216,7 +216,7 @@ const data = {
         {
             title: "Upcoming Digital Nomad Events",
             teaser: "Stay updated on the latest meetups, workshops, and networking events for digital nomads in Penang.",
-            url: "/community/events",
+            url: "/communities/events",
         },
         {
             title: "Living in Penang: A Digital Nomad's Guide",

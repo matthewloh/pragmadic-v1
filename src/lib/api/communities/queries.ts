@@ -22,7 +22,6 @@ export const getCommunities = async () => {
     const rows = await db
         .select()
         .from(communities)
-        .where(eq(communities.userId, session?.user.id!))
     const c = rows
     return { communities: c }
 }
