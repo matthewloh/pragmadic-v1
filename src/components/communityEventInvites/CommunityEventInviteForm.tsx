@@ -191,7 +191,7 @@ const CommunityEventInviteForm = ({
                     Accepted At
                 </Label>
                 <br />
-                <Popover>
+                <Popover modal={true}>
                     <Input
                         name="acceptedAt"
                         onChange={() => {}}

@@ -40,14 +40,8 @@ export function AdminDashboard({ initialUsers }: AdminDashboardProps) {
     )
 
     return (
-        <div className="min-h-screen bg-background">
-            <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm">
-                <div className="flex h-[60px] items-center justify-between">
-                    <MainNavBar />
-                </div>
-            </header>
-
-            <main className="container py-6">
+        <div className="container relative flex h-full flex-grow overflow-hidden">
+            <div className="container py-6">
                 <div className="flex flex-col space-y-6">
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <Card>
@@ -236,7 +230,7 @@ export function AdminDashboard({ initialUsers }: AdminDashboardProps) {
                         </TabsContent>
                     </Tabs>
                 </div>
-            </main>
+            </div>
         </div>
     )
 }

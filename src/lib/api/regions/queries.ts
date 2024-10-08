@@ -6,9 +6,7 @@ import { states, type CompleteState } from "@/lib/db/schema/states"
 
 export const getRegions = async () => {
     const { session } = await getUserAuth()
-    const rows = await db
-        .select()
-        .from(regions)
+    const rows = await db.select().from(regions)
     const r = rows
     return { regions: r }
 }
@@ -39,12 +37,7 @@ export const getRegionByIdWithStates = async (id: RegionId) => {
             state: states,
         })
         .from(regions)
-        .where(
-            and(
-                eq(regions.id, regionId),
-                eq(regions.userId, session?.user.id!),
-            ),
-        )
+        .where(and(eq(regions.id, regionId)))
         .leftJoin(states, eq(regions.id, states.regionId))
     if (rows.length === 0) return {}
     const r = rows[0].region

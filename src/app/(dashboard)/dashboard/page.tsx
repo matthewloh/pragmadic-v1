@@ -1,4 +1,4 @@
-import { DashboardGradient } from "@/components/gradients"
+import { AutumnFireGradient, DashboardGradient } from "@/components/gradients"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -20,7 +20,7 @@ export default async function DashboardPage() {
     return (
         <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
             {/* Background gradient */}
-            <DashboardGradient />
+            <AutumnFireGradient />
             {/* Content */}
             <div className="relative z-10">
                 <header className="sticky top-0 z-10 border-b border-border bg-background/40 backdrop-blur-3xl">

@@ -16,7 +16,7 @@ import Loading from "./loading"
 export default async function AdminPage() {
     return (
         <ErrorBoundary>
-            <Suspense fallback={<Loading />}>
+            <Suspense fallback={<AdminSkeleton />}>
                 <AdminPageContent />
             </Suspense>
         </ErrorBoundary>

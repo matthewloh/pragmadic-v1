@@ -9,20 +9,35 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import {
-    HoverCard,
-    HoverCardContent,
-    HoverCardTrigger,
-} from "@/components/ui/hover-card"
-import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { CalendarDays, Sun } from "lucide-react"
-import mapboxgl from "mapbox-gl"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+    CalendarDays,
+    Edit,
+    Home,
+    MapPin,
+    Ruler,
+    Share,
+    Sun,
+    Trash,
+} from "lucide-react"
 import "mapbox-gl/dist/mapbox-gl.css"
-import { useCallback, useMemo, useRef, useState } from "react"
-import Map, { Marker, NavigationControl } from "react-map-gl"
+import { useState } from "react"
+import Map, {
+    MapProvider,
+    Marker,
+    NavigationControl,
+    ScaleControl,
+    useMap,
+} from "react-map-gl"
 
 export function MapComponent() {
     const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!
@@ -31,75 +46,138 @@ export function MapComponent() {
         latitude: 5.4164,
         zoom: 11,
     })
+    const { current: map } = useMap()
 
-    const markerRef = useRef<mapboxgl.Marker>()
-    const popup = useMemo(() => {
-        return new mapboxgl.Popup().setHTML("<h1>Hello world!</h1>")
-    }, [])
+    const tools = [
+        { name: "pin", icon: MapPin, tooltip: "Add Pin" },
+        { name: "home", icon: Home, tooltip: "Home" },
+        { name: "edit", icon: Edit, tooltip: "Edit" },
+        { name: "measure", icon: Ruler, tooltip: "Measure" },
+        { name: "delete", icon: Trash, tooltip: "Delete" },
+        { name: "share", icon: Share, tooltip: "Share" },
+    ]
 
-    const togglePopup = useCallback(() => {
-        markerRef.current?.togglePopup()
-    }, [])
+    const [activeToolbar, setActiveToolbar] = useState<string | null>(null)
 
+    const handleToolbarClick = (tool: string) => {
+        setActiveToolbar(activeToolbar === tool ? null : tool)
+        // Here you would implement the logic for each tool
+        switch (tool) {
+            case "pin":
+                map?.flyTo({ center: [100.3296, 5.4146] })
+                break
+            case "home":
+                setViewState({
+                    ...viewState,
+                    longitude: 100.3327,
+                    latitude: 5.4164,
+                    zoom: 15,
+                })
+                break
+            case "edit":
+                break
+            case "measure":
+                break
+            case "delete":
+                break
+            case "share":
+                break
+        }
+    }
     return (
-        <Map
-            {...viewState}
-            onMove={(evt) => setViewState(evt.viewState)}
-            mapboxAccessToken={mapboxToken}
-            style={{ width: "100%", height: "100%" }}
-            mapStyle="mapbox://styles/mapbox/streets-v11"
-            projection={"globe" as any}
-        >
-            <Marker
-                longitude={100.3327}
-                latitude={5.4164}
-                ref={markerRef as any}
+        <MapProvider>
+            <Map
+                {...viewState}
+                onMove={(evt) => setViewState(evt.viewState)}
+                mapboxAccessToken={mapboxToken}
+                style={{ width: "100%", height: "100%" }}
+                mapStyle="mapbox://styles/matthewloh/cm1w37guu00tb01pl1an725qt"
+                projection={"globe" as any}
+                doubleClickZoom={false}
             >
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="outline" size="icon">
-                            <CalendarDays className="h-4 w-4" />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80" align="start" side="top">
-                        <Card>
-                            <CardHeader className="pb-2">
-                                <CardTitle>Local Weather</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center">
-                                        <Sun className="mr-2 h-10 w-10 text-yellow-500" />
-                                        <div>
-                                            <p className="text-2xl font-bold">
-                                                72°F
+                <Marker longitude={100.3296} latitude={5.4146} anchor="top">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-16"
+                            >
+                                <CalendarDays className="size-8" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                            className="w-80"
+                            align="center"
+                            side="top"
+                        >
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle>Local Weather</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <Sun className="mr-2 h-10 w-10 text-yellow-500" />
+                                            <div>
+                                                <p className="text-2xl font-bold">
+                                                    72°F
+                                                </p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Sunny
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-medium">
+                                                High: 75°F
                                             </p>
-                                            <p className="text-sm text-muted-foreground">
-                                                Sunny
+                                            <p className="text-sm font-medium">
+                                                Low: 62°F
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-medium">
-                                            High: 75°F
-                                        </p>
-                                        <p className="text-sm font-medium">
-                                            Low: 62°F
-                                        </p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                            <CardFooter>
-                                <Button variant="ghost" className="w-full">
-                                    <CalendarDays className="mr-2 h-4 w-4" />
-                                    7-Day Forecast
+                                </CardContent>
+                                <CardFooter>
+                                    <Button variant="ghost" className="w-full">
+                                        <CalendarDays className="mr-2 h-4 w-4" />
+                                        7-Day Forecast
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        </PopoverContent>
+                    </Popover>
+                </Marker>
+                <NavigationControl position="top-right" />
+                <ScaleControl />
+                {/* Toolbar */}
+            </Map>
+            <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 transform rounded-full bg-white p-2 shadow-lg">
+                <div className="flex space-x-2 rounded-full bg-white p-2 shadow-lg">
+                    {tools.map((tool) => (
+                        <Tooltip key={tool.name}>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    size="icon"
+                                    variant={
+                                        activeToolbar === tool.name
+                                            ? "default"
+                                            : "ghost"
+                                    }
+                                    onClick={() =>
+                                        handleToolbarClick(tool.name)
+                                    }
+                                >
+                                    <tool.icon className="h-4 w-4" />
                                 </Button>
-                            </CardFooter>
-                        </Card>
-                    </PopoverContent>
-                </Popover>
-            </Marker>
-            <NavigationControl position="top-right" />
-        </Map>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{tool.tooltip}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    ))}
+                </div>
+            </div>
+        </MapProvider>
     )
 }

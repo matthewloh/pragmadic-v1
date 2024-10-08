@@ -214,7 +214,7 @@ const CommunityEventForm = ({
                     Event Timestamp
                 </Label>
                 <br />
-                <Popover>
+                <Popover modal={true}>
                     <Input
                         name="eventTimestamp"
                         onChange={() => {}}
@@ -349,7 +349,7 @@ const CommunityEventForm = ({
                     Completed At
                 </Label>
                 <br />
-                <Popover>
+                <Popover modal={true}>
                     <Input
                         name="completedAt"
                         onChange={() => {}}

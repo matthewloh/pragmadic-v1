@@ -32,7 +32,11 @@ const State = async ({ id }: { id: string }) => {
         <Suspense fallback={<Loading />}>
             <div className="relative">
                 <BackButton currentResource="states" />
-                <OptimisticState state={state} regions={regions} />
+                <OptimisticState
+                    state={state}
+                    regions={regions}
+                    regionId={state.regionId}
+                />
             </div>
             <div className="relative mx-4 mt-8">
                 <h3 className="mb-4 text-xl font-medium">

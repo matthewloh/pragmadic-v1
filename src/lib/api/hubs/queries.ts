@@ -23,7 +23,7 @@ export const getHubById = async (id: HubId) => {
     const [row] = await db
         .select({ hub: hubs, state: states })
         .from(hubs)
-        .where(and(eq(hubs.id, hubId), eq(hubs.userId, session!.user.id!)))
+        .where(and(eq(hubs.id, hubId)))
         .leftJoin(states, eq(hubs.stateId, states.id))
     if (row === undefined) return {}
     const h = { ...row.hub, state: row.state }
@@ -36,7 +36,7 @@ export const getHubByIdWithEventsAndReviews = async (id: HubId) => {
     const rows = await db
         .select({ hub: hubs, event: events, review: reviews })
         .from(hubs)
-        .where(and(eq(hubs.id, hubId), eq(hubs.userId, session!.user.id!)))
+        .where(and(eq(hubs.id, hubId)))
         .leftJoin(events, eq(hubs.id, events.hubId))
         .leftJoin(reviews, eq(hubs.id, reviews.hubId))
     if (rows.length === 0) return {}

@@ -6,7 +6,7 @@ export function DashboardGradient() {
             <div className="absolute bottom-0 right-0 h-1/2 w-1/2 rounded-full bg-gradient-to-b from-[#99cdfd] to-[#e56ebc]" />
             <div className="absolute -left-1/4 top-1/3 h-3/4 w-3/4 rounded-full bg-gradient-to-b from-[#5c62f4] to-[#ff6dc4]" />
             <div className="absolute -left-1/4 bottom-0 h-2/3 w-2/3 rounded-full bg-gradient-to-b from-[#f4655c] to-[#f45cb7]" />
-            <div className="absolute inset-0 bg-[#4128da]/5 backdrop-blur-[182px] backdrop-saturate-70" />
+            <div className="backdrop-saturate-70 absolute inset-0 bg-[#4128da]/5 backdrop-blur-[182px]" />
         </div>
     )
 }
@@ -25,7 +25,7 @@ export function CustomGradient() {
     )
 }
 
-export function NewCustomGradient() {
+export function AdminGradient() {
     return (
         <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0 overflow-hidden">
@@ -49,6 +49,20 @@ export function PagesGradient() {
                 <div className="absolute left-[-10%] top-[35%] h-[70%] w-[80%] rotate-6 transform rounded-[30%_70%_70%_30%_/_50%_50%_30%_60%] bg-gradient-to-b from-[#0b8d75] to-[#bcffd6] opacity-40"></div>
                 <div className="absolute left-[-5%] top-[50%] h-[60%] w-[65%] -rotate-3 transform rounded-[70%_30%_50%_50%_/_60%_40%_60%_40%] bg-gradient-to-b from-[#05cc61] to-[#a1ffc1] opacity-30"></div>
                 <div className="absolute inset-0 bg-[#5f8a29]/5 backdrop-blur-[60px]"></div>
+            </div>
+        </div>
+    )
+}
+
+export function AutumnFireGradient() {
+    return (
+        <div className="absolute inset-0 overflow-hidden">
+            <div className="relative h-full w-full bg-gradient-to-br from-[#FFBB55] via-[#D15D4C] to-[#1F4F8E]">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#FFBB55] via-transparent to-transparent opacity-90"></div>
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#C44B4E] to-transparent opacity-90"></div>
+                <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-[#1F4F8E] to-[#0A2342] opacity-90"></div>
+                <div className="bg-gradient-radial absolute left-[-20%] top-[-50%] h-[70%] w-[70%] rounded-full from-[#FFF3E0] via-[#FFBB55] to-transparent opacity-40 blur-2xl"></div>
+                {/* <div className="absolute inset-0 backdrop-blur-[2px]"></div> */}
             </div>
         </div>
     )

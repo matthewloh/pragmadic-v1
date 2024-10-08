@@ -250,7 +250,7 @@ const StateForm = ({
                     Approved At
                 </Label>
                 <br />
-                <Popover>
+                <Popover modal={true}>
                     <Input
                         name="approvedAt"
                         onChange={() => {}}

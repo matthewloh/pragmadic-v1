@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { motion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import Image from "next/image"
-import { motion } from "framer-motion"
 import { useState } from "react"
-import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export function MapSidebar() {
     const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -59,7 +58,7 @@ export function MapSidebar() {
                         <CardContent>
                             <div className="mb-2 flex items-center space-x-2">
                                 <Image
-                                    src="/placeholder.svg?height=40&width=40"
+                                    src="/placeholder.svg"
                                     alt="Movie Night"
                                     width={40}
                                     height={40}
@@ -94,7 +93,7 @@ export function MapSidebar() {
                                         className="flex items-center space-x-2"
                                     >
                                         <Image
-                                            src="/placeholder.svg?height=40&width=40"
+                                            src="/placeholder.svg"
                                             alt={event}
                                             width={40}
                                             height={40}
