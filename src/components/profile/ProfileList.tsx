@@ -1,14 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { type Profile, CompleteProfile } from "@/lib/db/schema/profile"
-import Modal from "@/components/shared/Modal"
 import { useOptimisticProfile } from "@/app/(app)/(profile)/profile/useOptimisticProfile"
-import { Button } from "@/components/ui/button"
+import { Profile, type CompleteProfile } from "@/lib/db/schema/profile"
+import Modal from "@/components/shared/Modal"
 import ProfileForm from "./ProfileForm"
+import { RegularProfileCard } from "./RegularProfileCard"
 import { PlusIcon } from "lucide-react"
 
 type TOpenModal = (profile?: Profile) => void
@@ -21,65 +18,41 @@ export default function ProfileList({
     const { optimisticProfile, addOptimisticProfile } =
         useOptimisticProfile(profile)
     const [open, setOpen] = useState(false)
+    const [isExpanded, setIsExpanded] = useState(false)
     const [activeProfile, setActiveProfile] = useState<Profile | null>(null)
+
     const openModal = (profile?: Profile) => {
         setOpen(true)
         profile ? setActiveProfile(profile) : setActiveProfile(null)
     }
     const closeModal = () => setOpen(false)
 
+    const toggleExpand = () => setIsExpanded(!isExpanded)
+
     return (
         <div>
             <Modal
                 open={open}
                 setOpen={setOpen}
-                title={activeProfile ? "Edit Profile" : "Create Profile"}
+                title={optimisticProfile ? "Edit Profile" : "Create Profile"}
             >
                 <ProfileForm
-                    profile={activeProfile}
+                    profile={optimisticProfile}
                     addOptimistic={addOptimisticProfile}
                     openModal={openModal}
                     closeModal={closeModal}
                 />
             </Modal>
-            {!optimisticProfile ? (
-                <EmptyState openModal={openModal} />
+            {optimisticProfile ? (
+                <RegularProfileCard
+                    profile={optimisticProfile}
+                    isExpanded={isExpanded}
+                    onToggle={toggleExpand}
+                    onManage={openModal}
+                />
             ) : (
-                <Profile profile={optimisticProfile} openModal={openModal} />
+                <EmptyState openModal={openModal} />
             )}
-        </div>
-    )
-}
-
-const Profile = ({
-    profile,
-    openModal,
-}: {
-    profile: CompleteProfile
-    openModal: TOpenModal
-}) => {
-    const optimistic = profile.id === "optimistic"
-    const deleting = profile.id === "delete"
-    const mutating = optimistic || deleting
-    const pathname = usePathname()
-    const basePath = pathname.includes("profile")
-        ? pathname
-        : pathname + "/profile/"
-
-    return (
-        <div
-            className={cn(
-                "my-2 flex justify-between",
-                mutating ? "animate-pulse opacity-30" : "",
-                deleting ? "text-destructive" : "",
-            )}
-        >
-            <div className="w-full">
-                <div>{profile.bio}</div>
-            </div>
-            <Button variant={"link"} asChild>
-                <Link href={basePath + "/" + profile.id}>Edit</Link>
-            </Button>
         </div>
     )
 }
@@ -94,9 +67,17 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
                 Get started by creating a new profile.
             </p>
             <div className="mt-6">
-                <Button onClick={() => openModal()}>
-                    <PlusIcon className="h-4" /> New Profile{" "}
-                </Button>
+                <button
+                    type="button"
+                    className="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+                    onClick={() => openModal()}
+                >
+                    <PlusIcon
+                        className="-ml-0.5 mr-1.5 h-5 w-5"
+                        aria-hidden="true"
+                    />
+                    New Profile
+                </button>
             </div>
         </div>
     )

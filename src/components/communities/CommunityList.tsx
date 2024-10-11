@@ -1,36 +1,58 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-
-import { cn } from "@/lib/utils"
-import { type Community, CompleteCommunity } from "@/lib/db/schema/communities"
 import Modal from "@/components/shared/Modal"
+import { type Community, CompleteCommunity } from "@/lib/db/schema/communities"
+import { useMemo, useState } from "react"
 
-import { useOptimisticCommunities } from "@/app/(app)/communities/useOptimisticCommunities"
+import {
+    useOptimisticCommunities
+} from "@/app/(app)/communities/useOptimisticCommunities"
 import { Button } from "@/components/ui/button"
-import CommunityForm from "./CommunityForm"
+import { AuthSession } from "@/lib/auth/types"
 import { PlusIcon } from "lucide-react"
+import CommunityCard from "./CommunityCard"
+import CommunityForm from "./CommunityForm"
+import CommunitySearch from "./CommunitySearch"
 
 type TOpenModal = (community?: Community) => void
 
 export default function CommunityList({
     communities,
+    session,
 }: {
     communities: CompleteCommunity[]
+    session: AuthSession["session"]
 }) {
     const { optimisticCommunities, addOptimisticCommunity } =
         useOptimisticCommunities(communities)
+
     const [open, setOpen] = useState(false)
     const [activeCommunity, setActiveCommunity] = useState<Community | null>(
         null,
     )
+    const [searchQuery, setSearchQuery] = useState("")
+
+    const filteredCommunities = useMemo(() => {
+        return optimisticCommunities.filter(
+            (community) =>
+                community.name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                community.description
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()),
+        )
+    }, [optimisticCommunities, searchQuery])
+
     const openModal = (community?: Community) => {
         setOpen(true)
         community ? setActiveCommunity(community) : setActiveCommunity(null)
     }
     const closeModal = () => setOpen(false)
+
+    const handleSearch = (query: string) => {
+        setSearchQuery(query)
+    }
 
     return (
         <div>
@@ -46,58 +68,31 @@ export default function CommunityList({
                     closeModal={closeModal}
                 />
             </Modal>
-            <div className="absolute right-0 top-0">
-                <Button onClick={() => openModal()} variant={"outline"}>
-                    +
+            <div className="mb-8 flex items-center justify-between">
+                <h1 className="text-3xl font-bold text-foreground">
+                    Communities
+                </h1>
+                <Button onClick={() => openModal()} variant={"secondary"}>
+                    <PlusIcon className="mr-2 h-4 w-4" />
+                    Create Community
                 </Button>
             </div>
-            {optimisticCommunities.length === 0 ? (
+            <CommunitySearch onSearch={handleSearch} />
+            {filteredCommunities.length === 0 ? (
                 <EmptyState openModal={openModal} />
             ) : (
-                <ul>
-                    {optimisticCommunities.map((community) => (
-                        <Community
-                            community={community}
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {filteredCommunities.map((community) => (
+                        <CommunityCard
                             key={community.id}
-                            openModal={openModal}
+                            community={community}
+                            addOptimistic={addOptimisticCommunity}
+                            session={session}
                         />
                     ))}
-                </ul>
+                </div>
             )}
         </div>
-    )
-}
-
-const Community = ({
-    community,
-    openModal,
-}: {
-    community: CompleteCommunity
-    openModal: TOpenModal
-}) => {
-    const optimistic = community.id === "optimistic"
-    const deleting = community.id === "delete"
-    const mutating = optimistic || deleting
-    const pathname = usePathname()
-    const basePath = pathname.includes("communities")
-        ? pathname
-        : pathname + "/communities/"
-
-    return (
-        <li
-            className={cn(
-                "my-2 flex justify-between",
-                mutating ? "animate-pulse opacity-30" : "",
-                deleting ? "text-destructive" : "",
-            )}
-        >
-            <div className="w-full">
-                <div>{community.name}</div>
-            </div>
-            <Button variant={"link"} asChild>
-                <Link href={basePath + "/" + community.id}>Edit</Link>
-            </Button>
-        </li>
     )
 }
 

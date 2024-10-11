@@ -5,17 +5,22 @@ const nextConfig = {
             {
                 protocol: "https",
                 hostname: "avatars.githubusercontent.com",
-                port: "",
+            },
+            {
+                protocol: "https",
+                hostname: "images.unsplash.com",
             },
             {
                 protocol: "https",
                 hostname: "lh3.googleusercontent.com",
-                port: "",
             },
             {
                 protocol: "https",
                 hostname: "avatar.vercel.sh",
-                port: "",
+            },
+            {
+                protocol: "https",
+                hostname: "iwoygssdyztqrbbbyygp.supabase.co",
             },
         ],
     },

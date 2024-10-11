@@ -1,5 +1,8 @@
 "use client"
 
+import { CardDemo } from "@/components/aceternity/ContentCard"
+import { ThreeDCardDemo } from "@/components/aceternity/ThreeDCard"
+import { FloatingDock, FloatingDockItem } from "@/components/floating-dock"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -16,7 +19,6 @@ import {
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
@@ -44,24 +46,12 @@ export function MapComponent() {
     const [viewState, setViewState] = useState({
         longitude: 100.3327,
         latitude: 5.4164,
-        zoom: 11,
+        zoom: 16,
     })
     const { current: map } = useMap()
 
-    const tools = [
-        { name: "pin", icon: MapPin, tooltip: "Add Pin" },
-        { name: "home", icon: Home, tooltip: "Home" },
-        { name: "edit", icon: Edit, tooltip: "Edit" },
-        { name: "measure", icon: Ruler, tooltip: "Measure" },
-        { name: "delete", icon: Trash, tooltip: "Delete" },
-        { name: "share", icon: Share, tooltip: "Share" },
-    ]
-
-    const [activeToolbar, setActiveToolbar] = useState<string | null>(null)
-
     const handleToolbarClick = (tool: string) => {
         setActiveToolbar(activeToolbar === tool ? null : tool)
-        // Here you would implement the logic for each tool
         switch (tool) {
             case "pin":
                 map?.flyTo({ center: [100.3296, 5.4146] })
@@ -75,15 +65,67 @@ export function MapComponent() {
                 })
                 break
             case "edit":
+                console.log("Edit tool clicked")
                 break
             case "measure":
+                console.log("Measure tool clicked")
                 break
             case "delete":
+                console.log("Delete tool clicked")
                 break
             case "share":
+                console.log("Share tool clicked")
                 break
         }
     }
+
+    const tools: FloatingDockItem[] = [
+        {
+            name: "pin",
+            icon: <MapPin className="h-4 w-4" />,
+            href: "#",
+            title: "Add Pin",
+            onClick: () => handleToolbarClick("pin"),
+        },
+        {
+            name: "home",
+            icon: <Home className="h-4 w-4" />,
+            href: "#",
+            title: "Home",
+            onClick: () => handleToolbarClick("home"),
+        },
+        {
+            name: "edit",
+            icon: <Edit className="h-4 w-4" />,
+            href: "#",
+            title: "Edit",
+            onClick: () => handleToolbarClick("edit"),
+        },
+        {
+            name: "measure",
+            icon: <Ruler className="h-4 w-4" />,
+            href: "#",
+            title: "Measure",
+            onClick: () => handleToolbarClick("measure"),
+        },
+        {
+            name: "delete",
+            icon: <Trash className="h-4 w-4" />,
+            href: "#",
+            title: "Delete",
+            onClick: () => handleToolbarClick("delete"),
+        },
+        {
+            name: "share",
+            icon: <Share className="h-4 w-4" />,
+            href: "#",
+            title: "Share",
+            onClick: () => handleToolbarClick("share"),
+        },
+    ]
+
+    const [activeToolbar, setActiveToolbar] = useState<string | null>(null)
+
     return (
         <MapProvider>
             <Map
@@ -95,16 +137,15 @@ export function MapComponent() {
                 projection={"globe" as any}
                 doubleClickZoom={false}
             >
-                <Marker longitude={100.3296} latitude={5.4146} anchor="top">
+                <Marker
+                    longitude={100.3296}
+                    latitude={5.4146}
+                    anchor="bottom"
+                    offset={[-20, -40]}
+                >
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-16"
-                            >
-                                <CalendarDays className="size-8" />
-                            </Button>
+                            <CardDemo />
                         </PopoverTrigger>
                         <PopoverContent
                             className="w-80"
@@ -145,6 +186,7 @@ export function MapComponent() {
                                     </Button>
                                 </CardFooter>
                             </Card>
+                            <CardDemo />
                         </PopoverContent>
                     </Popover>
                 </Marker>
@@ -152,32 +194,11 @@ export function MapComponent() {
                 <ScaleControl />
                 {/* Toolbar */}
             </Map>
-            <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 transform rounded-full bg-white p-2 shadow-lg">
-                <div className="flex space-x-2 rounded-full bg-white p-2 shadow-lg">
-                    {tools.map((tool) => (
-                        <Tooltip key={tool.name}>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    size="icon"
-                                    variant={
-                                        activeToolbar === tool.name
-                                            ? "default"
-                                            : "ghost"
-                                    }
-                                    onClick={() =>
-                                        handleToolbarClick(tool.name)
-                                    }
-                                >
-                                    <tool.icon className="h-4 w-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{tool.tooltip}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    ))}
-                </div>
-            </div>
+            <FloatingDock
+                items={tools}
+                desktopClassName="absolute bottom-8 left-1/2 -translate-x-1/2 transform"
+                mobileClassName="absolute bottom-4 right-4"
+            />
         </MapProvider>
     )
 }

@@ -1,5 +1,4 @@
 import ChatContentClient from "@/features/chat/components/ChatContentClient"
-import ChatSettingsSidebar from "@/features/chat/components/ChatSettingsSidebar"
 import { getChatById } from "@/lib/api/chats/queries"
 import { Chat } from "@/lib/db/schema/chats"
 import { type Message } from "ai"

@@ -1,40 +1,40 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-
-import { cn } from "@/lib/utils"
+import { useOptimisticHubOwnerProfile } from "@/app/(app)/hub-owner-profile/useOptimisticHubOwnerProfiles"
 import {
-    type HubOwnerProfile,
-    CompleteHubOwnerProfile,
+    HubOwnerProfile,
+    type CompleteHubOwnerProfile,
 } from "@/lib/db/schema/hubOwnerProfiles"
 import Modal from "@/components/shared/Modal"
-
-import { useOptimisticHubOwnerProfiles } from "@/app/(app)/hub-owner-profile/useOptimisticHubOwnerProfiles"
-import { Button } from "@/components/ui/button"
 import HubOwnerProfileForm from "./HubOwnerProfileForm"
+import { HubOwnerProfileCard } from "../profile/HubOwnerProfileCard"
 import { PlusIcon } from "lucide-react"
 
 type TOpenModal = (hubOwnerProfile?: HubOwnerProfile) => void
 
 export default function HubOwnerProfileList({
-    hubOwnerProfiles,
+    hubOwnerProfile,
 }: {
-    hubOwnerProfiles: CompleteHubOwnerProfile[]
+    hubOwnerProfile: CompleteHubOwnerProfile | undefined
 }) {
-    const { optimisticHubOwnerProfiles, addOptimisticHubOwnerProfile } =
-        useOptimisticHubOwnerProfiles(hubOwnerProfiles)
+    const { optimisticHubOwnerProfile, addOptimisticHubOwnerProfile } =
+        useOptimisticHubOwnerProfile(hubOwnerProfile)
     const [open, setOpen] = useState(false)
+    const [isExpanded, setIsExpanded] = useState(false)
     const [activeHubOwnerProfile, setActiveHubOwnerProfile] =
         useState<HubOwnerProfile | null>(null)
+
     const openModal = (hubOwnerProfile?: HubOwnerProfile) => {
         setOpen(true)
         hubOwnerProfile
             ? setActiveHubOwnerProfile(hubOwnerProfile)
             : setActiveHubOwnerProfile(null)
     }
+
     const closeModal = () => setOpen(false)
+
+    const toggleExpand = () => setIsExpanded(!isExpanded)
 
     return (
         <div>
@@ -42,70 +42,29 @@ export default function HubOwnerProfileList({
                 open={open}
                 setOpen={setOpen}
                 title={
-                    activeHubOwnerProfile
-                        ? "Edit HubOwnerProfile"
+                    optimisticHubOwnerProfile
+                        ? "Edit Hub Owner Profile"
                         : "Create Hub Owner Profile"
                 }
             >
                 <HubOwnerProfileForm
-                    hubOwnerProfile={activeHubOwnerProfile}
+                    hubOwnerProfile={optimisticHubOwnerProfile}
                     addOptimistic={addOptimisticHubOwnerProfile}
                     openModal={openModal}
                     closeModal={closeModal}
                 />
             </Modal>
-            <div className="absolute right-0 top-0">
-                <Button onClick={() => openModal()} variant={"outline"}>
-                    +
-                </Button>
-            </div>
-            {optimisticHubOwnerProfiles.length === 0 ? (
-                <EmptyState openModal={openModal} />
+            {optimisticHubOwnerProfile ? (
+                <HubOwnerProfileCard
+                    profile={optimisticHubOwnerProfile}
+                    isExpanded={isExpanded}
+                    onToggle={toggleExpand}
+                    onManage={openModal}
+                />
             ) : (
-                <ul>
-                    {optimisticHubOwnerProfiles.map((hubOwnerProfile) => (
-                        <HubOwnerProfile
-                            hubOwnerProfile={hubOwnerProfile}
-                            key={hubOwnerProfile.id}
-                            openModal={openModal}
-                        />
-                    ))}
-                </ul>
+                <EmptyState openModal={openModal} />
             )}
         </div>
-    )
-}
-
-const HubOwnerProfile = ({
-    hubOwnerProfile,
-    openModal,
-}: {
-    hubOwnerProfile: CompleteHubOwnerProfile
-    openModal: TOpenModal
-}) => {
-    const optimistic = hubOwnerProfile.id === "optimistic"
-    const deleting = hubOwnerProfile.id === "delete"
-    const mutating = optimistic || deleting
-    const pathname = usePathname()
-    const basePath = pathname.includes("hub-owner-profiles")
-        ? pathname
-        : pathname + "/hub-owner-profiles/"
-
-    return (
-        <li
-            className={cn(
-                "my-2 flex justify-between",
-                mutating ? "animate-pulse opacity-30" : "",
-                deleting ? "text-destructive" : "",
-            )}
-        >
-            <div className="w-full">
-                <div>{hubOwnerProfile.companyName}</div>
-            </div>
-            <Button variant={"link"} asChild>
-                <Link href={basePath + "/" + hubOwnerProfile.id}>Edit</Link>
-            </Button>
-        </li>
     )
 }
 
@@ -113,15 +72,23 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
     return (
         <div className="text-center">
             <h3 className="mt-2 text-sm font-semibold text-secondary-foreground">
-                No hub owner profiles
+                No hub owner profile
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
                 Get started by creating a new hub owner profile.
             </p>
             <div className="mt-6">
-                <Button onClick={() => openModal()}>
-                    <PlusIcon className="h-4" /> New Hub Owner Profiles{" "}
-                </Button>
+                <button
+                    type="button"
+                    className="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+                    onClick={() => openModal()}
+                >
+                    <PlusIcon
+                        className="-ml-0.5 mr-1.5 h-5 w-5"
+                        aria-hidden="true"
+                    />
+                    New Hub Owner Profile
+                </button>
             </div>
         </div>
     )

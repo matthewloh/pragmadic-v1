@@ -1,11 +1,19 @@
 import { sql } from "drizzle-orm"
-import { varchar, text, boolean, timestamp, pgTable } from "drizzle-orm/pg-core"
+import {
+    varchar,
+    text,
+    boolean,
+    timestamp,
+    pgTable,
+    uuid,
+} from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 
 import { type getRegions } from "@/lib/api/regions/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"
+import { users } from "./users"
 
 export const regions = pgTable("regions", {
     id: varchar("id", { length: 191 })
@@ -14,8 +22,9 @@ export const regions = pgTable("regions", {
     name: varchar("name", { length: 256 }).notNull(),
     description: text("description"),
     public: boolean("public").notNull(),
-    userId: varchar("user_id", { length: 256 }).notNull(),
-
+    userId: uuid("user_id")
+        .references(() => users.id, { onDelete: "cascade" })
+        .notNull(),
     createdAt: timestamp("created_at")
         .notNull()
         .default(sql`now()`),

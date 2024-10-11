@@ -28,7 +28,7 @@ const DerantauAdminProfile = async () => {
     return (
         <Suspense fallback={<Loading />}>
             <DerantauAdminProfileList
-                derantauAdminProfile={derantauAdminProfile}
+                derantauAdminProfiles={derantauAdminProfile}
                 regions={regions}
             />
         </Suspense>

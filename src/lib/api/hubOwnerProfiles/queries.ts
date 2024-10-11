@@ -17,6 +17,17 @@ export const getHubOwnerProfiles = async () => {
     return { hubOwnerProfiles: h }
 }
 
+export const getSingleHubOwnerProfile = async () => {
+    const { session } = await getUserAuth()
+    const [row] = await db
+        .select()
+        .from(hubOwnerProfiles)
+        .where(eq(hubOwnerProfiles.userId, session?.user.id!))
+    if (row === undefined) return {}
+    const h = row
+    return { hubOwnerProfile: h }
+}
+
 export const getHubOwnerProfileById = async (id: HubOwnerProfileId) => {
     const { session } = await getUserAuth()
     const { id: hubOwnerProfileId } = hubOwnerProfileIdSchema.parse({ id })

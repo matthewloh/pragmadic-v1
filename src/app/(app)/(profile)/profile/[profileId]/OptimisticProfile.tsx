@@ -1,13 +1,13 @@
 "use client"
 
-import { useOptimistic, useState } from "react"
 import { TAddOptimistic } from "@/app/(app)/(profile)/profile/useOptimisticProfile"
 import { type Profile } from "@/lib/db/schema/profile"
 import { cn } from "@/lib/utils"
+import { useOptimistic, useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import Modal from "@/components/shared/Modal"
 import ProfileForm from "@/components/profile/ProfileForm"
+import Modal from "@/components/shared/Modal"
+import { Button } from "@/components/ui/button"
 
 export default function OptimisticProfile({ profile }: { profile: Profile }) {
     const [open, setOpen] = useState(false)

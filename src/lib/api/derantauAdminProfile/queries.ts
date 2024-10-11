@@ -7,6 +7,7 @@ import {
     derantauAdminProfile,
 } from "@/lib/db/schema/derantauAdminProfile"
 import { regions } from "@/lib/db/schema/regions"
+import { getRegions } from "../regions/queries"
 
 export const getDerantauAdminProfiles = async () => {
     const { session } = await getUserAuth()
@@ -17,6 +18,18 @@ export const getDerantauAdminProfiles = async () => {
         .where(eq(derantauAdminProfile.userId, session?.user.id!))
     const d = rows.map((r) => ({ ...r.derantauAdminProfile, region: r.region }))
     return { derantauAdminProfile: d }
+}
+
+export const getSingleDerantauAdminProfile = async () => {
+    const { session } = await getUserAuth()
+    const [row] = await db
+        .select({ derantauAdminProfile: derantauAdminProfile })
+        .from(derantauAdminProfile)
+        .where(eq(derantauAdminProfile.userId, session?.user.id!))
+    const regions = await getRegions()
+    if (row === undefined) return {}
+
+    return { derantauAdminProfile: row, regions }
 }
 
 export const getDerantauAdminProfileById = async (

@@ -56,15 +56,15 @@ export async function updateSession(request: NextRequest) {
     // }
 
     const {
-        data: { user },
-    } = await supabase.auth.getUser()
+        data: { session },
+    } = await supabase.auth.getSession()
 
     // Get the user's role using the custom getUserRole function
     const { role } = await getUserRole()
     console.log(role)
     const url = new URL(request.url)
 
-    if (user?.id) {
+    if (session?.user.id) {
         if (url.pathname === "/login") {
             return NextResponse.redirect(new URL("/dashboard", request.url))
         }

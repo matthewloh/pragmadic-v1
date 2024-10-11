@@ -19,9 +19,7 @@ import { users } from "@/lib/db/schema"
 
 export const getCommunities = async () => {
     const { session } = await getUserAuth()
-    const rows = await db
-        .select()
-        .from(communities)
+    const rows = await db.select().from(communities)
     const c = rows
     return { communities: c }
 }

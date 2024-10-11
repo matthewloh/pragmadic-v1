@@ -89,3 +89,9 @@ main,
         transform: translateY(0);
     }
 }
+
+.uppy-Dashboard .uppy-Dashboard-inner {
+    width: auto !important;
+    height: 100% !important;
+    min-height: unset !important;
+}

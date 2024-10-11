@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
-
 import {
     ResizableHandle,
     ResizablePanel,
@@ -34,7 +33,6 @@ export default function ChatContentClient({
     const [referencedDocs, setReferencedDocs] = useState<ReferencedDocument[]>(
         [],
     )
-
     const [isDocPanelOpen, setIsDocPanelOpen] = useState(false)
     const [isTransitioning, setIsTransitioning] = useState(false)
 
@@ -50,6 +48,7 @@ export default function ChatContentClient({
             setIsDocPanelOpen(true)
         }
     }
+
     return (
         <>
             <div className="flex h-full flex-col">

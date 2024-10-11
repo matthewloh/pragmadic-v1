@@ -1,168 +1,152 @@
 "use client"
 
-import { Input } from "@/components/ui/input"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { Separator } from "@/components/ui/separator"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Chat } from "@/lib/db/schema/chats"
-import { format, formatDistanceToNow } from "date-fns"
-import {
-    History as HistoryIcon,
-    Home,
-    LucideIcon,
-    Search,
-    Settings,
-} from "lucide-react"
+import { Home, LucideIcon, Settings, Pin } from "lucide-react"
 import Link from "next/link"
-import { useMemo, useState } from "react"
 import { AiFillOpenAI } from "react-icons/ai"
 import { IconType } from "react-icons/lib"
-import { useChatHistory } from "../hooks/use-chat-history"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import ChatHistoryPopover from "@/features/chat/components/ChatHistoryPopover"
 
 type ChatSettingsSidebarIconComponentProps = {
     icon: LucideIcon | IconType
     label: string
     href: string
+    isExpanded: boolean
+    onClick?: () => void
 }
 
 export default function ChatSettingsSidebar() {
-    const [searchTerm, setSearchTerm] = useState("")
-    const [isOpen, setIsOpen] = useState(false)
-    const { data: chats, isPending } = useChatHistory()
+    const [isExpanded, setIsExpanded] = useState(false)
+    const [isPinned, setIsPinned] = useState(false)
+    const [expandTimeout, setExpandTimeout] = useState<NodeJS.Timeout | null>(
+        null,
+    )
 
-    const filteredAndGroupedHistory = useMemo(() => {
-        if (!chats) return {}
+    const handleMouseEnter = () => {
+        const timeout = setTimeout(() => {
+            if (!isPinned) setIsExpanded(true)
+        }, 200)
+        setExpandTimeout(timeout)
+    }
 
-        const filtered = chats.filter(
-            (chat) =>
-                chat.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                chat.messages[0]?.content
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase()),
-        )
+    const handleMouseLeave = () => {
+        const timeout = setTimeout(() => {
+            if (!isPinned) setIsExpanded(false)
+        }, 400)
+        setExpandTimeout(timeout)
+    }
 
-        return filtered.reduce(
-            (acc, chat) => {
-                const dateKey = format(new Date(chat.createdAt), "yyyy-MM-dd")
-                if (!acc[dateKey]) {
-                    acc[dateKey] = []
-                }
-                acc[dateKey].push(chat)
-                return acc
-            },
-            {} as Record<string, Chat[]>,
-        )
-    }, [chats, searchTerm])
+    const togglePin = () => {
+        setIsPinned((prev) => !prev)
+    }
+
+    useEffect(() => {
+        return () => {
+            if (expandTimeout) {
+                clearTimeout(expandTimeout)
+            }
+        }
+    }, [expandTimeout])
 
     return (
-        <aside className="hidden w-[60px] flex-col border-r bg-background sm:flex">
-            <nav className="flex flex-col items-center gap-4">
-                <SidebarTrigger />
+        <motion.aside
+            className="flex h-full flex-col rounded-br-lg rounded-tr-lg border border-border bg-background shadow-lg dark:border-gray-700 dark:bg-gray-800"
+            initial={{ width: "60px" }}
+            animate={{ width: isExpanded ? "240px" : "60px" }}
+            transition={{ duration: 0.3 }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
+            <nav className="flex flex-col items-center justify-center gap-2 transition-transform">
+                <div
+                    className={cn("flex items-center", {
+                        "w-full": isExpanded,
+                        "w-[60px]": !isExpanded,
+                    })}
+                >
+                    <SidebarTrigger className="flex-1" />
+                    {isExpanded && (
+                        <PinSidebarButton
+                            isPinned={isPinned}
+                            isExpanded={isExpanded}
+                            onClick={togglePin}
+                        />
+                    )}
+                </div>
                 <ChatSettingsSidebarIconComponent
                     icon={Home}
                     label="Home"
                     href="/dashboard"
+                    isExpanded={isExpanded}
                 />
                 <ChatSettingsSidebarIconComponent
                     icon={AiFillOpenAI}
                     label="Models"
-                    href={`/models`}
+                    href="/models"
+                    isExpanded={isExpanded}
                 />
-                <Popover open={isOpen} onOpenChange={setIsOpen}>
-                    <PopoverTrigger asChild>
-                        <button
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                            aria-label="Chat History"
-                        >
-                            <HistoryIcon className="h-5 w-5" />
-                        </button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                        side="right"
-                        align="start"
-                        className="ml-2 w-96 p-0"
-                    >
-                        <div className="flex items-center space-x-2 p-3">
-                            <Search className="h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search history..."
-                                className="flex-1 border-none bg-transparent p-0 focus-visible:ring-0"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <Separator />
-                        <div className="max-h-[calc(100vh-50%)] overflow-y-auto">
-                            {isPending ? (
-                                <div className="p-3 text-center text-sm text-muted-foreground">
-                                    Loading...
-                                </div>
-                            ) : chats && chats.length > 0 ? (
-                                Object.entries(filteredAndGroupedHistory).map(
-                                    ([date, items]) => (
-                                        <div key={date}>
-                                            <div className="sticky top-0 bg-background p-2 text-xs font-semibold text-muted-foreground">
-                                                {format(
-                                                    new Date(date),
-                                                    "MMMM d, yyyy",
-                                                )}
-                                            </div>
-                                            {items.map((chat) => (
-                                                <Link
-                                                    key={chat.id}
-                                                    href={`/chat/${chat.id}`}
-                                                    className="block p-3 hover:bg-muted"
-                                                    onClick={() =>
-                                                        setIsOpen(false)
-                                                    }
-                                                >
-                                                    <div className="text-sm font-medium">
-                                                        {chat.name}
-                                                    </div>
-                                                    <div className="text-xs text-muted-foreground">
-                                                        {formatDistanceToNow(
-                                                            new Date(
-                                                                chat.createdAt,
-                                                            ),
-                                                            { addSuffix: true },
-                                                        )}
-                                                    </div>
-                                                    <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                                                        {chat.messages[0]
-                                                            ?.content ||
-                                                            "No messages"}
-                                                    </div>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    ),
-                                )
-                            ) : (
-                                <div className="p-3 text-center text-sm text-muted-foreground">
-                                    No chat history found.
-                                </div>
-                            )}
-                        </div>
-                    </PopoverContent>
-                </Popover>
-            </nav>
-            <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+                <ChatHistoryPopover isExpanded={isExpanded} />
                 <ChatSettingsSidebarIconComponent
                     icon={Settings}
                     label="Settings"
                     href="/chat/settings"
+                    isExpanded={isExpanded}
                 />
             </nav>
-        </aside>
+            <AnimatePresence>
+                {isExpanded && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-auto px-4 py-4"
+                    >
+                        <h2 className="text-lg font-semibold text-foreground">
+                            Chat Settings
+                        </h2>
+                        <p className="text-sm text-muted-foreground">
+                            Manage your chat preferences and history.
+                        </p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.aside>
+    )
+}
+
+function PinSidebarButton({
+    isPinned,
+    isExpanded,
+    onClick,
+}: {
+    isPinned: boolean
+    isExpanded: boolean
+    onClick: () => void
+}) {
+    return (
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClick}
+            className={cn("h-[60px] transition-transform duration-300", {
+                "text-blue-500": isPinned,
+                "text-gray-500": !isPinned,
+                "bg-gray-200 dark:bg-gray-700": isExpanded,
+            })}
+        >
+            <motion.div
+                initial={{ rotate: 0 }}
+                animate={{ rotate: isPinned ? 45 : 0 }}
+                transition={{ duration: 0.3 }}
+            >
+                <Pin className="h-5 w-5" />
+            </motion.div>
+        </Button>
     )
 }
 
@@ -170,19 +154,44 @@ function ChatSettingsSidebarIconComponent({
     icon: Icon,
     label,
     href,
+    isExpanded,
+    onClick,
 }: ChatSettingsSidebarIconComponentProps) {
     return (
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <Link
-                    href={`${href}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                >
-                    <Icon className="h-5 w-5" />
-                    <span className="sr-only">{label}</span>
-                </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">{label}</TooltipContent>
-        </Tooltip>
+        <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+                `flex w-full items-center justify-start ${isExpanded ? "px-4" : "px-0"}`,
+                {
+                    "py-2": isExpanded,
+                },
+            )}
+            asChild
+        >
+            <Link
+                href={href}
+                onClick={onClick}
+                className={cn("flex w-full items-center", {
+                    "justify-start": isExpanded,
+                    "justify-center": !isExpanded,
+                })}
+            >
+                <Icon className="h-5 w-5" />
+                <AnimatePresence>
+                    {isExpanded && (
+                        <motion.span
+                            initial={{ opacity: 0, width: 0 }}
+                            animate={{ opacity: 1, width: "auto" }}
+                            exit={{ opacity: 0, width: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="ml-4 overflow-hidden whitespace-nowrap"
+                        >
+                            {label}
+                        </motion.span>
+                    )}
+                </AnimatePresence>
+            </Link>
+        </Button>
     )
 }

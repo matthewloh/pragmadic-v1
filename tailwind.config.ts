@@ -97,11 +97,18 @@ const config = {
                         width: "100%",
                     },
                 },
+                keyframes: {
+                    move: {
+                        "0%": { transform: "translateX(-200px)" }.toString(),
+                        "100%": { transform: "translateX(200px)" }.toString(),
+                    },
+                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
                 progressBar: "progressBar 1.5s ease-in-out infinite",
+                move: "move 5s linear infinite",
             },
         },
     },

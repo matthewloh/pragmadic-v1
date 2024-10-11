@@ -7,46 +7,38 @@ import { useOptimistic } from "react"
 
 export type TAddOptimistic = (action: OptimisticAction<HubOwnerProfile>) => void
 
-export const useOptimisticHubOwnerProfiles = (
-    hubOwnerProfiles: CompleteHubOwnerProfile[],
+export const useOptimisticHubOwnerProfile = (
+    hubOwnerProfile: CompleteHubOwnerProfile | undefined,
 ) => {
-    const [optimisticHubOwnerProfiles, addOptimisticHubOwnerProfile] =
+    const [optimisticHubOwnerProfile, addOptimisticHubOwnerProfile] =
         useOptimistic(
-            hubOwnerProfiles,
+            hubOwnerProfile,
             (
-                currentState: CompleteHubOwnerProfile[],
+                currentState: CompleteHubOwnerProfile | undefined,
                 action: OptimisticAction<HubOwnerProfile>,
-            ): CompleteHubOwnerProfile[] => {
+            ): CompleteHubOwnerProfile | undefined => {
                 const { data } = action
 
                 const optimisticHubOwnerProfile = {
                     ...data,
-
                     id: "optimistic",
                 }
 
                 switch (action.action) {
                     case "create":
-                        return currentState.length === 0
-                            ? [optimisticHubOwnerProfile]
-                            : [...currentState, optimisticHubOwnerProfile]
+                        return optimisticHubOwnerProfile as CompleteHubOwnerProfile
                     case "update":
-                        return currentState.map((item) =>
-                            item.id === data.id
-                                ? { ...item, ...optimisticHubOwnerProfile }
-                                : item,
-                        )
+                        return {
+                            ...currentState,
+                            ...optimisticHubOwnerProfile,
+                        } as CompleteHubOwnerProfile
                     case "delete":
-                        return currentState.map((item) =>
-                            item.id === data.id
-                                ? { ...item, id: "delete" }
-                                : item,
-                        )
+                        return undefined
                     default:
                         return currentState
                 }
             },
         )
 
-    return { addOptimisticHubOwnerProfile, optimisticHubOwnerProfiles }
+    return { addOptimisticHubOwnerProfile, optimisticHubOwnerProfile }
 }

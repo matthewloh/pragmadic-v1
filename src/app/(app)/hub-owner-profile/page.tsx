@@ -2,7 +2,7 @@ import { Suspense } from "react"
 
 import Loading from "@/app/loading"
 import HubOwnerProfileList from "@/components/hubOwnerProfiles/HubOwnerProfileList"
-import { getHubOwnerProfiles } from "@/lib/api/hubOwnerProfiles/queries"
+import { getHubOwnerProfiles, getSingleHubOwnerProfile } from "@/lib/api/hubOwnerProfiles/queries"
 
 export const revalidate = 0
 
@@ -22,11 +22,11 @@ export default async function HubOwnerProfilesPage() {
 }
 
 const HubOwnerProfiles = async () => {
-    const { hubOwnerProfiles } = await getHubOwnerProfiles()
+    const { hubOwnerProfile } = await getSingleHubOwnerProfile()
 
     return (
         <Suspense fallback={<Loading />}>
-            <HubOwnerProfileList hubOwnerProfiles={hubOwnerProfiles} />
+            <HubOwnerProfileList hubOwnerProfile={hubOwnerProfile} />
         </Suspense>
     )
 }

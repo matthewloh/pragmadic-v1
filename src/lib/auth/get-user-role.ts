@@ -10,7 +10,7 @@ type SupabaseJwtPayload = JWTPayload & {
         role: string
     }
 }
-
+export type RoleType = "regular" | "owner" | "admin"
 export async function getUserRole() {
     // Create a Supabase client for server-side operations
     const supabase = createClient()
@@ -45,5 +45,5 @@ export async function getUserRole() {
         }
     }
 
-    return { session, role }
+    return { session, role: role as RoleType };
 }

@@ -1,5 +1,6 @@
-import { z } from "zod"
+"use client"
 
+import { z } from "zod"
 import { useState, useTransition } from "react"
 import { useFormStatus } from "react-dom"
 import { useRouter } from "next/navigation"
@@ -12,16 +13,20 @@ import { type TAddOptimistic } from "@/app/(app)/(profile)/profile/useOptimistic
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { useBackPath } from "@/components/shared/BackButton"
+import { Textarea } from "@/components/ui/textarea"
 
-import { type Profile, insertProfileParams } from "@/lib/db/schema/profile"
+import {
+    type Profile,
+    insertProfileParams,
+    updateProfileSchema,
+} from "@/lib/db/schema/profile"
 import {
     createProfileAction,
     deleteProfileAction,
     updateProfileAction,
 } from "@/lib/actions/profile"
 
-const ProfileForm = ({
+export const ProfileForm = ({
     profile,
     openModal,
     closeModal,
@@ -29,7 +34,6 @@ const ProfileForm = ({
     postSuccess,
 }: {
     profile?: Profile | null
-
     openModal?: (profile?: Profile) => void
     closeModal?: () => void
     addOptimistic?: TAddOptimistic
@@ -43,7 +47,6 @@ const ProfileForm = ({
     const [pending, startMutation] = useTransition()
 
     const router = useRouter()
-    const backpath = useBackPath("profile")
 
     const onSuccess = (
         action: Action,
@@ -59,7 +62,7 @@ const ProfileForm = ({
             router.refresh()
             postSuccess && postSuccess()
             toast.success(`Profile ${action}d!`)
-            if (action === "delete") router.push(backpath)
+            if (action === "delete") router.push("/profile")
         }
     }
 
@@ -67,9 +70,13 @@ const ProfileForm = ({
         setErrors(null)
 
         const payload = Object.fromEntries(data.entries())
-        const profileParsed = await insertProfileParams.safeParseAsync({
-            ...payload,
-        })
+        const profileParsed = editing
+            ? await updateProfileSchema.safeParseAsync({
+                  ...payload,
+                  id: profile.id,
+              })
+            : await insertProfileParams.safeParseAsync(payload)
+
         if (!profileParsed.success) {
             setErrors(profileParsed?.error.flatten().fieldErrors)
             return
@@ -84,6 +91,7 @@ const ProfileForm = ({
             userId: profile?.userId ?? "",
             ...values,
         }
+
         try {
             startMutation(async () => {
                 addOptimistic &&
@@ -93,7 +101,10 @@ const ProfileForm = ({
                     })
 
                 const error = editing
-                    ? await updateProfileAction({ ...values, id: profile.id })
+                    ? await updateProfileAction({
+                          ...values,
+                          id: profile.id,
+                      })
                     : await createProfileAction(values)
 
                 const errorFormatted = {
@@ -128,8 +139,7 @@ const ProfileForm = ({
                 >
                     Bio
                 </Label>
-                <Input
-                    type="text"
+                <Textarea
                     name="bio"
                     className={cn(errors?.bio ? "ring ring-destructive" : "")}
                     defaultValue={profile?.bio ?? ""}
@@ -152,7 +162,6 @@ const ProfileForm = ({
                     Occupation
                 </Label>
                 <Input
-                    type="text"
                     name="occupation"
                     className={cn(
                         errors?.occupation ? "ring ring-destructive" : "",
@@ -177,7 +186,6 @@ const ProfileForm = ({
                     Location
                 </Label>
                 <Input
-                    type="text"
                     name="location"
                     className={cn(
                         errors?.location ? "ring ring-destructive" : "",
@@ -202,7 +210,6 @@ const ProfileForm = ({
                     Website
                 </Label>
                 <Input
-                    type="text"
                     name="website"
                     className={cn(
                         errors?.website ? "ring ring-destructive" : "",
@@ -227,7 +234,6 @@ const ProfileForm = ({
                     Contact Number
                 </Label>
                 <Input
-                    type="text"
                     name="contactNumber"
                     className={cn(
                         errors?.contactNumber ? "ring ring-destructive" : "",
@@ -252,7 +258,6 @@ const ProfileForm = ({
                     Social Links
                 </Label>
                 <Input
-                    type="text"
                     name="socialLinks"
                     className={cn(
                         errors?.socialLinks ? "ring ring-destructive" : "",
@@ -314,7 +319,7 @@ const SaveButton = ({
     editing,
     errors,
 }: {
-    editing: Boolean
+    editing: boolean
     errors: boolean
 }) => {
     const { pending } = useFormStatus()

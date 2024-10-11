@@ -192,3 +192,27 @@ export type UsersToCommunityInviteRoleType = z.infer<
 >["invite_role_type"]
 export type UsersToCommunityInviteStatusEnum = typeof inviteStatusEnum
 export type UsersToCommunityInviteRoleTypeEnum = typeof inviteRoleType
+
+export type CommunityWithMembers = {
+    community: {
+        id: string
+        name: string
+        description: string
+        rules: string
+        isPublic: boolean
+        createdAt: Date
+        userId: string
+        updatedAt: Date
+    }
+    membershipInfo: {
+        userId: string
+        inviteStatus: "pending" | "accepted" | "rejected" | null
+        inviteRoleType: "admin" | "member" | null
+    } | null
+    user: {
+        id: string
+        email: string
+        displayName: string
+        imageUrl: string
+    } | null
+}
