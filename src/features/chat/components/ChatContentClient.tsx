@@ -74,7 +74,10 @@ export default function ChatContentClient({
                                 initialMessages={initialMessages}
                                 onDocumentsReferenced={updateReferencedDocs}
                                 isDocPanelOpen={isDocPanelOpen}
-                                model={searchParams.get("model") || "gemini-1.5-pro-002"}
+                                model={
+                                    searchParams.get("model") ||
+                                    "gemini-1.5-pro-002"
+                                }
                             />
                         </div>
                     </ResizablePanel>

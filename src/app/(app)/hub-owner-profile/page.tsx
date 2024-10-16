@@ -2,7 +2,10 @@ import { Suspense } from "react"
 
 import Loading from "@/app/loading"
 import HubOwnerProfileList from "@/components/hubOwnerProfiles/HubOwnerProfileList"
-import { getHubOwnerProfiles, getSingleHubOwnerProfile } from "@/lib/api/hubOwnerProfiles/queries"
+import {
+    getHubOwnerProfiles,
+    getSingleHubOwnerProfile,
+} from "@/lib/api/hubOwnerProfiles/queries"
 
 export const revalidate = 0
 

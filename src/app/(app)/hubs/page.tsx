@@ -26,7 +26,7 @@ const Hubs = async () => {
     return (
         <Suspense fallback={<Loading />}>
             <HubList hubs={hubs} states={states} />
-            <div>{ role }</div>
+            <div>{role}</div>
         </Suspense>
     )
 }

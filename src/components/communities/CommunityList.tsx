@@ -4,9 +4,7 @@ import Modal from "@/components/shared/Modal"
 import { type Community, CompleteCommunity } from "@/lib/db/schema/communities"
 import { useMemo, useState } from "react"
 
-import {
-    useOptimisticCommunities
-} from "@/app/(app)/communities/useOptimisticCommunities"
+import { useOptimisticCommunities } from "@/app/(app)/communities/useOptimisticCommunities"
 import { Button } from "@/components/ui/button"
 import { AuthSession } from "@/lib/auth/types"
 import { PlusIcon } from "lucide-react"

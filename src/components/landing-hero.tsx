@@ -11,7 +11,9 @@ import { LandingHeader } from "./Header"
 
 export function LandingHero() {
     return (
-        <div className={`flex min-h-screen flex-col bg-background font-sans ${outfit.className}`}>
+        <div
+            className={`flex min-h-screen flex-col bg-background font-sans ${outfit.className}`}
+        >
             <LandingHeader />
             <main className="flex-grow">
                 <HeroSection />

@@ -45,5 +45,5 @@ export async function getUserRole() {
         }
     }
 
-    return { session, role: role as RoleType };
+    return { session, role: role as RoleType }
 }

@@ -22,7 +22,10 @@ export const useOptimisticProfile = (profile: CompleteProfile | undefined) => {
                 case "create":
                     return optimisticProfile as CompleteProfile
                 case "update":
-                    return { ...currentState, ...optimisticProfile } as CompleteProfile
+                    return {
+                        ...currentState,
+                        ...optimisticProfile,
+                    } as CompleteProfile
                 case "delete":
                     return undefined
                 default:

@@ -72,7 +72,6 @@ export default function CommunityCard({
                 ? { error, values: community }
                 : undefined
             onSuccess("delete", errorFormatted)
-            
         })
     }
 
