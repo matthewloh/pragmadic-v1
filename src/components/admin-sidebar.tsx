@@ -13,7 +13,7 @@ import {
     User,
     UserCog,
     UserPen,
-    Users
+    Users,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -31,14 +31,14 @@ import {
 const adminData = {
     navMain: [
         {
-            title: "Dashboard",
-            url: "/admin/dashboard",
-            icon: BarChart,
+            title: "Admin Home",
+            url: "/admin",
+            icon: Home,
             isActive: true,
             items: [
                 {
                     title: "Overview",
-                    url: "/admin/dashboard",
+                    url: "/admin",
                     icon: BarChart,
                     description: "View admin dashboard",
                 },

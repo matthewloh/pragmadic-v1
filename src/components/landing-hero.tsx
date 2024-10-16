@@ -1,47 +1,25 @@
 "use client"
 
-import CallToActionSection from "@/features/landing/components/CallToActionSection"
-import ContactSection from "@/features/landing/components/ContactSection"
-import CustomerLogoListSection from "@/features/landing/components/CustomerLogoListSection"
-import FAQSection from "@/features/landing/components/FAQSection"
-import FeatureListSection from "@/features/landing/components/FeatureListSection"
-import FeatureSection from "@/features/landing/components/FeatureSection"
-import HeroHeader from "@/features/landing/components/HeroHeader"
-import LandingFooter from "@/features/landing/components/LandingFooter"
-import NewsletterSection from "@/features/landing/components/NewsletterSection"
-import ServicesSection from "@/features/landing/components/ServicesSection"
-import TeamSection from "@/features/landing/components/TeamSection"
+import { outfit } from "@/utils/fonts"
+import { HeroSection } from "./HeroSection"
+import { ChatbotSection } from "./ChatbotSection"
+import { DeRantauSection } from "./DeRantauSection"
+import { NomadNetworkSection } from "./NomadNetworkSection"
+import { PragmadicPromisesSection } from "./PragmadicPromisesSection"
+import { LandingFooter } from "./LandingFooter"
 import { LandingHeader } from "./Header"
 
 export function LandingHero() {
     return (
-        <div className="flex min-h-screen flex-col bg-primary">
-            {/* Navbar */}
+        <div className={`flex min-h-screen flex-col bg-background font-sans ${outfit.className}`}>
             <LandingHeader />
-            <main className="flex-grow bg-background">
-                {/* Hero Header Section */}
-                <HeroHeader />
-                {/* Feature Section */}
-                <FeatureSection />
-                {/* Features List Section */}
-                <FeatureListSection />
-                {/* Services Section */}
-                <ServicesSection />
-                {/* Team Section */}
-                <TeamSection />
-                {/* Customer Logos List Section */}
-                <CustomerLogoListSection />
-                {/* CTA Section */}
-                <CallToActionSection />
-                {/* Newsletter Section */}
-                <NewsletterSection />
-                {/* FAQ Section */}
-                <FAQSection />
-                {/* Contact Section */}
-                <ContactSection />
+            <main className="flex-grow">
+                <HeroSection />
+                <ChatbotSection />
+                <DeRantauSection />
+                <NomadNetworkSection />
+                <PragmadicPromisesSection />
             </main>
-
-            {/* Footer */}
             <LandingFooter />
         </div>
     )

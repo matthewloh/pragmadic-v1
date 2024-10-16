@@ -37,6 +37,7 @@ import { Region, RegionId } from "@/lib/db/schema/regions"
 import ProfileForm from "./profile/ProfileForm"
 import HubOwnerProfileForm from "./hubOwnerProfiles/HubOwnerProfileForm"
 import DerantauAdminProfileForm from "./derantauAdminProfile/DerantauAdminProfileForm"
+import Link from "next/link"
 
 type ProfileType = "regular" | "owner" | "admin"
 
@@ -160,6 +161,9 @@ export default function ProfileCatalogue({
                         <Button variant="outline" onClick={onManage}>
                             Manage Profile
                         </Button>
+                        <Link href={`/profile/${profile.id}`}>
+                            Go to Profile
+                        </Link>
                         <Button
                             variant="ghost"
                             size="icon"
@@ -211,6 +215,7 @@ export default function ProfileCatalogue({
                         <p>
                             <strong>Website:</strong> {profile.website}
                         </p>
+                        <Link href={`/profile/${profile.id}`} />
                     </div>
                 )
             case "owner":

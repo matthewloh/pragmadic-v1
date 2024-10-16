@@ -19,9 +19,7 @@ export default async function DashboardPage() {
     const role = session.role
     return (
         <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
-            {/* Background gradient */}
             <AutumnFireGradient />
-            {/* Content */}
             <div className="relative z-10">
                 <header className="sticky top-0 z-10 border-b border-border bg-background/40 backdrop-blur-3xl">
                     <div className="flex h-[60px] items-center justify-between">
@@ -31,7 +29,7 @@ export default async function DashboardPage() {
                 <main className="container mx-auto p-6">
                     <div className="mb-10 text-center">
                         <p className="text-sm font-medium text-muted-foreground">
-                            Today is always a great day to explore! {role}
+                            Today is always the most enjoyable day!
                         </p>
                         <h2 className="mt-2 text-4xl font-bold text-primary">
                             Hello, {user?.user_metadata.full_name || "Nomad"} 👋

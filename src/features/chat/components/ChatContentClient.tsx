@@ -13,6 +13,7 @@ import { ChatComponent } from "@/features/chat/components/ChatComponent"
 import ChatSettingsSidebar from "@/features/chat/components/ChatSettingsSidebar"
 import { Message } from "ai"
 import { Maximize2, X } from "lucide-react"
+import { useSearchParams } from "next/navigation"
 
 type ReferencedDocument = {
     id: string
@@ -23,7 +24,7 @@ type ReferencedDocument = {
 
 type ChatContentProps = {
     chatId: string
-    initialMessages: Array<Message> | undefined
+    initialMessages: Array<Message>
 }
 
 export default function ChatContentClient({
@@ -35,6 +36,7 @@ export default function ChatContentClient({
     )
     const [isDocPanelOpen, setIsDocPanelOpen] = useState(false)
     const [isTransitioning, setIsTransitioning] = useState(false)
+    const searchParams = useSearchParams()
 
     useEffect(() => {
         setIsTransitioning(true)
@@ -72,6 +74,7 @@ export default function ChatContentClient({
                                 initialMessages={initialMessages}
                                 onDocumentsReferenced={updateReferencedDocs}
                                 isDocPanelOpen={isDocPanelOpen}
+                                model={searchParams.get("model") || "gemini-1.5-pro-002"}
                             />
                         </div>
                     </ResizablePanel>

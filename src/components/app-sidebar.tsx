@@ -16,7 +16,7 @@ import {
     Settings,
     User,
     UserPen,
-    Users
+    Users,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"

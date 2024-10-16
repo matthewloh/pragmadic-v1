@@ -1,10 +1,11 @@
 import type { Metadata } from "next"
-import { Inter as FontSans, Solway } from "next/font/google"
+import { Inter as FontSans, Solway, Outfit } from "next/font/google"
 import "./globals.css"
 import NextTopLoader from "nextjs-toploader"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
 import { Providers } from "@/components/providers"
+
 const fontSans = FontSans({
     subsets: ["latin"],
     variable: "--font-sans",
@@ -15,6 +16,12 @@ const solway = Solway({
     display: "swap",
     weight: ["400", "700"],
     variable: "--font-solway",
+})
+
+const outfit = Outfit({
+    subsets: ["latin"],
+    display: "swap",
+    variable: "--font-outfit",
 })
 
 export const metadata: Metadata = {

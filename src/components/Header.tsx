@@ -8,15 +8,14 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import UserButton from "@/features/auth/components/UserButton"
+import { useUserRole } from "@/features/auth/hooks/use-user-role"
 import { cn } from "@/lib/utils"
-import { createClient } from "@/utils/supabase/client"
-import { type User } from "@supabase/supabase-js"
 import { motion } from "framer-motion"
 import { Building2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
     FcAbout,
     FcAdvertising,
@@ -49,18 +48,7 @@ export function LandingHeader() {
     const [isOpen, setOpen] = useState(false)
     const [showBlur, setShowBlur] = useState(false)
     const [hidden, setHidden] = useState(false)
-    const [user, setUser] = useState<User>()
-    const supabase = createClient()
-
-    useEffect(() => {
-        async function getUser() {
-            const {
-                data: { user },
-            } = await supabase.auth.getUser()
-            if (user) setUser(user)
-        }
-        getUser()
-    }, [supabase])
+    const { data: { user } = {} } = useUserRole() // Destructure session and user directly
 
     const lastPath = `/${pathname.split("/").pop()}`
 
@@ -111,9 +99,9 @@ export function LandingHeader() {
                 },
             ],
         },
-        { title: "Pricing", path: "/pricing" },
-        { title: "For Nomads", path: "/nomads" },
-        { title: "For Businesses", path: "/partners" },
+        { title: "Dashboard", path: "/dashboard" },
+        { title: "Chat", path: "/chat" },
+        { title: "Hubs", path: "/hubs" },
         {
             title: "DE Rantau",
             cover: (

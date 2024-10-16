@@ -1,12 +1,4 @@
-import {
-    BadgeCheck,
-    Bell,
-    ChevronsUpDown,
-    CreditCard,
-    LogOut,
-    Palette,
-    SunMoon,
-} from "lucide-react"
+import { BadgeCheck, ChevronsUpDown, CreditCard, SunMoon } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -18,16 +10,14 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useUser } from "@/features/auth/hooks/use-current-user"
-import { Skeleton } from "./ui/skeleton"
-import Link from "next/link"
 import { SignOut } from "@/features/auth/components/SignOutButton"
-import { ThemeSwitch } from "./mode-toggle"
 import { useUserRole } from "@/features/auth/hooks/use-user-role"
+import Link from "next/link"
+import { ThemeSwitch } from "./mode-toggle"
+import { Skeleton } from "./ui/skeleton"
 
 export function NavUser() {
-    const { data: user, isPending } = useUser()
-    const { isLoading, data } = useUserRole()
+    const { isPending, data: { session, user, role } = {} } = useUserRole() // Destructure session and user directly
     if (!user) {
         return (
             <div className="flex w-full items-center gap-2 px-2 py-1.5">
@@ -118,7 +108,7 @@ export function NavUser() {
                         </div>
                         <ThemeSwitch />
                     </div>
-                    {data?.role === "admin" && (
+                    {role === "admin" && (
                         <DropdownMenuItem className="gap-2" asChild>
                             <Link href="/admin" className="cursor-pointer">
                                 <CreditCard className="h-4 w-4 text-muted-foreground" />

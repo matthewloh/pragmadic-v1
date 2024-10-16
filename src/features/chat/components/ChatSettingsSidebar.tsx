@@ -10,6 +10,7 @@ import { IconType } from "react-icons/lib"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import ChatHistoryPopover from "@/features/chat/components/ChatHistoryPopover"
+import ModelSelector from "@/features/chat/components/ModelSelector"
 
 type ChatSettingsSidebarIconComponentProps = {
     icon: LucideIcon | IconType
@@ -83,19 +84,13 @@ export default function ChatSettingsSidebar() {
                     href="/dashboard"
                     isExpanded={isExpanded}
                 />
-                <ChatSettingsSidebarIconComponent
-                    icon={AiFillOpenAI}
-                    label="Models"
-                    href="/models"
+                <ModelSelector
                     isExpanded={isExpanded}
+                    onSelect={(provider, model) => {
+                        console.log(`Selected: ${provider} - ${model}`)
+                    }}
                 />
                 <ChatHistoryPopover isExpanded={isExpanded} />
-                <ChatSettingsSidebarIconComponent
-                    icon={Settings}
-                    label="Settings"
-                    href="/chat/settings"
-                    isExpanded={isExpanded}
-                />
             </nav>
             <AnimatePresence>
                 {isExpanded && (
@@ -162,7 +157,8 @@ function ChatSettingsSidebarIconComponent({
             variant="ghost"
             size="icon"
             className={cn(
-                `flex w-full items-center justify-start ${isExpanded ? "px-4" : "px-0"}`,
+                "flex w-full items-center",
+                isExpanded ? "justify-start px-4" : "justify-center px-0",
                 {
                     "py-2": isExpanded,
                 },
@@ -172,10 +168,7 @@ function ChatSettingsSidebarIconComponent({
             <Link
                 href={href}
                 onClick={onClick}
-                className={cn("flex w-full items-center", {
-                    "justify-start": isExpanded,
-                    "justify-center": !isExpanded,
-                })}
+                className="flex w-full items-center"
             >
                 <Icon className="h-5 w-5" />
                 <AnimatePresence>

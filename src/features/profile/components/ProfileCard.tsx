@@ -84,7 +84,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                                 ? "Manage Profile"
                                 : "Create Profile"}
                         </Button>
-                        <Link href={`/profile/${profile.id}`} />
                     </CardContent>
                 )}
                 <CardFooter className="flex justify-end p-2">
@@ -93,6 +92,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                             className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
                         />
                     </Button>
+
+                    <Link href={`/profile/${profile.id}`} />
                 </CardFooter>
             </Card>
         </motion.div>
