@@ -18,11 +18,11 @@ export function NomadNetworkSection() {
                 </Button>
             </div>
             <Image
-                src="/placeholder.svg?height=400&width=800"
+                src="/placeholder.svg"
                 alt="Nomad Network Event"
-                width={800}
+                width={600}
                 height={400}
-                className="w-full rounded-lg object-cover shadow-lg"
+                className="max-h-[800px] w-full rounded-lg object-cover shadow-lg"
             />
         </section>
     )

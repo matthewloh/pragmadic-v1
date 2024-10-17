@@ -6,15 +6,15 @@ export function DeRantauSection() {
     const cards = [
         {
             title: "Coworking Spaces",
-            src: "/images/coworking-space.jpg",
+            src: "/placeholder.svg",
         },
         {
             title: "Networking Events",
-            src: "/images/networking-event.jpg",
+            src: "/placeholder.svg",
         },
         {
             title: "Local Experiences",
-            src: "/images/local-experience.jpg",
+            src: "/placeholder.svg",
         },
     ]
 
@@ -36,7 +36,7 @@ export function DeRantauSection() {
                 </div>
                 <div className="md:w-1/2">
                     <Image
-                        src="/placeholder.svg?height=300&width=500"
+                        src="/placeholder.svg"
                         alt="DE Rantau Hub"
                         width={500}
                         height={300}
