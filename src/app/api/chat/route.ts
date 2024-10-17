@@ -52,7 +52,7 @@ export async function POST(req: Request) {
                 selection: selectedFilePathnames,
             },
         },
-        maxSteps: 5,
+        maxSteps: 2,
         tools: {
             addResource: tool({
                 description: `add a resource to your knowledge base

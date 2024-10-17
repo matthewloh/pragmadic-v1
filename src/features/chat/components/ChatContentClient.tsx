@@ -75,7 +75,8 @@ export default function ChatContentClient({
                                 onDocumentsReferenced={updateReferencedDocs}
                                 isDocPanelOpen={isDocPanelOpen}
                                 model={
-                                    searchParams.get("model") || "gpt-4o-mini"
+                                    searchParams.get("model") ||
+                                    "gemini-1.5-pro-002"
                                 }
                             />
                         </div>

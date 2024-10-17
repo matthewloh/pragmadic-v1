@@ -133,7 +133,7 @@ export function AdminDashboard({ initialUsers }: AdminDashboardProps) {
         <div className="container mx-auto space-y-8 py-6">
             <h1 className="mb-6 text-3xl font-bold">Admin Dashboard</h1>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {/* <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {statsCards.map((card, index) => (
                     <Card key={index}>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -152,13 +152,16 @@ export function AdminDashboard({ initialUsers }: AdminDashboardProps) {
                         </CardContent>
                     </Card>
                 ))}
-            </div>
+            </div> */}
 
             <Tabs defaultValue="users" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4 rounded-md bg-card text-card-foreground">
                     <TabsTrigger value="users">Users</TabsTrigger>
                     <TabsTrigger value="roles">System Roles</TabsTrigger>
                     <TabsTrigger value="permissions">Permissions</TabsTrigger>
+                    <TabsTrigger value="upload">
+                        Manage Knowledge Base
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="users" className="space-y-4">

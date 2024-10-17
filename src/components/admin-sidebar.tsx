@@ -27,6 +27,8 @@ import {
     SidebarItem,
     SidebarLabel,
 } from "@/components/ui/sidebar"
+import PragmadicLogo from "./branding/pragmadic-logo"
+import Image from "next/image"
 
 const adminData = {
     navMain: [
@@ -204,8 +206,17 @@ export function AdminSidebar() {
     return (
         <Sidebar>
             <SidebarHeader className="h-[60px]">
-                <div className="flex items-center px-4">
-                    <Globe className="mr-2 h-6 w-6" />
+                <div className="flex items-center gap-2 px-4">
+                    <div className="relative h-8 w-8 flex-shrink-0">
+                        <Image
+                            src="/pragmadic.svg"
+                            fill
+                            sizes="32px"
+                            alt="PRAGmadic Logo"
+                            className="rounded-full bg-white object-contain"
+                            priority
+                        />
+                    </div>
                     <span className="font-bold">DE Rantau Admin</span>
                 </div>
             </SidebarHeader>
