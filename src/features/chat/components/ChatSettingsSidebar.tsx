@@ -1,16 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Home, LucideIcon, Settings, Pin } from "lucide-react"
-import Link from "next/link"
-import { AiFillOpenAI } from "react-icons/ai"
-import { IconType } from "react-icons/lib"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import ChatHistoryPopover from "@/features/chat/components/ChatHistoryPopover"
 import ModelSelector from "@/features/chat/components/ModelSelector"
+import { cn } from "@/lib/utils"
+import { AnimatePresence, motion } from "framer-motion"
+import { Home, LucideIcon, MessageSquarePlus, Pin } from "lucide-react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { IconType } from "react-icons/lib"
 
 type ChatSettingsSidebarIconComponentProps = {
     icon: LucideIcon | IconType
@@ -78,6 +77,12 @@ export default function ChatSettingsSidebar() {
                         />
                     )}
                 </div>
+                <ChatSettingsSidebarIconComponent
+                    icon={MessageSquarePlus}
+                    label="New Chat"
+                    href="/chat"
+                    isExpanded={isExpanded}
+                />
                 <ChatSettingsSidebarIconComponent
                     icon={Home}
                     label="Home"

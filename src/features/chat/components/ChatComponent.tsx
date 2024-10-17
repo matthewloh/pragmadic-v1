@@ -58,7 +58,7 @@ export function ChatComponent({
         body: {
             chatId,
             selectedFilePathnames,
-            model: searchParams.get("model") || "gemini-1.5-pro-002", // Default to Gemini if no model is selected
+            model: searchParams.get("model") || "gpt-4o-mini",
         },
         initialMessages,
         onFinish: () => {

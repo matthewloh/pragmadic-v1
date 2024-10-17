@@ -60,14 +60,14 @@ export function NavProjects({
                     </DropdownMenu>
                 </li>
             ))}
-            <li>
+            {/* <li>
                 <button className="flex h-7 w-full items-center gap-2.5 overflow-hidden rounded-md px-1.5 text-left text-xs ring-ring transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2">
                     <PlusSquare className="h-4 w-4 shrink-0 translate-x-0.5 text-muted-foreground" />
                     <div className="line-clamp-1 overflow-hidden font-medium text-muted-foreground">
                         Add Project
                     </div>
                 </button>
-            </li>
+            </li> */}
         </ul>
     )
 }

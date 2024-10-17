@@ -16,9 +16,9 @@ import { SiAnthropic } from "react-icons/si"
 import { ChevronsUpDown } from "lucide-react"
 
 const options = [
-    { provider: "Google", model: "gemini-1.5-pro-002", name: "Gemini" },
-    { provider: "OpenAI", model: "gpt-4o", name: "GPT-4o" },
     { provider: "OpenAI", model: "gpt-4o-mini", name: "GPT-4o-mini" },
+    { provider: "OpenAI", model: "gpt-4o", name: "GPT-4o" },
+    { provider: "Google", model: "gemini-1.5-pro-002", name: "Gemini" },
     { provider: "Anthropic", model: "claude-3-haiku", name: "Claude Haiku" },
 ]
 

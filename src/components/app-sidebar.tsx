@@ -198,12 +198,12 @@ const data = {
         },
         {
             name: "Community Events",
-            url: "/communities/events",
+            url: "/communities",
             icon: Calendar,
         },
         {
             name: "Local Business Directory",
-            url: "/hubs/businesses",
+            url: "/hubs",
             icon: Building,
         },
     ],
