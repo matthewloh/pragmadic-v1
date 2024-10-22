@@ -1,11 +1,10 @@
 import { createClient } from "@/utils/supabase/server"
-import { Client } from "@/utils/supabase/types"
 import { unstable_cache } from "next/cache"
 import { cache } from "react"
 import { getUserQuery } from "."
 
 export const getSession = cache(async () => {
-    const supabase = createClient()
+    const supabase = await createClient()
     return supabase.auth.getSession()
 })
 
@@ -19,7 +18,7 @@ export const getUser = async () => {
         return null
     }
 
-    const supabase = createClient()
+    const supabase = await createClient()
 
     return unstable_cache(
         async () => {

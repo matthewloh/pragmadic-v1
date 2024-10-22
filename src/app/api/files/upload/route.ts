@@ -14,7 +14,7 @@ export async function POST(request: Request) {
         return new Response("Request body is empty", { status: 400 })
     }
 
-    const supabase = createClient()
+    const supabase = await createClient()
 
     try {
         const formData = await request.formData()

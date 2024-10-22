@@ -10,11 +10,12 @@ import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
-export default async function DerantauAdminProfilePage({
-    params,
-}: {
-    params: { derantauAdminProfileId: string }
-}) {
+export default async function DerantauAdminProfilePage(
+    props: {
+        params: Promise<{ derantauAdminProfileId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <DerantauAdminProfile id={params.derantauAdminProfileId} />

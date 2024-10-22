@@ -12,11 +12,12 @@ import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
-export default async function HubPage({
-    params,
-}: {
-    params: { hubId: string }
-}) {
+export default async function HubPage(
+    props: {
+        params: Promise<{ hubId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <Hub id={params.hubId} />

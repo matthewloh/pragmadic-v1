@@ -11,11 +11,12 @@ import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
-export default async function CommunityEventPage({
-    params,
-}: {
-    params: { communityEventId: string }
-}) {
+export default async function CommunityEventPage(
+    props: {
+        params: Promise<{ communityEventId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <CommunityEvent id={params.communityEventId} />

@@ -109,22 +109,30 @@ export function ChatComponent({
                 ref={scrollRef}
             >
                 <AnimatePresence initial={false}>
-                    {messages.length === 0 && <EmptyChat />}
+                    {messages.length === 0 && <EmptyChat key="empty-chat" />}
 
                     {messages.map((message, index) => (
                         <ChatMessage
-                            key={`${chatId}-${index}`}
+                            key={`message-${chatId}-${index}`}
                             message={message}
                         />
                     ))}
                     {uploadedFiles.map((file, index) => (
-                        <FilePreview key={index} file={file} />
+                        <FilePreview
+                            key={`file-${chatId}-${index}`}
+                            file={file}
+                        />
                     ))}
                     <div
-                        ref={scrollRef}
+                        key="messages-anchor"
+                        ref={messagesRef}
                         className="min-h-[4px] min-w-[4px] flex-shrink-0"
                     />
-                    <div ref={visibilityRef} className="h-4 w-full" />
+                    <div
+                        key="visibility-anchor"
+                        ref={visibilityRef}
+                        className="h-4 w-full"
+                    />
                 </AnimatePresence>
             </ScrollArea>
 

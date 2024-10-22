@@ -10,11 +10,12 @@ import Loading from "@/app/loading"
 
 export const revalidate = 0
 
-export default async function AssistantResponsePage({
-    params,
-}: {
-    params: { assistantResponseId: string }
-}) {
+export default async function AssistantResponsePage(
+    props: {
+        params: Promise<{ assistantResponseId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <AssistantResponse id={params.assistantResponseId} />

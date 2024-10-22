@@ -11,11 +11,12 @@ import Loading from "@/app/loading"
 
 export const revalidate = 0
 
-export default async function StatePage({
-    params,
-}: {
-    params: { stateId: string }
-}) {
+export default async function StatePage(
+    props: {
+        params: Promise<{ stateId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <State id={params.stateId} />

@@ -28,7 +28,7 @@ export const getUserRoles = async () => {
 type roleEnums = Database["public"]["Enums"]["user_role"]
 
 export const getUserRolesSupa = async () => {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase.from("user_roles").select(
         `
             id,

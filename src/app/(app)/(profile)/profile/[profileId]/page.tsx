@@ -9,11 +9,12 @@ import Loading from "@/app/loading"
 
 export const revalidate = 0
 
-export default async function ProfilePage({
-    params,
-}: {
-    params: { profileId: string }
-}) {
+export default async function ProfilePage(
+    props: {
+        params: Promise<{ profileId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <Profile id={params.profileId} />

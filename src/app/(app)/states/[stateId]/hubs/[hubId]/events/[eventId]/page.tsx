@@ -10,11 +10,12 @@ import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
-export default async function EventPage({
-    params,
-}: {
-    params: { eventId: string }
-}) {
+export default async function EventPage(
+    props: {
+        params: Promise<{ eventId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <Event id={params.eventId} />

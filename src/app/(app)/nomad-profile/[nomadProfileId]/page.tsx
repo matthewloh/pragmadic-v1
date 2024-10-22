@@ -9,11 +9,12 @@ import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
-export default async function NomadProfilePage({
-    params,
-}: {
-    params: { nomadProfileId: string }
-}) {
+export default async function NomadProfilePage(
+    props: {
+        params: Promise<{ nomadProfileId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <NomadProfile id={params.nomadProfileId} />

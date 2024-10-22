@@ -10,11 +10,12 @@ import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
-export default async function ReviewPage({
-    params,
-}: {
-    params: { reviewId: string }
-}) {
+export default async function ReviewPage(
+    props: {
+        params: Promise<{ reviewId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <Review id={params.reviewId} />

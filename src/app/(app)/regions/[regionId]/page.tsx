@@ -10,11 +10,12 @@ import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
-export default async function RegionPage({
-    params,
-}: {
-    params: { regionId: string }
-}) {
+export default async function RegionPage(
+    props: {
+        params: Promise<{ regionId: string }>
+    }
+) {
+    const params = await props.params;
     return (
         <main className="overflow-auto">
             <Region id={params.regionId} />

@@ -99,7 +99,7 @@ export async function DELETE(request: Request) {
         return new Response("Not Found", { status: 404 })
     }
 
-    const supabase = createClient()
+    const supabase = await createClient()
 
     try {
         const { data, error } = await supabase

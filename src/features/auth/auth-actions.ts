@@ -18,7 +18,7 @@ export async function login({
     credentials: LoginValues
     next: string
 }): Promise<{ error: string }> {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { email, password } = loginSchema.parse(credentials)
     // try {
     // } catch (error) {}
@@ -47,7 +47,7 @@ export async function login({
 }
 
 export async function signout({ next }: { next?: string }) {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { error } = await supabase.auth.signOut()
     if (error) {
         console.log(error)
@@ -79,7 +79,7 @@ export async function signout({ next }: { next?: string }) {
 }
 
 export async function signInWithGoogle() {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -105,7 +105,7 @@ export async function signup({
     credentials: SignUpValues
     formData: FormData
 }): Promise<{ error: string }> {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // type-casting here for convenience
     // in practice, you should validate your inputs

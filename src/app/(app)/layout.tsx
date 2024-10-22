@@ -4,14 +4,16 @@ import { SidebarLayout } from "@/components/ui/sidebar"
 import MainNavBar from "@/features/dashboard/components/MainNavBar"
 import { cookies } from "next/headers"
 
-export default function PagesLayout({
+export default async function PagesLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
     return (
         <SidebarLayout
-            defaultOpen={cookies().get("sidebar:state")?.value === "true"}
+            defaultOpen={
+                (await cookies()).get("sidebar:state")?.value === "true"
+            }
         >
             <AppSidebar />
             <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out">

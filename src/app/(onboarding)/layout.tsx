@@ -7,14 +7,16 @@ import MainNavBar from "@/features/dashboard/components/MainNavBar"
 import { cookies } from "next/headers"
 import Link from "next/link"
 
-export default function OnboardingLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
+export default async function OnboardingLayout(
+    {
+        children,
+    }: {
+        children: React.ReactNode
+    }
+) {
     return (
-        <SidebarLayout
-            defaultOpen={cookies().get("sidebar:state")?.value === "true"}
+        (<SidebarLayout
+            defaultOpen={(await cookies()).get("sidebar:state")?.value === "true"}
         >
             <AppSidebar />
             <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out">
@@ -44,6 +46,6 @@ export default function OnboardingLayout({
                     </div>
                 </main>
             </div>
-        </SidebarLayout>
-    )
+        </SidebarLayout>)
+    );
 }
