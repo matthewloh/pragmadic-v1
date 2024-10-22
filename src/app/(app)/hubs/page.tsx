@@ -4,6 +4,7 @@ import Loading from "@/app/loading"
 import HubList from "@/components/hubs/HubList"
 import { getHubs } from "@/lib/api/hubs/queries"
 import { getStates } from "@/lib/api/states/queries"
+import { getUserRole } from "@/lib/auth/get-user-role"
 
 export const revalidate = 0
 
@@ -21,11 +22,12 @@ export default async function HubsPage() {
 }
 
 const Hubs = async () => {
-    const { hubs, role } = await getHubs()
+    const { hubs } = await getHubs()
+    const { role } = await getUserRole()
     const { states } = await getStates()
     return (
         <Suspense fallback={<Loading />}>
-            <HubList hubs={hubs} states={states} />
+            <HubList hubs={hubs} states={states} role={role} />
             <div>{role}</div>
         </Suspense>
     )

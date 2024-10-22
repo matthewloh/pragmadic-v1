@@ -8,7 +8,7 @@ import { db } from "@/lib/db"
 import { openai } from "@ai-sdk/openai"
 import { convertToCoreMessages, streamText, tool } from "ai"
 import { z } from "zod"
-import { getSession } from "../../../../supabase/queries/cached-queries"
+import { getSession } from "../../../utils/supabase/queries/cached-queries"
 import { createClient } from "@/utils/supabase/server"
 import { customModel, geminiModel, anthropicModel } from "@/lib/ai/custom-model"
 

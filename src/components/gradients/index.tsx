@@ -57,12 +57,13 @@ export function PagesGradient() {
 export function AutumnFireGradient() {
     return (
         <div className="absolute inset-0 overflow-hidden">
-            <div className="relative h-full w-full bg-gradient-to-br from-[#FFBB55] via-[#D15D4C] to-[#1F4F8E]">
-                <div className="absolute inset-0 bg-gradient-to-b from-[#FFBB55] via-transparent to-transparent opacity-90"></div>
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#C44B4E] to-transparent opacity-90"></div>
-                <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-[#1F4F8E] to-[#0A2342] opacity-90"></div>
-                <div className="bg-gradient-radial absolute left-[-20%] top-[-50%] h-[70%] w-[70%] rounded-full from-[#FFF3E0] via-[#FFBB55] to-transparent opacity-40 blur-2xl"></div>
-                {/* <div className="absolute inset-0 backdrop-blur-[2px]"></div> */}
+            {/* Light mode version */}
+            <div className="relative h-full w-full bg-gradient-to-br from-amber-200 via-orange-300 to-blue-300 dark:from-[#FFBB55] dark:via-[#D15D4C] dark:to-[#1F4F8E]">
+                <div className="absolute inset-0 bg-gradient-to-b from-amber-200 via-transparent to-transparent opacity-60 dark:from-[#FFBB55] dark:opacity-90"></div>
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-rose-300 to-transparent opacity-60 dark:via-[#C44B4E] dark:opacity-90"></div>
+                <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-300 to-blue-400 opacity-60 dark:via-[#1F4F8E] dark:to-[#0A2342] dark:opacity-90"></div>
+                <div className="bg-gradient-radial absolute left-[-20%] top-[-50%] h-[70%] w-[70%] rounded-full from-amber-50 via-amber-200 to-transparent opacity-30 blur-2xl dark:from-[#FFF3E0] dark:via-[#FFBB55] dark:opacity-40"></div>
+                <div className="absolute inset-0 backdrop-blur-[2px]"></div>
             </div>
         </div>
     )

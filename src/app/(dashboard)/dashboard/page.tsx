@@ -1,10 +1,11 @@
-import { AutumnFireGradient, DashboardGradient } from "@/components/gradients"
+import { AutumnFireGradient } from "@/components/gradients"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import MainNavBar from "@/features/dashboard/components/MainNavBar"
 import { getUserAuth } from "@/lib/auth/utils"
+import { outfit, sen } from "@/utils/fonts"
 import { PlusIcon } from "lucide-react"
 import { redirect } from "next/navigation"
 
@@ -18,7 +19,9 @@ export default async function DashboardPage() {
     const user = session.user
     const role = session.role
     return (
-        <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
+        <div
+            className={`relative min-h-screen overflow-hidden bg-background text-foreground ${outfit.className}`}
+        >
             <AutumnFireGradient />
             <div className="relative z-10">
                 <header className="sticky top-0 z-10 border-b border-border bg-background/40 backdrop-blur-3xl">

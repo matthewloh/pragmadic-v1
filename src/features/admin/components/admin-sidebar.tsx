@@ -3,10 +3,8 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft, PanelRightClose } from "lucide-react"
+import { PanelLeft } from "lucide-react"
 
-import { useIsMobile } from "@/hooks/use-mobile"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -18,6 +16,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { cn } from "@/lib/utils"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -278,7 +278,7 @@ const SidebarTrigger = React.forwardRef<
     React.ElementRef<typeof Button>,
     React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-    const { toggleSidebar, open } = useSidebar()
+    const { toggleSidebar } = useSidebar()
 
     return (
         <Button
@@ -286,19 +286,14 @@ const SidebarTrigger = React.forwardRef<
             data-sidebar="trigger"
             variant="ghost"
             size="icon"
-            className={cn("h-[60px] w-[60px] p-0", className)}
+            className={cn("h-7 w-7", className)}
             onClick={(event) => {
                 onClick?.(event)
                 toggleSidebar()
             }}
             {...props}
         >
-            <PanelRightClose
-                className={cn(
-                    "h-6 w-6 transform transition-transform",
-                    open ? "rotate-180" : "rotate-0",
-                )}
-            />
+            <PanelLeft />
             <span className="sr-only">Toggle Sidebar</span>
         </Button>
     )

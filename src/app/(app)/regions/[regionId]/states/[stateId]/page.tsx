@@ -5,46 +5,65 @@ import { getStateByIdWithHubs } from "@/lib/api/states/queries"
 import { getRegions } from "@/lib/api/regions/queries"
 import OptimisticState from "@/app/(app)/states/[stateId]/OptimisticState"
 import HubList from "@/components/hubs/HubList"
-
 import { BackButton } from "@/components/shared/BackButton"
 import Loading from "@/app/loading"
+import { getUserRole } from "@/lib/auth/get-user-role"
+import { RoleType } from "@/lib/auth/get-user-role"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const revalidate = 0
 
-export default async function StatePage(
-    props: {
-        params: Promise<{ stateId: string }>
-    }
-) {
-    const params = await props.params;
+export default async function StatePage(props: {
+    params: Promise<{ stateId: string }>
+}) {
+    const params = await props.params
+    const { role } = await getUserRole()
     return (
-        <main className="overflow-auto">
-            <State id={params.stateId} />
+        <main className="container mx-auto px-4 py-8">
+            <Suspense fallback={<Loading />}>
+                <State id={params.stateId} role={role} />
+            </Suspense>
         </main>
     )
 }
 
-const State = async ({ id }: { id: string }) => {
+const State = async ({ id, role }: { id: string; role: RoleType }) => {
     const { state, hubs } = await getStateByIdWithHubs(id)
     const { regions } = await getRegions()
-
     if (!state) notFound()
     return (
-        <Suspense fallback={<Loading />}>
-            <div className="relative">
+        <div className="space-y-8">
+            <div className="flex items-center justify-between">
                 <BackButton currentResource="states" />
-                <OptimisticState
-                    state={state}
-                    regions={regions}
-                    regionId={state.regionId}
-                />
+                <h1 className="text-3xl font-bold text-primary">
+                    {state.name}
+                </h1>
             </div>
-            <div className="relative mx-4 mt-8">
-                <h3 className="mb-4 text-xl font-medium">
-                    {state.name}&apos;s Hubs
-                </h3>
-                <HubList states={[]} stateId={state.id} hubs={hubs} />
-            </div>
-        </Suspense>
+            <Card>
+                <CardHeader>
+                    <CardTitle>State Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <OptimisticState
+                        state={state}
+                        regions={regions}
+                        role={role}
+                    />
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>{state.name}&apos;s Hubs</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <HubList
+                        states={[state]}
+                        stateId={state.id}
+                        hubs={hubs}
+                        role={role}
+                    />
+                </CardContent>
+            </Card>
+        </div>
     )
 }

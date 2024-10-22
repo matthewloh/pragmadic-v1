@@ -2,25 +2,29 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
 import { usePathname } from "next/navigation"
-
 import { cn } from "@/lib/utils"
 import { type Region, CompleteRegion } from "@/lib/db/schema/regions"
 import Modal from "@/components/shared/Modal"
-
 import { useOptimisticRegions } from "@/app/(app)/regions/useOptimisticRegions"
 import { Button } from "@/components/ui/button"
 import RegionForm from "./RegionForm"
-import { PlusIcon } from "lucide-react"
+import { PlusIcon, Edit2Icon, Eye } from "lucide-react"
+import { RoleType } from "@/lib/auth/get-user-role"
 
 type TOpenModal = (region?: Region) => void
 
-export default function RegionList({ regions }: { regions: CompleteRegion[] }) {
+export default function RegionList({
+    regions,
+    role,
+}: {
+    regions: CompleteRegion[]
+    role: RoleType
+}) {
     const { optimisticRegions, addOptimisticRegion } =
         useOptimisticRegions(regions)
-
     const [open, setOpen] = useState(false)
-
     const [activeRegion, setActiveRegion] = useState<Region | null>(null)
 
     const openModal = (region?: Region) => {
@@ -30,8 +34,10 @@ export default function RegionList({ regions }: { regions: CompleteRegion[] }) {
 
     const closeModal = () => setOpen(false)
 
+    const isAdmin = role === "admin"
+
     return (
-        <div>
+        <div className="space-y-8">
             <Modal
                 open={open}
                 setOpen={setOpen}
@@ -44,24 +50,34 @@ export default function RegionList({ regions }: { regions: CompleteRegion[] }) {
                     closeModal={closeModal}
                 />
             </Modal>
-            <div className="absolute right-0 top-0">
-                <Button onClick={() => openModal()} variant={"outline"}>
-                    +
-                </Button>
-            </div>
-            {optimisticRegions.length === 0 ? (
-                <EmptyState openModal={openModal} />
-            ) : (
-                <ul>
-                    {optimisticRegions.map((region) => (
-                        <Region
-                            region={region}
-                            key={region.id}
-                            openModal={openModal}
-                        />
-                    ))}
-                </ul>
+            {isAdmin && (
+                <div className="flex justify-end">
+                    <Button onClick={() => openModal()} className="gap-2">
+                        <PlusIcon className="h-4 w-4" /> Add Region
+                    </Button>
+                </div>
             )}
+            <AnimatePresence>
+                {optimisticRegions.length === 0 ? (
+                    <EmptyState openModal={openModal} isAdmin={isAdmin} />
+                ) : (
+                    <motion.ul
+                        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        {optimisticRegions.map((region) => (
+                            <Region
+                                key={region.id}
+                                region={region}
+                                openModal={openModal}
+                                isAdmin={isAdmin}
+                            />
+                        ))}
+                    </motion.ul>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
@@ -69,9 +85,11 @@ export default function RegionList({ regions }: { regions: CompleteRegion[] }) {
 const Region = ({
     region,
     openModal,
+    isAdmin,
 }: {
     region: CompleteRegion
     openModal: TOpenModal
+    isAdmin: boolean
 }) => {
     const optimistic = region.id === "optimistic"
     const deleting = region.id === "delete"
@@ -82,37 +100,75 @@ const Region = ({
         : pathname + "/regions/"
 
     return (
-        <li
+        <motion.li
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             className={cn(
-                "my-2 flex justify-between",
+                "rounded-lg border bg-card p-4 shadow-sm transition-shadow hover:shadow-md",
                 mutating ? "animate-pulse opacity-30" : "",
-                deleting ? "text-destructive" : "",
+                deleting ? "bg-destructive/30" : "",
             )}
         >
-            <div className="w-full">
-                <div>{region.name}</div>
+            <div className="flex items-start justify-between">
+                <div>
+                    <h3 className="text-lg font-semibold text-primary">
+                        {region.name}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        {region.description}
+                    </p>
+                </div>
+                <div className="flex space-x-2">
+                    {isAdmin && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openModal(region)}
+                        >
+                            <Edit2Icon className="h-4 w-4" />
+                        </Button>
+                    )}
+                    <Button variant="ghost" size="icon" asChild>
+                        <Link href={basePath + "/" + region.id}>
+                            <Eye className="h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </div>
-            <Button variant={"link"} asChild>
-                <Link href={basePath + "/" + region.id}>Edit</Link>
-            </Button>
-        </li>
+        </motion.li>
     )
 }
 
-const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
+const EmptyState = ({
+    openModal,
+    isAdmin,
+}: {
+    openModal: TOpenModal
+    isAdmin: boolean
+}) => {
     return (
-        <div className="text-center">
-            <h3 className="mt-2 text-sm font-semibold text-secondary-foreground">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+        >
+            <h3 className="mt-2 text-lg font-semibold text-secondary-foreground">
                 No regions
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-                Get started by creating a new region.
+                {isAdmin
+                    ? "Get started by creating a new region."
+                    : "No regions are currently available."}
             </p>
-            <div className="mt-6">
-                <Button onClick={() => openModal()}>
-                    <PlusIcon className="h-4" /> New Regions{" "}
-                </Button>
-            </div>
-        </div>
+            {isAdmin && (
+                <div className="mt-6">
+                    <Button onClick={() => openModal()}>
+                        <PlusIcon className="mr-2 h-4 w-4" /> New Region
+                    </Button>
+                </div>
+            )}
+        </motion.div>
     )
 }

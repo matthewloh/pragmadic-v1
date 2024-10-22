@@ -9,16 +9,19 @@ import { Button } from "@/components/ui/button"
 import Modal from "@/components/shared/Modal"
 import HubForm from "@/components/hubs/HubForm"
 import { type State, type StateId } from "@/lib/db/schema/states"
+import { RoleType } from "@/lib/auth/get-user-role"
 
 export default function OptimisticHub({
     hub,
     states,
     stateId,
+    role,
 }: {
     hub: Hub
 
     states: State[]
     stateId?: StateId
+    role: RoleType
 }) {
     const [open, setOpen] = useState(false)
     const openModal = (_?: Hub) => {
@@ -39,6 +42,7 @@ export default function OptimisticHub({
                     closeModal={closeModal}
                     openModal={openModal}
                     addOptimistic={updateHub}
+                    role={role}
                 />
             </Modal>
             <div className="mb-4 flex items-end justify-between">

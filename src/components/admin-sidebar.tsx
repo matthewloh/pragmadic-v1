@@ -16,19 +16,17 @@ import {
     Users,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
     SidebarHeader,
-    SidebarItem,
-    SidebarLabel,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import PragmadicLogo from "./branding/pragmadic-logo"
 import Image from "next/image"
+import Link from "next/link"
 
 const adminData = {
     navMain: [
@@ -221,20 +219,46 @@ export function AdminSidebar() {
                 </div>
             </SidebarHeader>
             <SidebarContent>
-                <SidebarItem>
-                    <SidebarLabel>Admin Navigation</SidebarLabel>
-                    <NavMain
-                        items={adminData.navMain}
-                        searchResults={adminData.searchResults}
-                    />
-                </SidebarItem>
-                <SidebarItem className="mt-auto">
-                    <SidebarLabel>Admin Support</SidebarLabel>
-                    <NavSecondary items={adminData.navSecondary} />
-                </SidebarItem>
+                <SidebarMenu>
+                    {adminData.navMain.map((section) => (
+                        <SidebarMenuItem key={section.title}>
+                            <SidebarMenuButton asChild>
+                                <Link href={section.url}>
+                                    <section.icon />
+                                    <span>{section.title}</span>
+                                </Link>
+                            </SidebarMenuButton>
+                            {section.items && (
+                                <SidebarMenu>
+                                    {section.items.map((item) => (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton asChild>
+                                                <Link href={item.url}>
+                                                    <item.icon />
+                                                    <span>{item.title}</span>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))}
+                                </SidebarMenu>
+                            )}
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>
-                <NavUser />
+                <SidebarMenu>
+                    {adminData.navSecondary.map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton asChild>
+                                <Link href={item.url}>
+                                    <item.icon />
+                                    <span>{item.title}</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
             </SidebarFooter>
         </Sidebar>
     )

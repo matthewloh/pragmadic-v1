@@ -39,6 +39,14 @@ default_pool_size = 20
 # Maximum number of client connections allowed.
 max_client_conn = 100
 
+[db.seed]
+# If enabled, seeds the database after migrations during a db reset.
+enabled = true
+# Specifies an ordered list of seed files to load during db reset.
+# Supports glob patterns relative to supabase directory. For example:
+# sql_paths = ['./seeds/*.sql', '../project-src/seeds/*-load-testing.sql']
+sql_paths = ['./seed.sql']
+
 [realtime]
 enabled = true
 # Bind realtime via either IPv4 or IPv6. (default: IPv4)
@@ -109,6 +117,8 @@ enable_signup = true
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = false
+# If enabled, users will need to reauthenticate or have logged in recently to change their password.
+secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
 max_frequency = "1s"
 
@@ -185,19 +195,8 @@ enabled = false
 client_id = ""
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
 secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
-
-[auth.external.github]
-enabled = true
-client_id = "env(GITHUB_CLIENT_ID)"
-secret = "env(GITHUB_SECRET)"
-redirect_uri = "http://localhost:54321/auth/v1/callback" # Overrides the default auth redirectUrl.
-
-[auth.external.google]
-enabled = true
-client_id = "env(GOOGLE_CLIENT_ID)"
-secret = "env(GOOGLE_SECRET)"
-redirect_uri = "http://localhost:54321/auth/v1/callback" # Overrides the default auth redirectUrl.
-
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
 # or any other third-party OIDC providers.
 url = ""
@@ -229,7 +228,7 @@ policy = "oneshot"
 inspector_port = 8083
 
 [analytics]
-enabled = false
+enabled = true
 port = 54327
 # Configure one of the supported backends: `postgres`, `bigquery`.
 backend = "postgres"

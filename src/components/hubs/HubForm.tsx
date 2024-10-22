@@ -30,6 +30,7 @@ import {
     updateHubAction,
 } from "@/lib/actions/hubs"
 import { type State, type StateId } from "@/lib/db/schema/states"
+import { RoleType } from "@/lib/auth/get-user-role"
 
 const HubForm = ({
     states,
@@ -39,6 +40,7 @@ const HubForm = ({
     closeModal,
     addOptimistic,
     postSuccess,
+    role,
 }: {
     hub?: Hub | null
     states: State[]
@@ -47,6 +49,7 @@ const HubForm = ({
     closeModal?: () => void
     addOptimistic?: TAddOptimistic
     postSuccess?: () => void
+    role: RoleType
 }) => {
     const { errors, hasErrors, setErrors, handleChange } =
         useValidatedForm<Hub>(insertHubParams)
@@ -57,6 +60,7 @@ const HubForm = ({
 
     const router = useRouter()
     const backpath = useBackPath("hubs")
+    const isAdmin = role === "admin"
 
     const onSuccess = (
         action: Action,
@@ -77,6 +81,11 @@ const HubForm = ({
     }
 
     const handleSubmit = async (data: FormData) => {
+        if (!isAdmin) {
+            toast.error("You don't have permission to perform this action.")
+            return
+        }
+
         setErrors(null)
 
         const payload = Object.fromEntries(data.entries())
@@ -296,10 +305,10 @@ const HubForm = ({
             {/* Schema fields end */}
 
             {/* Save Button */}
-            <SaveButton errors={hasErrors} editing={editing} />
+            {isAdmin && <SaveButton errors={hasErrors} editing={editing} />}
 
             {/* Delete Button */}
-            {editing ? (
+            {editing && isAdmin ? (
                 <Button
                     type="button"
                     disabled={isDeleting || pending || hasErrors}

@@ -1,44 +1,53 @@
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
-
-import StateList from "@/components/states/StateList"
+import { getUserRole } from "@/lib/auth/get-user-role"
 import { getRegionByIdWithStates } from "@/lib/api/regions/queries"
 import OptimisticRegion from "./OptimisticRegion"
-
+import StateList from "@/components/states/StateList"
 import Loading from "@/app/loading"
 import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
-export default async function RegionPage(
-    props: {
-        params: Promise<{ regionId: string }>
-    }
-) {
-    const params = await props.params;
+export default async function RegionPage(props: {
+    params: Promise<{ regionId: string }>
+}) {
+    const params = await props.params
     return (
-        <main className="overflow-auto">
-            <Region id={params.regionId} />
+        <main className="container mx-auto px-4 py-8">
+            <Suspense fallback={<Loading />}>
+                <Region id={params.regionId} />
+            </Suspense>
         </main>
     )
 }
 
 const Region = async ({ id }: { id: string }) => {
     const { region, states } = await getRegionByIdWithStates(id)
+    const { role } = await getUserRole()
 
     if (!region) notFound()
+
     return (
-        <Suspense fallback={<Loading />}>
-            <div className="relative">
+        <div className="space-y-8">
+            <div className="flex items-center justify-between">
                 <BackButton currentResource="regions" />
-                <OptimisticRegion region={region} />
+                <h1 className="text-3xl font-bold text-primary">
+                    {region.name}
+                </h1>
             </div>
-            <div className="relative mx-4 mt-8">
-                <h3 className="mb-4 text-xl font-medium">
-                    {region.name}&apos;s States
-                </h3>
-                <StateList regions={[]} regionId={region.id} states={states} />
+            <OptimisticRegion region={region} role={role} />
+            <div className="mt-12">
+                <h2 className="mb-4 text-2xl font-bold">
+                    States in {region.name}
+                </h2>
+                <StateList
+                    regions={[region]}
+                    regionId={region.id}
+                    states={states}
+                    role={role}
+                />
             </div>
-        </Suspense>
+        </div>
     )
 }

@@ -1,5 +1,5 @@
 import { getChats } from "@/lib/api/chats/queries"
-import { getSession } from "../../../../../supabase/queries/cached-queries"
+import { getSession } from "../../../../utils/supabase/queries/cached-queries"
 
 export async function GET() {
     const {

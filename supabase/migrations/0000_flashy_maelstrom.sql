@@ -22,7 +22,7 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "public"."user_app_permissions" AS ENUM('hubs.create', 'hubs.delete', 'hubs.posts.create', 'communities.posts.create');
+ CREATE TYPE "public"."user_app_permissions" AS ENUM('hubs.create', 'hubs.update', 'hubs.delete', 'hubs.posts.create', 'hubs.posts.update', 'hubs.posts.delete', 'communities.posts.create', 'communities.posts.update', 'communities.posts.delete');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

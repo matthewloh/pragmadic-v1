@@ -1,9 +1,10 @@
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { getUserRole } from "@/lib/auth/get-user-role"
 
 import { getStateByIdWithHubs } from "@/lib/api/states/queries"
 import { getRegions } from "@/lib/api/regions/queries"
-import OptimisticState from "@/app/(app)/states/[stateId]/OptimisticState"
+import OptimisticState from "./OptimisticState"
 import HubList from "@/components/hubs/HubList"
 
 import { BackButton } from "@/components/shared/BackButton"
@@ -11,15 +12,15 @@ import Loading from "@/app/loading"
 
 export const revalidate = 0
 
-export default async function StatePage(
-    props: {
-        params: Promise<{ stateId: string }>
-    }
-) {
-    const params = await props.params;
+export default async function StatePage(props: {
+    params: Promise<{ stateId: string }>
+}) {
+    const params = await props.params
     return (
-        <main className="overflow-auto">
-            <State id={params.stateId} />
+        <main className="container mx-auto px-4 py-8">
+            <Suspense fallback={<Loading />}>
+                <State id={params.stateId} />
+            </Suspense>
         </main>
     )
 }
@@ -27,24 +28,30 @@ export default async function StatePage(
 const State = async ({ id }: { id: string }) => {
     const { state, hubs } = await getStateByIdWithHubs(id)
     const { regions } = await getRegions()
+    const { role } = await getUserRole()
 
     if (!state) notFound()
+
     return (
-        <Suspense fallback={<Loading />}>
-            <div className="relative">
+        <div className="space-y-8">
+            <div className="flex items-center justify-between">
                 <BackButton currentResource="states" />
-                <OptimisticState
-                    state={state}
-                    regions={regions}
-                    regionId={state.regionId}
+                <h1 className="text-3xl font-bold text-primary">
+                    {state.name}
+                </h1>
+            </div>
+            <OptimisticState state={state} regions={regions} role={role} />
+            <div className="mt-12">
+                <h2 className="mb-4 text-2xl font-semibold">
+                    Hubs in {state.name}
+                </h2>
+                <HubList
+                    states={[]}
+                    stateId={state.id}
+                    hubs={hubs}
+                    role={role}
                 />
             </div>
-            <div className="relative mx-4 mt-8">
-                <h3 className="mb-4 text-xl font-medium">
-                    {state.name}&apos;s Hubs
-                </h3>
-                <HubList states={[]} stateId={state.id} hubs={hubs} />
-            </div>
-        </Suspense>
+        </div>
     )
 }

@@ -9,23 +9,23 @@ import { getStates } from "@/lib/api/states/queries"
 
 import Loading from "@/app/loading"
 import { BackButton } from "@/components/shared/BackButton"
+import { getUserRole, RoleType } from "@/lib/auth/get-user-role"
 
 export const revalidate = 0
 
-export default async function HubPage(
-    props: {
-        params: Promise<{ hubId: string }>
-    }
-) {
-    const params = await props.params;
+export default async function HubPage(props: {
+    params: Promise<{ hubId: string }>
+}) {
+    const params = await props.params
+    const { role } = await getUserRole()
     return (
         <main className="overflow-auto">
-            <Hub id={params.hubId} />
+            <Hub id={params.hubId} role={role} />
         </main>
     )
 }
 
-const Hub = async ({ id }: { id: string }) => {
+const Hub = async ({ id, role }: { id: string; role: RoleType }) => {
     const { hub, events, reviews } = await getHubByIdWithEventsAndReviews(id)
     const { states } = await getStates()
 
@@ -38,6 +38,7 @@ const Hub = async ({ id }: { id: string }) => {
                     hub={hub}
                     states={states}
                     stateId={hub.stateId}
+                    role={role}
                 />
             </div>
             <div className="relative mx-4 mt-8">

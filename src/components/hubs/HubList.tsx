@@ -11,7 +11,9 @@ import { type State, type StateId } from "@/lib/db/schema/states"
 import { useOptimisticHubs } from "@/app/(app)/hubs/useOptimisticHubs"
 import { Button } from "@/components/ui/button"
 import HubForm from "./HubForm"
-import { PlusIcon } from "lucide-react"
+import { PlusIcon, Edit2Icon, Eye } from "lucide-react"
+import { RoleType } from "@/lib/auth/get-user-role"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 type TOpenModal = (hub?: Hub) => void
 
@@ -19,10 +21,12 @@ export default function HubList({
     hubs,
     states,
     stateId,
+    role,
 }: {
     hubs: CompleteHub[]
     states: State[]
     stateId?: StateId
+    role: RoleType
 }) {
     const { optimisticHubs, addOptimisticHub } = useOptimisticHubs(hubs, states)
     const [open, setOpen] = useState(false)
@@ -32,9 +36,10 @@ export default function HubList({
         hub ? setActiveHub(hub) : setActiveHub(null)
     }
     const closeModal = () => setOpen(false)
+    const isAdmin = role === "admin"
 
     return (
-        <div>
+        <div className="space-y-4">
             <Modal
                 open={open}
                 setOpen={setOpen}
@@ -47,32 +52,37 @@ export default function HubList({
                     closeModal={closeModal}
                     states={states}
                     stateId={stateId}
+                    role={role}
                 />
             </Modal>
-            <div className="absolute right-0 top-0">
-                <Button onClick={() => openModal()} variant={"outline"}>
-                    +
-                </Button>
-            </div>
+            {isAdmin && (
+                <div className="flex justify-end">
+                    <Button onClick={() => openModal()} className="gap-2">
+                        <PlusIcon className="h-4 w-4" /> Add Hub
+                    </Button>
+                </div>
+            )}
             {optimisticHubs.length === 0 ? (
-                <EmptyState openModal={openModal} />
+                <EmptyState openModal={openModal} isAdmin={isAdmin} />
             ) : (
-                <ul>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {optimisticHubs.map((hub) => (
-                        <Hub hub={hub} key={hub.id} openModal={openModal} />
+                        <HubCard key={hub.id} hub={hub} openModal={openModal} isAdmin={isAdmin} />
                     ))}
-                </ul>
+                </div>
             )}
         </div>
     )
 }
 
-const Hub = ({
+const HubCard = ({
     hub,
     openModal,
+    isAdmin,
 }: {
     hub: CompleteHub
     openModal: TOpenModal
+    isAdmin: boolean
 }) => {
     const optimistic = hub.id === "optimistic"
     const deleting = hub.id === "delete"
@@ -81,37 +91,50 @@ const Hub = ({
     const basePath = pathname.includes("hubs") ? pathname : pathname + "/hubs/"
 
     return (
-        <li
-            className={cn(
-                "my-2 flex justify-between",
-                mutating ? "animate-pulse opacity-30" : "",
-                deleting ? "text-destructive" : "",
-            )}
-        >
-            <div className="w-full">
-                <div>{hub.name}</div>
-            </div>
-            <Button variant={"link"} asChild>
-                <Link href={basePath + "/" + hub.id}>Edit</Link>
-            </Button>
-        </li>
+        <Card className={cn(
+            mutating ? "opacity-50" : "",
+            deleting ? "bg-destructive/5" : ""
+        )}>
+            <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                    <span>{hub.name}</span>
+                    <div className="flex space-x-2">
+                        <Button variant="ghost" size="icon" asChild>
+                            <Link href={`${basePath}/${hub.id}`}>
+                                <Eye className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                        {isAdmin && (
+                            <Button variant="ghost" size="icon" onClick={() => openModal(hub)}>
+                                <Edit2Icon className="h-4 w-4" />
+                            </Button>
+                        )}
+                    </div>
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground">{hub.description || "No description available."}</p>
+                <p className="mt-2 text-sm">Type: {hub.typeOfHub || "Not specified"}</p>
+                <p className="text-sm">Status: {hub.public ? "Public" : "Private"}</p>
+            </CardContent>
+        </Card>
     )
 }
 
-const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
+const EmptyState = ({ openModal, isAdmin }: { openModal: TOpenModal; isAdmin: boolean }) => {
     return (
-        <div className="text-center">
-            <h3 className="mt-2 text-sm font-semibold text-secondary-foreground">
-                No hubs
-            </h3>
+        <Card className="text-center p-6">
+            <h3 className="text-lg font-semibold text-secondary-foreground">No hubs</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-                Get started by creating a new hub.
+                {isAdmin ? "Get started by creating a new hub." : "No hubs available."}
             </p>
-            <div className="mt-6">
-                <Button onClick={() => openModal()}>
-                    <PlusIcon className="h-4" /> New Hubs{" "}
-                </Button>
-            </div>
-        </div>
+            {isAdmin && (
+                <div className="mt-6">
+                    <Button onClick={() => openModal()}>
+                        <PlusIcon className="mr-2 h-4 w-4" /> New Hub
+                    </Button>
+                </div>
+            )}
+        </Card>
     )
 }

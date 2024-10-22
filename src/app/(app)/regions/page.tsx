@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import Loading from "@/app/loading"
 import RegionList from "@/components/regions/RegionList"
 import { getRegions } from "@/lib/api/regions/queries"
+import { getUserRole } from "@/lib/auth/get-user-role"
 
 export const revalidate = 0
 
@@ -21,10 +22,11 @@ export default async function RegionsPage() {
 
 const Regions = async () => {
     const { regions } = await getRegions()
+    const { role } = await getUserRole()
 
     return (
         <Suspense fallback={<Loading />}>
-            <RegionList regions={regions} />
+            <RegionList regions={regions} role={role} />
         </Suspense>
     )
 }

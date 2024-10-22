@@ -65,6 +65,18 @@ const config = {
                     "4": "hsl(var(--chart-4))",
                     "5": "hsl(var(--chart-5))",
                 },
+                sidebar: {
+                    DEFAULT: "hsl(var(--sidebar-background))",
+                    foreground: "hsl(var(--sidebar-foreground))",
+                    primary: "hsl(var(--sidebar-primary))",
+                    "primary-foreground":
+                        "hsl(var(--sidebar-primary-foreground))",
+                    accent: "hsl(var(--sidebar-accent))",
+                    "accent-foreground":
+                        "hsl(var(--sidebar-accent-foreground))",
+                    border: "hsl(var(--sidebar-border))",
+                    ring: "hsl(var(--sidebar-ring))",
+                },
             },
             borderRadius: {
                 lg: "var(--radius)",
@@ -92,15 +104,17 @@ const config = {
                     "0%": {
                         width: "0",
                     },
-                    "50%": { width: "70%" },
+                    "50%": {
+                        width: "70%",
+                    },
                     "100%": {
                         width: "100%",
                     },
                 },
                 keyframes: {
                     move: {
-                        "0%": { transform: "translateX(-200px)" }.toString(),
-                        "100%": { transform: "translateX(200px)" }.toString(),
+                        "0%": '{ transform: "translateX(-200px)" }.toString()',
+                        "100%": '{ transform: "translateX(200px)" }.toString()',
                     },
                 },
             },

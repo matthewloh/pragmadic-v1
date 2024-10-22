@@ -10,17 +10,24 @@ import {
     uuid,
     varchar,
 } from "drizzle-orm/pg-core"
+import {
+    PERMISSIONS,
+    ROLES,
+    Permission,
+    Role,
+} from "@/utils/supabase/permissions"
 
 const authSchema = pgSchema("auth")
 
-export const userRoleEnum = pgEnum("user_role", ["regular", "owner", "admin"])
+export const userRoleEnum = pgEnum(
+    "user_role",
+    Object.values(ROLES) as [string, ...string[]],
+)
 
-export const userAppPermissions = pgEnum("user_app_permissions", [
-    "hubs.create",
-    "hubs.delete",
-    "hubs.posts.create",
-    "communities.posts.create",
-])
+export const userAppPermissions = pgEnum(
+    "user_app_permissions",
+    Object.values(PERMISSIONS) as [string, ...string[]],
+)
 
 export const authUsers = authSchema.table("users", {
     id: uuid("id").primaryKey(),
@@ -36,7 +43,7 @@ export const users = pgTable("user", {
     email: text("email").unique().notNull(),
     display_name: varchar("display_name", { length: 256 }),
     image_url: text("image_url"),
-    role: userRoleEnum("role").default("regular").notNull(),
+    role: userRoleEnum("role").default(ROLES.REGULAR).notNull(),
 })
 
 export const userRoles = pgTable(
@@ -70,3 +77,9 @@ export const rolePermissions = pgTable(
 )
 
 export type SelectUser = typeof users.$inferSelect
+
+// New type for user with roles and permissions
+export type UserWithRolesAndPermissions = SelectUser & {
+    roles: Role[]
+    permissions: Permission[]
+}

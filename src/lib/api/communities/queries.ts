@@ -102,12 +102,7 @@ export const getCommunityByIdWithCommunityPostsAndCommunityEventsAndMembers =
                 },
             })
             .from(communities)
-            .where(
-                and(
-                    eq(communities.id, communityId),
-                    eq(communities.userId, session?.user.id!),
-                ),
-            )
+            .where(eq(communities.id, communityId))
             .leftJoin(
                 communityPosts,
                 eq(communities.id, communityPosts.communityId),

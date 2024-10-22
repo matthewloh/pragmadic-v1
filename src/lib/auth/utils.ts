@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { getSession } from "../../../supabase/queries/cached-queries"
+import { getSession } from "../../utils/supabase/queries/cached-queries"
 import { getUserRole } from "./get-user-role"
 import { AuthSession, UserMetadata } from "./types"
 

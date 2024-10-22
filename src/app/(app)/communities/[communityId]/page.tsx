@@ -15,12 +15,10 @@ import Image from "next/image"
 
 export const revalidate = 0
 
-export default async function CommunityPage(
-    props: {
-        params: Promise<{ communityId: string }>
-    }
-) {
-    const params = await props.params;
+export default async function CommunityPage(props: {
+    params: Promise<{ communityId: string }>
+}) {
+    const params = await props.params
     return (
         <main className="overflow-auto">
             <Community id={params.communityId} />

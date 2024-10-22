@@ -1,23 +1,20 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import PragmadicLogo from "@/components/branding/pragmadic-logo"
-import { PagesGradient } from "@/components/gradients"
-import { SidebarLayout, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import UserButtonSupabase from "@/features/auth/components/UserButtonSupabase"
-import MainNavBar from "@/features/dashboard/components/MainNavBar"
 import { cookies } from "next/headers"
 import Link from "next/link"
 
-export default async function OnboardingLayout(
-    {
-        children,
-    }: {
-        children: React.ReactNode
-    }
-) {
+export default async function OnboardingLayout({
+    children,
+}: {
+    children: React.ReactNode
+}) {
+    const cookieStore = await cookies()
+    const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
+
     return (
-        (<SidebarLayout
-            defaultOpen={(await cookies()).get("sidebar:state")?.value === "true"}
-        >
+        <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
             <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out">
                 <header className="sticky top-0 z-10 border-b border-border bg-transparent backdrop-blur-3xl">
@@ -46,6 +43,6 @@ export default async function OnboardingLayout(
                     </div>
                 </main>
             </div>
-        </SidebarLayout>)
-    );
+        </SidebarProvider>
+    )
 }

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { getSession, getUser } from "../../../supabase/queries/cached-queries"
+import { getSession, getUser } from "../../utils/supabase/queries/cached-queries"
 
 export default async function Layout({
     children,
