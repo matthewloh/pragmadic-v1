@@ -17,7 +17,7 @@ export default async function ReviewPage(
 ) {
     const params = await props.params;
     return (
-        <main className="overflow-auto">
+        <main className="container mx-auto h-full w-full overflow-auto">
             <Review id={params.reviewId} />
         </main>
     )

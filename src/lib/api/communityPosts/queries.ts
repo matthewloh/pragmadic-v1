@@ -18,7 +18,6 @@ export const getCommunityPosts = async () => {
         .select({ communityPost: communityPosts, community: communities })
         .from(communityPosts)
         .leftJoin(communities, eq(communityPosts.communityId, communities.id))
-        .where(eq(communityPosts.userId, session?.user.id!))
     const c = rows.map((r) => ({ ...r.communityPost, community: r.community }))
     return { communityPosts: c }
 }
@@ -52,12 +51,7 @@ export const getCommunityPostByIdWithCommunityPostReplies = async (
             communityPostReply: communityPostReplies,
         })
         .from(communityPosts)
-        .where(
-            and(
-                eq(communityPosts.id, communityPostId),
-                eq(communityPosts.userId, session?.user.id!),
-            ),
-        )
+        .where(eq(communityPosts.id, communityPostId))
         .leftJoin(
             communityPostReplies,
             eq(communityPosts.id, communityPostReplies.communityPostId),

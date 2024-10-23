@@ -52,12 +52,7 @@ export const getCommunityEventByIdWithCommunityEventInvites = async (
             communityEventInvite: communityEventInvites,
         })
         .from(communityEvents)
-        .where(
-            and(
-                eq(communityEvents.id, communityEventId),
-                eq(communityEvents.userId, session?.user.id!),
-            ),
-        )
+        .where(eq(communityEvents.id, communityEventId))
         .leftJoin(
             communityEventInvites,
             eq(communityEvents.id, communityEventInvites.communityEventId),
