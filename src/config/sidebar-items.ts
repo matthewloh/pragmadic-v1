@@ -28,19 +28,12 @@ interface NavItem {
     items?: Omit<NavItem, "items">[]
 }
 
-export const navItems: NavItem[] = [
+export const pragmadicFeatures: NavItem[] = [
     {
         title: "Dashboard",
         url: "/dashboard",
         icon: Home,
-        items: [
-            { title: "Overview", url: "/dashboard/overview", icon: BarChart },
-            { title: "Settings", url: "/dashboard/settings", icon: Settings },
-        ],
     },
-]
-
-export const chatbotItems: NavItem[] = [
     {
         title: "RAG Chatbot",
         url: "/chat",
@@ -48,14 +41,21 @@ export const chatbotItems: NavItem[] = [
     },
 ]
 
-export const quickAccessItems = [
-    { name: "Penang Digital Nomad Guide", url: "/onboarding", icon: Globe },
-    { name: "DE Rantau Regions", url: "/regions", icon: Flag },
-    { name: "DE Rantau States", url: "/states", icon: MapPin },
-    { name: "Hub Events", url: "/events", icon: Calendar },
-    { name: "Hub Reviews", url: "/reviews", icon: Star },
-    { name: "Communities", url: "/communities", icon: Users },
-    { name: "Local Business Directory", url: "/hubs", icon: Building },
+export const deRantauPlatform: NavItem[] = [
+    { title: "DE Rantau Regions", url: "/regions", icon: Flag },
+    { title: "DE Rantau States", url: "/states", icon: MapPin },
+    { title: "Hub Events", url: "/events", icon: Calendar },
+    { title: "Hub Reviews", url: "/reviews", icon: Star },
+    { title: "Communities", url: "/communities", icon: Users },
+    { title: "Local Business Directory", url: "/hubs", icon: Building },
+]
+
+export const onboardingSupport: NavItem[] = [
+    { title: "Penang Digital Nomad Guide", url: "/onboarding", icon: Globe },
+]
+
+export const analyticsItems: NavItem[] = [
+    { title: "Analytics", url: "/analytics", icon: BarChart },
 ]
 
 export const helpSupportItems = [

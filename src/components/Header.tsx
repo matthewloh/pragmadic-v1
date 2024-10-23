@@ -132,7 +132,7 @@ export function LandingHeader() {
     return (
         <header
             className={cn(
-                "sticky top-4 z-50 my-4 justify-center bg-transparent px-2 md:flex md:px-4",
+                "fixed left-0 right-0 top-0 z-50 my-4 justify-center bg-transparent px-2 md:flex md:px-4",
                 pathname === "/" &&
                     "duration-1s animate-header-slide-down-fade transition ease-in-out",
             )}

@@ -14,9 +14,9 @@ export function LandingHero() {
         <div
             className={`flex min-h-screen flex-col bg-background font-sans ${outfit.className}`}
         >
-            <LandingHeader />
             <main className="flex-grow">
                 <HeroSection />
+                <LandingHeader />
                 <ChatbotSection />
                 <DeRantauSection />
                 <NomadNetworkSection />

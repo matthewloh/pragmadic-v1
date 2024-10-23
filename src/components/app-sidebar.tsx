@@ -17,10 +17,10 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar"
 import {
-    navItems,
-    chatbotItems,
-    quickAccessItems,
-    helpSupportItems,
+    pragmadicFeatures,
+    deRantauPlatform,
+    onboardingSupport,
+    analyticsItems,
     getProfileItems,
     adminOnlyItems,
 } from "@/config/sidebar-items"
@@ -47,17 +47,13 @@ export function AppSidebar() {
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarGroup>
-                        <SidebarGroupLabel>
-                            DE Rantau Platform
-                        </SidebarGroupLabel>
+                        <SidebarGroupLabel>Pragmadic Features</SidebarGroupLabel>
                         <SidebarMenu>
-                            {navItems.map((item) => (
+                            {pragmadicFeatures.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <Link href={item.url}>
-                                            {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
-                                            )}
+                                            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -67,15 +63,13 @@ export function AppSidebar() {
                     </SidebarGroup>
 
                     <SidebarGroup>
-                        <SidebarGroupLabel>AI Assistant</SidebarGroupLabel>
+                        <SidebarGroupLabel>DE Rantau Platform</SidebarGroupLabel>
                         <SidebarMenu>
-                            {chatbotItems.map((item) => (
+                            {deRantauPlatform.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <Link href={item.url}>
-                                            {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
-                                            )}
+                                            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -85,35 +79,13 @@ export function AppSidebar() {
                     </SidebarGroup>
 
                     <SidebarGroup>
-                        <SidebarGroupLabel>
-                            Onboarding Support
-                        </SidebarGroupLabel>
+                        <SidebarGroupLabel>Onboarding Support</SidebarGroupLabel>
                         <SidebarMenu>
-                            {quickAccessItems.map((item) => (
-                                <SidebarMenuItem key={item.name}>
-                                    <SidebarMenuButton asChild>
-                                        <Link href={item.url}>
-                                            {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
-                                            )}
-                                            <span>{item.name}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroup>
-
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Help & Support</SidebarGroupLabel>
-                        <SidebarMenu>
-                            {helpSupportItems.map((item) => (
+                            {onboardingSupport.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <Link href={item.url}>
-                                            {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
-                                            )}
+                                            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -121,6 +93,25 @@ export function AppSidebar() {
                             ))}
                         </SidebarMenu>
                     </SidebarGroup>
+
+                    {userRoleData.role === "owner" && (
+                        <SidebarGroup>
+                            <SidebarGroupLabel>Analytics</SidebarGroupLabel>
+                            <SidebarMenu>
+                                {analyticsItems.map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton asChild>
+                                            <Link href={item.url}>
+                                                {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+                                                <span>{item.title}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroup>
+                    )}
+
                     {userRoleData.role === "admin" && (
                         <SidebarGroup>
                             <SidebarGroupLabel>Admin</SidebarGroupLabel>
@@ -129,9 +120,7 @@ export function AppSidebar() {
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild>
                                             <Link href={item.url}>
-                                                {item.icon && (
-                                                    <item.icon className="mr-2 h-4 w-4" />
-                                                )}
+                                                {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                                                 <span>{item.title}</span>
                                             </Link>
                                         </SidebarMenuButton>
@@ -148,9 +137,7 @@ export function AppSidebar() {
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <Link href={item.url}>
-                                            {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
-                                            )}
+                                            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
