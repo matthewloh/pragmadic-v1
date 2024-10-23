@@ -1,8 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { AutumnFireGradient } from "@/components/gradients"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import MainNavBar from "@/features/dashboard/components/MainNavBar"
-import { getUserRole } from "@/lib/auth/get-user-role"
 import { cookies } from "next/headers"
 
 export default async function PagesLayout({
@@ -11,7 +10,7 @@ export default async function PagesLayout({
     children: React.ReactNode
 }) {
     const cookieStore = await cookies()
-    const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
+    const defaultOpen = cookieStore.get("sidebar:state")?.value === "false"
 
     return (
         <SidebarProvider defaultOpen={defaultOpen}>
@@ -26,7 +25,7 @@ export default async function PagesLayout({
                 <main className="flex overflow-hidden">
                     <div className="flex-grow">
                         <div className="relative h-full border border-dashed shadow-sm">
-                            <div className="h-full bg-background/50 p-16">
+                            <div className="relative flex h-full w-full flex-grow bg-background/50 p-16">
                                 {children}
                             </div>
                         </div>

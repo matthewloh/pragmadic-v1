@@ -20,15 +20,10 @@ export default async function DashboardPage() {
     const role = session.role
     return (
         <div
-            className={`relative min-h-screen overflow-hidden bg-background text-foreground ${outfit.className}`}
+            className={`relative h-full w-full overflow-hidden bg-background text-foreground ${outfit.className}`}
         >
             <AutumnFireGradient />
             <div className="relative z-10">
-                <header className="sticky top-0 z-10 border-b border-border bg-background/40 backdrop-blur-3xl">
-                    <div className="flex h-[60px] items-center justify-between">
-                        <MainNavBar />
-                    </div>
-                </header>
                 <main className="container mx-auto p-6">
                     <div className="mb-10 text-center">
                         <p className="text-sm font-medium text-muted-foreground">

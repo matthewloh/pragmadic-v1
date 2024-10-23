@@ -21,7 +21,7 @@ export default async function HubPage(props: {
     const { role } = await getUserRole()
     const params = await props.params
     return (
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto h-full w-full">
             <Suspense fallback={<Loading />}>
                 <Hub id={params.hubId} role={role} />
             </Suspense>

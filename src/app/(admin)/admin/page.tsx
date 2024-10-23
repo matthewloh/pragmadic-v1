@@ -1,21 +1,9 @@
-import { AdminDashboard } from "@/components/AdminDashboard"
-import AdminSkeleton from "@/components/AdminSkeleton"
-import { ErrorBoundary } from "@/components/ErrorBoundary"
-import { getUsers } from "@/lib/api/users/queries"
-import { Suspense } from "react"
+import { AdminWelcomeDashboard } from "@/features/admin/components/AdminWelcomeDashboard"
 
-export default async function AdminPage() {
+export default function AdminPage() {
     return (
-        <ErrorBoundary>
-            <Suspense fallback={<AdminSkeleton />}>
-                <AdminPageContent />
-            </Suspense>
-        </ErrorBoundary>
+        <div className="container mx-auto h-full w-full">
+            <AdminWelcomeDashboard />
+        </div>
     )
-}
-
-async function AdminPageContent() {
-    const { users } = await getUsers()
-
-    return <AdminDashboard initialUsers={users} />
 }

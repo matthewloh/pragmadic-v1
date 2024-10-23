@@ -10,7 +10,7 @@ export const revalidate = 0
 
 export default async function StatesPage() {
     return (
-        <main>
+        <main className="h-full w-full">
             <div className="relative">
                 <div className="flex justify-between">
                     <h1 className="my-2 text-2xl font-semibold">States</h1>

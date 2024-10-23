@@ -19,7 +19,7 @@ export default async function HubPage(props: {
     const params = await props.params
     const { role } = await getUserRole()
     return (
-        <main className="overflow-auto">
+        <main className="container mx-auto h-full w-full">
             <Hub id={params.hubId} role={role} />
         </main>
     )

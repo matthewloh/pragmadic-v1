@@ -1,9 +1,5 @@
 "use client"
 
-import * as React from "react"
-import Link from "next/link"
-import { useUserRole } from "@/features/auth/hooks/use-user-role"
-import { NavUser } from "./nav-user"
 import {
     Sidebar,
     SidebarContent,
@@ -17,14 +13,19 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar"
 import {
-    pragmadicFeatures,
-    deRantauPlatform,
-    onboardingSupport,
-    analyticsItems,
-    getProfileItems,
     adminOnlyItems,
+    analyticsItems,
+    deRantauPlatform,
+    getProfileItems,
+    onboardingSupport,
+    pragmadicFeatures,
 } from "@/config/sidebar-items"
+import { useUserRole } from "@/features/auth/hooks/use-user-role"
+import { outfit } from "@/utils/fonts"
+import Link from "next/link"
+import * as React from "react"
 import PragmadicLogo from "./branding/pragmadic-logo"
+import { NavUser } from "./nav-user"
 
 export function AppSidebar() {
     const { data: userRoleData } = useUserRole()
@@ -47,13 +48,17 @@ export function AppSidebar() {
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarGroup>
-                        <SidebarGroupLabel>Pragmadic Features</SidebarGroupLabel>
+                        <SidebarGroupLabel>
+                            Pragmadic Features
+                        </SidebarGroupLabel>
                         <SidebarMenu>
                             {pragmadicFeatures.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <Link href={item.url}>
-                                            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+                                            {item.icon && (
+                                                <item.icon className="mr-2 h-4 w-4" />
+                                            )}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -63,13 +68,17 @@ export function AppSidebar() {
                     </SidebarGroup>
 
                     <SidebarGroup>
-                        <SidebarGroupLabel>DE Rantau Platform</SidebarGroupLabel>
+                        <SidebarGroupLabel>
+                            DE Rantau Platform
+                        </SidebarGroupLabel>
                         <SidebarMenu>
                             {deRantauPlatform.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <Link href={item.url}>
-                                            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+                                            {item.icon && (
+                                                <item.icon className="mr-2 h-4 w-4" />
+                                            )}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -79,13 +88,17 @@ export function AppSidebar() {
                     </SidebarGroup>
 
                     <SidebarGroup>
-                        <SidebarGroupLabel>Onboarding Support</SidebarGroupLabel>
+                        <SidebarGroupLabel>
+                            Onboarding Support
+                        </SidebarGroupLabel>
                         <SidebarMenu>
                             {onboardingSupport.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <Link href={item.url}>
-                                            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+                                            {item.icon && (
+                                                <item.icon className="mr-2 h-4 w-4" />
+                                            )}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -102,7 +115,9 @@ export function AppSidebar() {
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild>
                                             <Link href={item.url}>
-                                                {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+                                                {item.icon && (
+                                                    <item.icon className="mr-2 h-4 w-4" />
+                                                )}
                                                 <span>{item.title}</span>
                                             </Link>
                                         </SidebarMenuButton>
@@ -120,7 +135,9 @@ export function AppSidebar() {
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild>
                                             <Link href={item.url}>
-                                                {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+                                                {item.icon && (
+                                                    <item.icon className="mr-2 h-4 w-4" />
+                                                )}
                                                 <span>{item.title}</span>
                                             </Link>
                                         </SidebarMenuButton>
@@ -137,7 +154,9 @@ export function AppSidebar() {
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <Link href={item.url}>
-                                            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+                                            {item.icon && (
+                                                <item.icon className="mr-2 h-4 w-4" />
+                                            )}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -156,7 +175,11 @@ export function AppSidebar() {
     if (!userRoleData) return null
 
     return (
-        <Sidebar collapsible="icon" variant="sidebar">
+        <Sidebar
+            collapsible="icon"
+            variant="sidebar"
+            className={`${outfit.className}`}
+        >
             {sidebarContent}
             <SidebarRail />
         </Sidebar>

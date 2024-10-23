@@ -11,14 +11,20 @@ export default async function DashboardLayout({
     children: React.ReactNode
 }) {
     const cookieStore = await cookies()
-    const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
+    const defaultOpen = cookieStore.get("sidebar:state")?.value === "false"
 
     return (
         <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
-            <main className="flex flex-1 flex-col transition-all duration-300 ease-in-out">
-                <div className="h-full">{children}</div>
-            </main>
+            <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out">
+                <AutumnFireGradient />
+                <header className="sticky top-0 z-20 border-b border-border bg-background/70 backdrop-blur-xl">
+                    <div className="flex h-[60px] items-center justify-between">
+                        <MainNavBar />
+                    </div>
+                </header>
+                <main className="flex h-full w-full flex-grow">{children}</main>
+            </div>
         </SidebarProvider>
     )
 }
