@@ -31,9 +31,9 @@ export function AppSidebar() {
     const { data: userRoleData } = useUserRole()
 
     const sidebarContent = React.useMemo(() => {
-        if (!userRoleData?.role) return null
+        if (!userRoleData?.user_roles) return null
 
-        const profileItems = getProfileItems(userRoleData.role)
+        const profileItems = getProfileItems(userRoleData.user_roles)
 
         return (
             <>
@@ -107,7 +107,7 @@ export function AppSidebar() {
                         </SidebarMenu>
                     </SidebarGroup>
 
-                    {userRoleData.role === "owner" && (
+                    {userRoleData.user_roles.includes("owner") && (
                         <SidebarGroup>
                             <SidebarGroupLabel>Analytics</SidebarGroupLabel>
                             <SidebarMenu>
@@ -127,7 +127,7 @@ export function AppSidebar() {
                         </SidebarGroup>
                     )}
 
-                    {userRoleData.role === "admin" && (
+                    {userRoleData.user_roles.includes("admin") && (
                         <SidebarGroup>
                             <SidebarGroupLabel>Admin</SidebarGroupLabel>
                             <SidebarMenu>

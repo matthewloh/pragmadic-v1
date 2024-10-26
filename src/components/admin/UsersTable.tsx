@@ -1,22 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { SelectUser } from "@/lib/db/schema/users"
-import { Role } from "@/utils/supabase/permissions"
-import { getAllRoles } from "@/utils/supabase/roles"
-import useSupabaseBrowser from "@/utils/supabase/client"
-import { toast } from "sonner"
 import { Card } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import {
     Table,
     TableBody,
@@ -25,17 +11,37 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { updateUserRolesAction } from "@/features/admin/actions/users"
+import { RoleType } from "@/lib/auth/get-user-role"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { Role } from "@/utils/supabase/permissions"
+import { getAllRoles } from "@/utils/supabase/roles"
+import {
+    useInsertMutation,
+    useUpdateMutation,
+    useUpsertMutation,
+    useDeleteMutation,
+} from "@supabase-cache-helpers/postgrest-react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Search } from "lucide-react"
-import { nanoid } from "@/lib/utils"
+import { useState } from "react"
+import { toast } from "sonner"
+
+interface User {
+    id: string
+    email: string
+    display_name: string | null
+    roles: Role[]
+    created_at?: string
+}
 
 interface UsersTableProps {
-    initialUsers: SelectUser[]
+    initialUsers: User[]
 }
 
 export function UsersTable({ initialUsers }: UsersTableProps) {
-    const [users, setUsers] = useState<SelectUser[]>(initialUsers)
+    const [users, setUsers] = useState<User[]>(initialUsers)
     const [searchTerm, setSearchTerm] = useState("")
-    const [selectedUser, setSelectedUser] = useState<SelectUser | null>(null)
     const supabase = useSupabaseBrowser()
     const queryClient = useQueryClient()
 
@@ -47,25 +53,41 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
             user.email.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
-    const updateUserRoleMutation = useMutation({
+    const updateUserRolesMutation = useMutation({
         mutationFn: async ({
             userId,
-            role,
+            roles,
         }: {
             userId: string
-            role: Role
+            roles: RoleType[]
         }) => {
-            await supabase
-                .from("user_roles")
-                .upsert(
-                    { id: nanoid(), user_id: userId, role },
-                    { onConflict: "user_id" },
-                )
+            await updateUserRolesAction(userId, roles)
+        },
+        onSuccess: (_, variables) => {
+            toast.success("User roles updated successfully")
+            setUsers((prev) =>
+                prev.map((user) =>
+                    user.id === variables.userId
+                        ? { ...user, roles: variables.roles }
+                        : user,
+                ),
+            )
+        },
+        onError: (error) => {
+            toast.error(`Error updating user roles: ${error.message}`)
         },
     })
 
-    const handleUpdateUserRole = (userId: string, role: Role) => {
-        updateUserRoleMutation.mutate({ userId, role })
+    const handleRoleToggle = (
+        userId: string,
+        role: Role,
+        currentRoles: Role[],
+    ) => {
+        const newRoles = currentRoles.includes(role)
+            ? currentRoles.filter((r) => r !== role)
+            : [...currentRoles, role]
+
+        updateUserRolesMutation.mutate({ userId, roles: newRoles })
     }
 
     return (
@@ -89,8 +111,8 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
                         <TableRow>
                             <TableHead>Name</TableHead>
                             <TableHead>Email</TableHead>
-                            <TableHead>Role</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead>Roles</TableHead>
+                            <TableHead>Created At</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -101,38 +123,44 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
                                 </TableCell>
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            handleUpdateUserRole(
-                                                user.id,
-                                                value as Role,
-                                            )
-                                        }
-                                        defaultValue={user.role}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a role" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {getAllRoles().map((role) => (
-                                                <SelectItem
-                                                    key={role}
-                                                    value={role}
+                                    <div className="flex flex-col gap-2">
+                                        {getAllRoles().map((role) => (
+                                            <div
+                                                key={role}
+                                                className="flex items-center space-x-2"
+                                            >
+                                                <Checkbox
+                                                    id={`${user.id}-${role}`}
+                                                    checked={user.roles.includes(
+                                                        role,
+                                                    )}
+                                                    onCheckedChange={() =>
+                                                        handleRoleToggle(
+                                                            user.id,
+                                                            role,
+                                                            user.roles,
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        updateUserRolesMutation.isPending
+                                                    }
+                                                />
+                                                <label
+                                                    htmlFor={`${user.id}-${role}`}
+                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                                 >
                                                     {role}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setSelectedUser(user)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    {user.created_at
+                                        ? new Date(
+                                              user.created_at,
+                                          ).toLocaleDateString()
+                                        : "N/A"}
                                 </TableCell>
                             </TableRow>
                         ))}

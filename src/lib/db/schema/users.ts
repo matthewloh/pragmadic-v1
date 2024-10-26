@@ -16,6 +16,7 @@ import {
     Permission,
     Role,
 } from "@/utils/supabase/permissions"
+import { RoleType } from "@/lib/auth/get-user-role"
 
 const authSchema = pgSchema("auth")
 
@@ -33,7 +34,7 @@ export const authUsers = authSchema.table("users", {
     id: uuid("id").primaryKey(),
 })
 
-export const users = pgTable("user", {
+export const users = pgTable("users", {
     createdAt: timestamp("created_at").defaultNow(),
     id: uuid("id")
         .default(sql`gen_random_uuid()`)
@@ -43,15 +44,18 @@ export const users = pgTable("user", {
     email: text("email").unique().notNull(),
     display_name: varchar("display_name", { length: 256 }),
     image_url: text("image_url"),
-    role: userRoleEnum("role").default(ROLES.REGULAR).notNull(),
+    role: userRoleEnum("roles")
+        .array()
+        .notNull()
+        .default(sql`ARRAY['regular']::"user_role"[]`), // can't use double quotes in default value
 })
 
 export const userRoles = pgTable(
     "user_roles",
     {
-        id: varchar("id", { length: 191 })
+        id: uuid("id")
             .primaryKey()
-            .$defaultFn(() => nanoid()),
+            .default(sql`gen_random_uuid()`),
         userId: uuid("user_id")
             .references(() => users.id, { onDelete: "cascade" })
             .notNull(),
@@ -80,6 +84,6 @@ export type SelectUser = typeof users.$inferSelect
 
 // New type for user with roles and permissions
 export type UserWithRolesAndPermissions = SelectUser & {
-    roles: Role[]
+    roles: RoleType[]
     permissions: Permission[]
 }

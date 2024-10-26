@@ -20,12 +20,12 @@ export default function StateList({
     states,
     regions,
     regionId,
-    role,
+    user_roles,
 }: {
     states: CompleteState[]
     regions: Region[]
     regionId?: RegionId
-    role: RoleType
+    user_roles: RoleType[]
 }) {
     const { optimisticStates, addOptimisticState } = useOptimisticStates(
         states,
@@ -39,7 +39,7 @@ export default function StateList({
     }
     const closeModal = () => setOpen(false)
 
-    const isAdmin = role === "admin"
+    const isAdmin = user_roles.includes("admin")
 
     return (
         <div className="space-y-8">

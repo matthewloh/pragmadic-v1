@@ -28,11 +28,11 @@ import { RoleType } from "@/lib/auth/get-user-role"
 export default function OptimisticState({
     state,
     regions,
-    role,
+    user_roles,
 }: {
     state: State
     regions: Region[]
-    role: RoleType
+    user_roles: RoleType[]
 }) {
     const [open, setOpen] = useState(false)
     const openModal = (_?: State) => setOpen(true)
@@ -41,7 +41,7 @@ export default function OptimisticState({
     const updateState: TAddOptimistic = (input) =>
         setOptimisticState({ ...input.data })
 
-    const isAdmin = role === "admin"
+    const isAdmin = user_roles.includes("admin")
 
     return (
         <>

@@ -4,17 +4,18 @@ import { jwtDecode } from "jwt-decode"
 import type { JwtPayload } from "jwt-decode"
 
 import { createClient } from "@/utils/supabase/client"
+import { RoleType } from "@/lib/auth/get-user-role"
 
 type SupabaseJwtPayload = JwtPayload & {
     app_metadata: {
-        role: string
+        user_roles: RoleType[]
     }
 }
 
 type UserRoleData = {
     session: Session | null
     user: User | null
-    role: string | null
+    user_roles: RoleType[] 
 }
 
 export function useUserRole() {
@@ -34,15 +35,15 @@ export function useUserRole() {
             return {
                 session,
                 user: session.user,
-                role: decodedJwt.app_metadata.role,
+                user_roles: decodedJwt.app_metadata.user_roles,
             }
         }
 
-        return { session: null, user: null, role: null }
+        return { session: null, user: null, user_roles: [] }
     }
 
     return useQuery<UserRoleData, AuthError>({
-        queryKey: ["userRole"],
+        queryKey: ["user-role"],
         queryFn: fetchUserRole,
     })
 }

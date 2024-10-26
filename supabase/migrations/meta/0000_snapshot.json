@@ -1,5 +1,5 @@
 {
-  "id": "a30bd5b9-2a9c-4a2d-875c-d09d871ee4ea",
+  "id": "c2e9732a-973e-42c2-b376-25136998d913",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -109,10 +109,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "chats_user_id_user_id_fk": {
-          "name": "chats_user_id_user_id_fk",
+        "chats_user_id_users_id_fk": {
+          "name": "chats_user_id_users_id_fk",
           "tableFrom": "chats",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -183,10 +183,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "communities_user_id_user_id_fk": {
-          "name": "communities_user_id_user_id_fk",
+        "communities_user_id_users_id_fk": {
+          "name": "communities_user_id_users_id_fk",
           "tableFrom": "communities",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -247,10 +247,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "users_to_communities_user_id_user_id_fk": {
-          "name": "users_to_communities_user_id_user_id_fk",
+        "users_to_communities_user_id_users_id_fk": {
+          "name": "users_to_communities_user_id_users_id_fk",
           "tableFrom": "users_to_communities",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -355,10 +355,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "community_event_invites_user_id_user_id_fk": {
-          "name": "community_event_invites_user_id_user_id_fk",
+        "community_event_invites_user_id_users_id_fk": {
+          "name": "community_event_invites_user_id_users_id_fk",
           "tableFrom": "community_event_invites",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -466,10 +466,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "community_events_user_id_user_id_fk": {
-          "name": "community_events_user_id_user_id_fk",
+        "community_events_user_id_users_id_fk": {
+          "name": "community_events_user_id_users_id_fk",
           "tableFrom": "community_events",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -541,10 +541,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "community_post_replies_user_id_user_id_fk": {
-          "name": "community_post_replies_user_id_user_id_fk",
+        "community_post_replies_user_id_users_id_fk": {
+          "name": "community_post_replies_user_id_users_id_fk",
           "tableFrom": "community_post_replies",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -634,10 +634,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "community_posts_user_id_user_id_fk": {
-          "name": "community_posts_user_id_user_id_fk",
+        "community_posts_user_id_users_id_fk": {
+          "name": "community_posts_user_id_users_id_fk",
           "tableFrom": "community_posts",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -721,10 +721,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "derantau_admin_profile_user_id_user_id_fk": {
-          "name": "derantau_admin_profile_user_id_user_id_fk",
+        "derantau_admin_profile_user_id_users_id_fk": {
+          "name": "derantau_admin_profile_user_id_users_id_fk",
           "tableFrom": "derantau_admin_profile",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -996,10 +996,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "hub_owner_profiles_user_id_user_id_fk": {
-          "name": "hub_owner_profiles_user_id_user_id_fk",
+        "hub_owner_profiles_user_id_users_id_fk": {
+          "name": "hub_owner_profiles_user_id_users_id_fk",
           "tableFrom": "hub_owner_profiles",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -1168,9 +1168,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(191)",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
@@ -1188,10 +1189,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "user_roles_user_id_user_id_fk": {
-          "name": "user_roles_user_id_user_id_fk",
+        "user_roles_user_id_users_id_fk": {
+          "name": "user_roles_user_id_users_id_fk",
           "tableFrom": "user_roles",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -1214,8 +1215,8 @@
         }
       }
     },
-    "public.user": {
-      "name": "user",
+    "public.users": {
+      "name": "users",
       "schema": "",
       "columns": {
         "created_at": {
@@ -1250,20 +1251,19 @@
           "primaryKey": false,
           "notNull": false
         },
-        "role": {
-          "name": "role",
-          "type": "user_role",
-          "typeSchema": "public",
+        "roles": {
+          "name": "roles",
+          "type": "user_role[]",
           "primaryKey": false,
           "notNull": true,
-          "default": "'regular'"
+          "default": "ARRAY['regular']::\"user_role\"[]"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "user_id_users_id_fk": {
-          "name": "user_id_users_id_fk",
-          "tableFrom": "user",
+        "users_id_users_id_fk": {
+          "name": "users_id_users_id_fk",
+          "tableFrom": "users",
           "tableTo": "users",
           "schemaTo": "auth",
           "columnsFrom": [
@@ -1278,8 +1278,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "user_email_unique": {
-          "name": "user_email_unique",
+        "users_email_unique": {
+          "name": "users_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
@@ -1356,10 +1356,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "profile_user_id_user_id_fk": {
-          "name": "profile_user_id_user_id_fk",
+        "profile_user_id_users_id_fk": {
+          "name": "profile_user_id_users_id_fk",
           "tableFrom": "profile",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -1432,10 +1432,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "regions_user_id_user_id_fk": {
-          "name": "regions_user_id_user_id_fk",
+        "regions_user_id_users_id_fk": {
+          "name": "regions_user_id_users_id_fk",
           "tableFrom": "regions",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -1771,10 +1771,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "nomad_profile_user_id_user_id_fk": {
-          "name": "nomad_profile_user_id_user_id_fk",
+        "nomad_profile_user_id_users_id_fk": {
+          "name": "nomad_profile_user_id_users_id_fk",
           "tableFrom": "nomad_profile",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -1834,14 +1834,36 @@
       "schema": "public",
       "values": [
         "hubs.create",
+        "hubs.view",
         "hubs.update",
         "hubs.delete",
+        "hubs.approve",
         "hubs.posts.create",
+        "hubs.posts.view",
         "hubs.posts.update",
         "hubs.posts.delete",
+        "communities.create",
+        "communities.view",
+        "communities.update",
+        "communities.delete",
+        "communities.moderate",
         "communities.posts.create",
+        "communities.posts.view",
         "communities.posts.update",
-        "communities.posts.delete"
+        "communities.posts.delete",
+        "regions.create",
+        "regions.view",
+        "regions.update",
+        "regions.delete",
+        "users.view",
+        "users.update",
+        "users.delete",
+        "users.roles.manage",
+        "reviews.create",
+        "reviews.view",
+        "reviews.update",
+        "reviews.delete",
+        "reviews.moderate"
       ]
     },
     "public.user_role": {
@@ -1849,6 +1871,7 @@
       "schema": "public",
       "values": [
         "regular",
+        "nomad",
         "owner",
         "admin"
       ]

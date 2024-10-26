@@ -1,5 +1,37 @@
-import React from "react"
+import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
-export default function EventIdPage() {
-    return <div>EventIdPage</div>
+import OptimisticEvent from "@/app/(app)/events/[eventId]/OptimisticEvent"
+import { getEventById } from "@/lib/api/events/queries"
+import { getHubs } from "@/lib/api/hubs/queries"
+
+import Loading from "@/app/loading"
+import { BackButton } from "@/components/shared/BackButton"
+
+export const revalidate = 0
+
+export default async function EventPage(props: {
+    params: Promise<{ eventId: string }>
+}) {
+    const params = await props.params
+    return (
+        <main className="container mx-auto h-full w-full overflow-auto">
+            <Event id={params.eventId} />
+        </main>
+    )
+}
+
+const Event = async ({ id }: { id: string }) => {
+    const { event } = await getEventById(id)
+    const { hubs } = await getHubs()
+
+    if (!event) notFound()
+    return (
+        <Suspense fallback={<Loading />}>
+            <div className="relative">
+                <BackButton currentResource="events" />
+                <OptimisticEvent event={event} hubs={hubs} />
+            </div>
+        </Suspense>
+    )
 }

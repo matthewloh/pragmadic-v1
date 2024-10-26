@@ -17,10 +17,10 @@ type TOpenModal = (region?: Region) => void
 
 export default function RegionList({
     regions,
-    role,
+    user_roles,
 }: {
     regions: CompleteRegion[]
-    role: RoleType
+    user_roles: RoleType[]
 }) {
     const { optimisticRegions, addOptimisticRegion } =
         useOptimisticRegions(regions)
@@ -34,7 +34,7 @@ export default function RegionList({
 
     const closeModal = () => setOpen(false)
 
-    const isAdmin = role === "admin"
+    const isAdmin = user_roles.includes("admin")
 
     return (
         <div className="space-y-8">

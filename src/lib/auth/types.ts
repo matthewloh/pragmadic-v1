@@ -1,3 +1,4 @@
+import { RoleType } from "./get-user-role"
 export type UserMetadata = {
     avatar_url: string
     email: string
@@ -12,7 +13,7 @@ export type AuthSession = {
             email: string
             user_metadata: UserMetadata
         }
-        role: string | undefined
+        roles: RoleType[]
     } | null
 }
 
@@ -48,7 +49,7 @@ export interface Session {
 
 export interface UserAppMetadata {
     provider?: string
-    [key: string]: any
+    [key: string]: unknown
 }
 
 export interface User {
@@ -81,7 +82,7 @@ export interface UserIdentity {
     id: string
     user_id: string
     identity_data?: {
-        [key: string]: any
+        [key: string]: unknown
     }
     identity_id: string
     provider: string

@@ -22,14 +22,14 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "public"."user_app_permissions" AS ENUM('hubs.create', 'hubs.update', 'hubs.delete', 'hubs.posts.create', 'hubs.posts.update', 'hubs.posts.delete', 'communities.posts.create', 'communities.posts.update', 'communities.posts.delete');
+ CREATE TYPE "public"."user_app_permissions" AS ENUM('hubs.create', 'hubs.view', 'hubs.update', 'hubs.delete', 'hubs.approve', 'hubs.posts.create', 'hubs.posts.view', 'hubs.posts.update', 'hubs.posts.delete', 'communities.create', 'communities.view', 'communities.update', 'communities.delete', 'communities.moderate', 'communities.posts.create', 'communities.posts.view', 'communities.posts.update', 'communities.posts.delete', 'regions.create', 'regions.view', 'regions.update', 'regions.delete', 'users.view', 'users.update', 'users.delete', 'users.roles.manage', 'reviews.create', 'reviews.view', 'reviews.update', 'reviews.delete', 'reviews.moderate');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "public"."user_role" AS ENUM('regular', 'owner', 'admin');
+ CREATE TYPE "public"."user_role" AS ENUM('regular', 'nomad', 'owner', 'admin');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS
 	"user_roles" (
-		"id" varchar(191) PRIMARY KEY NOT NULL,
+		"id" uuid PRIMARY KEY DEFAULT gen_random_uuid () NOT NULL,
 		"user_id" uuid NOT NULL,
 		"role" "user_role" NOT NULL,
 		CONSTRAINT "user_roles_user_id_role_unique" UNIQUE ("user_id", "role")
@@ -234,14 +234,14 @@ CREATE TABLE IF NOT EXISTS
 
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS
-	"user" (
+	"users" (
 		"created_at" timestamp DEFAULT now(),
 		"id" uuid PRIMARY KEY DEFAULT gen_random_uuid () NOT NULL,
 		"email" text NOT NULL,
 		"display_name" varchar(256),
 		"image_url" text,
-		"role" "user_role" DEFAULT 'regular' NOT NULL,
-		CONSTRAINT "user_email_unique" UNIQUE ("email")
+		"roles" user_role[] DEFAULT ARRAY['regular']::"user_role" [] NOT NULL,
+		CONSTRAINT "users_email_unique" UNIQUE ("email")
 	);
 
 --> statement-breakpoint
@@ -344,21 +344,21 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "chats" ADD CONSTRAINT "chats_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "chats" ADD CONSTRAINT "chats_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "communities" ADD CONSTRAINT "communities_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "communities" ADD CONSTRAINT "communities_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "users_to_communities" ADD CONSTRAINT "users_to_communities_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "users_to_communities" ADD CONSTRAINT "users_to_communities_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -379,7 +379,7 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "community_event_invites" ADD CONSTRAINT "community_event_invites_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "community_event_invites" ADD CONSTRAINT "community_event_invites_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -393,7 +393,7 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "community_events" ADD CONSTRAINT "community_events_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "community_events" ADD CONSTRAINT "community_events_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -407,7 +407,7 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "community_post_replies" ADD CONSTRAINT "community_post_replies_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "community_post_replies" ADD CONSTRAINT "community_post_replies_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -421,7 +421,7 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "community_posts" ADD CONSTRAINT "community_posts_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "community_posts" ADD CONSTRAINT "community_posts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -435,7 +435,7 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "derantau_admin_profile" ADD CONSTRAINT "derantau_admin_profile_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "derantau_admin_profile" ADD CONSTRAINT "derantau_admin_profile_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -456,7 +456,7 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "hub_owner_profiles" ADD CONSTRAINT "hub_owner_profiles_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "hub_owner_profiles" ADD CONSTRAINT "hub_owner_profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -470,28 +470,28 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user" ADD CONSTRAINT "user_id_users_id_fk" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "users" ADD CONSTRAINT "users_id_users_id_fk" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "profile" ADD CONSTRAINT "profile_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "profile" ADD CONSTRAINT "profile_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "regions" ADD CONSTRAINT "regions_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "regions" ADD CONSTRAINT "regions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -519,7 +519,7 @@ END $$;
 
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "nomad_profile" ADD CONSTRAINT "nomad_profile_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "nomad_profile" ADD CONSTRAINT "nomad_profile_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

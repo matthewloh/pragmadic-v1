@@ -16,8 +16,6 @@ CREATE UNIQUE INDEX __drizzle_migrations_pkey ON drizzle.__drizzle_migrations US
 alter table "drizzle"."__drizzle_migrations"
 add constraint "__drizzle_migrations_pkey" PRIMARY KEY using index "__drizzle_migrations_pkey";
 
-alter table "public"."user_roles" enable row level security;
-
 set
   check_function_bodies = off;
 
@@ -26,7 +24,7 @@ OR REPLACE FUNCTION public.handle_new_user () RETURNS trigger LANGUAGE plpgsql S
 SET
   search_path TO 'public' AS $function$
 BEGIN
-  INSERT INTO public.user (id, email, display_name, image_url, role)
+  INSERT INTO public.users (id, email, display_name, image_url, roles)
   VALUES (
     new.id,
     new.email,
@@ -38,15 +36,27 @@ BEGIN
     ),
     new.raw_user_meta_data ->> 'avatar_url',
     CASE 
-      WHEN new.email = 'matthewloh256@gmail.com' THEN 'admin'::public.user_role
-      ELSE 'regular'::public.user_role
+      WHEN new.email = 'matthewloh256@gmail.com' THEN ARRAY['admin'::public.user_role]
+      ELSE ARRAY['regular'::public.user_role]
     END
   )
   ON CONFLICT (id) DO UPDATE SET
     email = excluded.email,
     display_name = excluded.display_name,
     image_url = excluded.image_url,
-    role = excluded.role;  -- Update role in case of conflict as well
+    roles = excluded.roles;  -- Update role in case of conflict as well
+
+  -- Insert into user_roles table
+  INSERT INTO public.user_roles (user_id, role)
+  VALUES (
+    new.id,
+    CASE 
+      WHEN new.email = 'matthewloh256@gmail.com' THEN 'admin'::public.user_role
+      ELSE 'regular'::public.user_role
+    END
+  )
+  ON CONFLICT (user_id, role) DO NOTHING;  -- Prevent duplicate entries
+
   RETURN new;
 END;
 $function$;
@@ -56,9 +66,13 @@ OR REPLACE FUNCTION public.set_user_role (event jsonb) RETURNS jsonb LANGUAGE pl
 declare
   claims jsonb;
   user_email text;
+  user_roles public.user_role[];
 begin
   -- Log the entire event object
   RAISE LOG 'Full event object: %', event;
+
+  -- Fetch the user roles in the user_roles table
+  select array_agg(role) into user_roles from public.user_roles where user_id = (event->>'user_id')::uuid;
 
   -- Get the user's email from the claims object
   user_email := event->'claims'->>'email';
@@ -73,15 +87,11 @@ begin
     claims := jsonb_set(claims, '{app_metadata}', '{}');
   end if;
 
-  -- Set a claim of 'admin' if the email matches, otherwise 'regular'
-  if user_email = 'matthewloh256@gmail.com' then
-    claims := jsonb_set(claims, '{app_metadata, role}', '"admin"');
-    -- Log the role being set
-    RAISE LOG 'Setting role to admin for email: %', user_email;
+  -- Set the user_roles in app_metadata
+  if user_roles is not null and array_length(user_roles, 1) > 0 then
+    claims := jsonb_set(claims, '{app_metadata, user_roles}', to_jsonb(user_roles));
   else
-    claims := jsonb_set(claims, '{app_metadata, role}', '"regular"');
-    -- Log the role being set
-    RAISE LOG 'Setting role to regular for email: %', user_email;
+    claims := jsonb_set(claims, '{app_metadata, user_roles}', '[]'::jsonb);
   end if;
 
   -- Update the 'claims' object in the original event
@@ -94,45 +104,20 @@ begin
 end;
 $function$;
 
-create policy "Authenticated users can delete their own roles" on "public"."user_roles" as permissive for delete to authenticated using (
-  (
-    (
-      SELECT
-        auth.uid () AS uid
-    ) = user_id
-  )
-);
+grant delete on table "public"."user_roles" to "supabase_auth_admin";
 
-create policy "Authenticated users can insert their own roles" on "public"."user_roles" as permissive for insert to authenticated
-with
-  check (
-    (
-      (
-        SELECT
-          auth.uid () AS uid
-      ) = user_id
-    )
-  );
+grant insert on table "public"."user_roles" to "supabase_auth_admin";
 
-create policy "Authenticated users can select their own roles" on "public"."user_roles" as permissive for
+grant references on table "public"."user_roles" to "supabase_auth_admin";
+
+grant
 select
-  to authenticated using (true);
+  on table "public"."user_roles" to "supabase_auth_admin";
 
-create policy "Authenticated users can update their own roles" on "public"."user_roles" as permissive for
-update to authenticated using (
-  (
-    (
-      SELECT
-        auth.uid () AS uid
-    ) = user_id
-  )
-)
-with
-  check (
-    (
-      (
-        SELECT
-          auth.uid () AS uid
-      ) = user_id
-    )
-  );
+grant trigger on table "public"."user_roles" to "supabase_auth_admin";
+
+grant
+truncate on table "public"."user_roles" to "supabase_auth_admin";
+
+grant
+update on table "public"."user_roles" to "supabase_auth_admin";

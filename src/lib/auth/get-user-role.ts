@@ -3,14 +3,17 @@ import "server-only"
 import { JWTPayload, jwtVerify } from "jose"
 
 import { createClient } from "@/utils/supabase/server"
+import { ROLES } from "@/utils/supabase/permissions"
+
+export type RoleType = (typeof ROLES)[keyof typeof ROLES]
 
 // Extend the JWTPayload type to include Supabase-specific metadata
+
 type SupabaseJwtPayload = JWTPayload & {
     app_metadata: {
-        role: string
+        user_roles: RoleType[]
     }
 }
-export type RoleType = "regular" | "owner" | "admin"
 
 export async function getUserRole() {
     // Create a Supabase client for server-side operations
@@ -21,7 +24,7 @@ export async function getUserRole() {
         data: { session },
     } = await supabase.auth.getSession()
 
-    let role
+    let user_roles
 
     if (session) {
         // Extract the access token from the session
@@ -40,11 +43,16 @@ export async function getUserRole() {
             )
 
             // Extract the role from the app_metadata in the payload
-            role = payload.app_metadata.role
+            user_roles = payload.app_metadata.user_roles
         } catch (error) {
             console.error("Failed to verify token:", error)
         }
     }
 
-    return { session, role: role as RoleType }
+    return { session, user_roles: user_roles as RoleType[] }
+}
+
+// Helper function to check if the user has a specific role
+export function hasRole(userRoles: RoleType[], requiredRole: RoleType) {
+    return userRoles.includes(requiredRole)
 }

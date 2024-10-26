@@ -24,7 +24,7 @@ export default async function RegionPage(props: {
 
 const Region = async ({ id }: { id: string }) => {
     const { region, states } = await getRegionByIdWithStates(id)
-    const { role } = await getUserRole()
+    const { user_roles } = await getUserRole()
 
     if (!region) notFound()
 
@@ -36,7 +36,7 @@ const Region = async ({ id }: { id: string }) => {
                     {region.name}
                 </h1>
             </div>
-            <OptimisticRegion region={region} role={role} />
+            <OptimisticRegion region={region} user_roles={user_roles} />
             <div className="mt-12">
                 <h2 className="mb-4 text-2xl font-bold">
                     States in {region.name}
@@ -45,7 +45,7 @@ const Region = async ({ id }: { id: string }) => {
                     regions={[region]}
                     regionId={region.id}
                     states={states}
-                    role={role}
+                    user_roles={user_roles}
                 />
             </div>
         </div>

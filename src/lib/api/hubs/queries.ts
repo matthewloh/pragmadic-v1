@@ -8,13 +8,12 @@ import { reviews, type CompleteReview } from "@/lib/db/schema/reviews"
 
 export const getHubs = async () => {
     const { session } = await getUserAuth()
-    const role = session?.role
     const rows = await db
         .select({ hub: hubs, state: states })
         .from(hubs)
         .leftJoin(states, eq(hubs.stateId, states.id))
     const h = rows.map((r) => ({ ...r.hub, state: r.state }))
-    return { hubs: h, role }
+    return { hubs: h }
 }
 
 export const getHubById = async (id: HubId) => {

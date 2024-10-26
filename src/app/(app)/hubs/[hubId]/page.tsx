@@ -17,15 +17,15 @@ export default async function HubPage(props: {
     params: Promise<{ hubId: string }>
 }) {
     const params = await props.params
-    const { role } = await getUserRole()
+    const { user_roles } = await getUserRole()
     return (
         <main className="container mx-auto h-full w-full">
-            <Hub id={params.hubId} role={role} />
+            <Hub id={params.hubId} user_roles={user_roles} />
         </main>
     )
 }
 
-const Hub = async ({ id, role }: { id: string; role: RoleType }) => {
+const Hub = async ({ id, user_roles }: { id: string; user_roles: RoleType[] }) => {
     const { hub, events, reviews } = await getHubByIdWithEventsAndReviews(id)
     const { states } = await getStates()
 
@@ -34,7 +34,7 @@ const Hub = async ({ id, role }: { id: string; role: RoleType }) => {
         <Suspense fallback={<Loading />}>
             <div className="relative">
                 <BackButton currentResource="hubs" />
-                <OptimisticHub hub={hub} states={states} role={role} />
+                <OptimisticHub hub={hub} states={states} user_roles={user_roles} />
             </div>
             <div className="relative mx-4 mt-8">
                 <h3 className="mb-4 text-xl font-medium">

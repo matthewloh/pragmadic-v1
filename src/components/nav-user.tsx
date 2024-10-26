@@ -25,7 +25,7 @@ import { Skeleton } from "./ui/skeleton"
 import { SidebarMenuButton } from "./ui/sidebar"
 
 export function NavUser() {
-    const { isPending, data: { user, role } = {} } = useUserRole()
+    const { isPending, data: { user, user_roles = [] } = {} } = useUserRole()
 
     if (isPending || !user) {
         return (
@@ -45,7 +45,7 @@ export function NavUser() {
             <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                     size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground w-full"
+                    className="w-full data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                     <Avatar className="h-8 w-8 rounded-full">
                         <AvatarImage
@@ -120,7 +120,7 @@ export function NavUser() {
                             Settings
                         </Link>
                     </DropdownMenuItem>
-                    {role === "admin" && (
+                    {user_roles.includes("admin") && (
                         <DropdownMenuItem asChild>
                             <Link
                                 href="/admin"

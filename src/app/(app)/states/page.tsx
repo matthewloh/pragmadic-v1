@@ -24,10 +24,14 @@ export default async function StatesPage() {
 const States = async () => {
     const { states } = await getStates()
     const { regions } = await getRegions()
-    const { role } = await getUserRole()
+    const { user_roles } = await getUserRole()
     return (
         <Suspense fallback={<Loading />}>
-            <StateList states={states} regions={regions} role={role} />
+            <StateList
+                states={states}
+                regions={regions}
+                user_roles={user_roles}
+            />
         </Suspense>
     )
 }

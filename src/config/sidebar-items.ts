@@ -1,3 +1,4 @@
+import { RoleType } from "@/lib/auth/get-user-role"
 import {
     BarChart,
     Briefcase,
@@ -86,7 +87,7 @@ export const ownerOnlyItems = [
     { title: "Reviews Management", url: "/reviews", icon: Star },
 ]
 
-export const getProfileItems = (role: string) => {
+export const getProfileItems = (roles: RoleType[]) => {
     const baseItems = [
         {
             title: "User Profile",
@@ -95,38 +96,37 @@ export const getProfileItems = (role: string) => {
             description: "Manage your profile",
         },
     ]
-    switch (role) {
-        case "regular":
-            return [
-                ...baseItems,
-                {
+
+    const profileItems = new Set([...baseItems])
+
+    roles.forEach((role) => {
+        switch (role) {
+            case "nomad":
+                profileItems.add({
                     title: "Nomad Profile",
                     url: "/nomad-profile",
                     icon: TentTree,
                     description: "Manage your nomad profile",
-                },
-            ]
-        case "owner":
-            return [
-                ...baseItems,
-                {
+                })
+                break
+            case "owner":
+                profileItems.add({
                     title: "Hub Owner Profile",
                     url: "/hub-owner-profile",
                     icon: Briefcase,
                     description: "Manage your hub owner profile",
-                },
-            ]
-        case "admin":
-            return [
-                ...baseItems,
-                {
+                })
+                break
+            case "admin":
+                profileItems.add({
                     title: "Admin Profile",
                     url: "/derantau-admin-profile",
                     icon: ShieldCheck,
                     description: "Manage your admin profile",
-                },
-            ]
-        default:
-            return baseItems
-    }
+                })
+                break
+        }
+    })
+
+    return Array.from(profileItems)
 }

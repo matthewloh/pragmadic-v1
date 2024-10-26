@@ -272,7 +272,7 @@ const SaveButton = ({
     editing,
     errors,
 }: {
-    editing: Boolean
+    editing: boolean
     errors: boolean
 }) => {
     const { pending } = useFormStatus()

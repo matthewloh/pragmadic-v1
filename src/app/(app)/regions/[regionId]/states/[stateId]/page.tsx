@@ -17,17 +17,17 @@ export default async function StatePage(props: {
     params: Promise<{ stateId: string }>
 }) {
     const params = await props.params
-    const { role } = await getUserRole()
+    const { user_roles } = await getUserRole()
     return (
         <main className="container mx-auto px-4 py-8">
             <Suspense fallback={<Loading />}>
-                <State id={params.stateId} role={role} />
+                <State id={params.stateId} user_roles={user_roles} />
             </Suspense>
         </main>
     )
 }
 
-const State = async ({ id, role }: { id: string; role: RoleType }) => {
+const State = async ({ id, user_roles }: { id: string; user_roles: RoleType[] }) => {
     const { state, hubs } = await getStateByIdWithHubs(id)
     const { regions } = await getRegions()
     if (!state) notFound()
@@ -47,7 +47,7 @@ const State = async ({ id, role }: { id: string; role: RoleType }) => {
                     <OptimisticState
                         state={state}
                         regions={regions}
-                        role={role}
+                        user_roles={user_roles}
                     />
                 </CardContent>
             </Card>
@@ -60,7 +60,7 @@ const State = async ({ id, role }: { id: string; role: RoleType }) => {
                         states={[state]}
                         stateId={state.id}
                         hubs={hubs}
-                        role={role}
+                        user_roles={user_roles}
                     />
                 </CardContent>
             </Card>

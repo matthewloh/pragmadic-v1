@@ -18,18 +18,18 @@ export const revalidate = 0
 export default async function HubPage(props: {
     params: Promise<{ hubId: string }>
 }) {
-    const { role } = await getUserRole()
+    const { user_roles } = await getUserRole()
     const params = await props.params
     return (
         <main className="container mx-auto h-full w-full">
             <Suspense fallback={<Loading />}>
-                <Hub id={params.hubId} role={role} />
+                <Hub id={params.hubId} user_roles={user_roles} />
             </Suspense>
         </main>
     )
 }
 
-const Hub = async ({ id, role }: { id: string; role: RoleType }) => {
+const Hub = async ({ id, user_roles }: { id: string; user_roles: RoleType[] }) => {
     const { hub, events, reviews } = await getHubByIdWithEventsAndReviews(id)
     const { states } = await getStates()
 
@@ -49,7 +49,7 @@ const Hub = async ({ id, role }: { id: string; role: RoleType }) => {
                         hub={hub}
                         states={states}
                         stateId={hub.stateId}
-                        role={role}
+                        user_roles={user_roles}
                     />
                 </CardContent>
             </Card>

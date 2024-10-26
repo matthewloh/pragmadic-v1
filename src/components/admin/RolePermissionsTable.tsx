@@ -26,6 +26,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { nanoid } from "@/lib/utils"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Input } from "@/components/ui/input"
 
 type RolePermissions = Record<Role, Permission[]>
 
@@ -42,6 +44,8 @@ export function RolePermissionsTable() {
             }, {} as RolePermissions)
         },
     )
+
+    const [searchTerm, setSearchTerm] = useState("")
 
     const fetchRolePermissions = async (): Promise<RolePermissions> => {
         const { data, error } = await supabase
@@ -169,42 +173,71 @@ export function RolePermissionsTable() {
                                                 Edit Permissions
                                             </Button>
                                         </DialogTrigger>
-                                        <DialogContent>
+                                        <DialogContent className="sm:max-w-[425px]">
                                             <DialogHeader>
                                                 <DialogTitle>
                                                     Edit Permissions for {role}
                                                 </DialogTitle>
                                             </DialogHeader>
-                                            <div className="grid gap-4 py-4">
-                                                {allPermissions.map(
-                                                    (permission) => (
-                                                        <label
-                                                            key={permission}
-                                                            className="flex items-center space-x-2"
-                                                        >
-                                                            <Checkbox
-                                                                checked={localPermissions[
-                                                                    role as Role
-                                                                ].includes(
+                                            <div className="mt-4">
+                                                <Input
+                                                    placeholder="Search permissions..."
+                                                    value={searchTerm}
+                                                    onChange={(e) =>
+                                                        setSearchTerm(
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="mb-4"
+                                                />
+                                                <ScrollArea className="h-[300px] pr-4">
+                                                    <div className="grid gap-4">
+                                                        {allPermissions
+                                                            .filter(
+                                                                (permission) =>
+                                                                    permission
+                                                                        .toLowerCase()
+                                                                        .includes(
+                                                                            searchTerm.toLowerCase(),
+                                                                        ),
+                                                            )
+                                                            .map(
+                                                                (
                                                                     permission,
-                                                                )}
-                                                                onCheckedChange={(
-                                                                    checked,
-                                                                ) => {
-                                                                    handlePermissionChange(
-                                                                        role as Role,
-                                                                        permission,
-                                                                        checked as boolean,
-                                                                    )
-                                                                }}
-                                                                id={`${role}-${permission}`}
-                                                            />
-                                                            <span>
-                                                                {permission}
-                                                            </span>
-                                                        </label>
-                                                    ),
-                                                )}
+                                                                ) => (
+                                                                    <label
+                                                                        key={
+                                                                            permission
+                                                                        }
+                                                                        className="flex items-center space-x-3 rounded-lg border p-3 hover:bg-muted"
+                                                                    >
+                                                                        <Checkbox
+                                                                            checked={localPermissions[
+                                                                                role as Role
+                                                                            ].includes(
+                                                                                permission,
+                                                                            )}
+                                                                            onCheckedChange={(
+                                                                                checked,
+                                                                            ) => {
+                                                                                handlePermissionChange(
+                                                                                    role as Role,
+                                                                                    permission,
+                                                                                    checked as boolean,
+                                                                                )
+                                                                            }}
+                                                                            id={`${role}-${permission}`}
+                                                                        />
+                                                                        <span className="text-sm">
+                                                                            {
+                                                                                permission
+                                                                            }
+                                                                        </span>
+                                                                    </label>
+                                                                ),
+                                                            )}
+                                                    </div>
+                                                </ScrollArea>
                                             </div>
                                         </DialogContent>
                                     </Dialog>

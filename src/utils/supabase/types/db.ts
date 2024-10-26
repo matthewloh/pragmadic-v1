@@ -71,10 +71,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "chats_user_id_user_id_fk"
+            foreignKeyName: "chats_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -112,10 +112,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "communities_user_id_user_id_fk"
+            foreignKeyName: "communities_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -160,10 +160,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "community_event_invites_user_id_user_id_fk"
+            foreignKeyName: "community_event_invites_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -220,10 +220,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "community_events_user_id_user_id_fk"
+            foreignKeyName: "community_events_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -262,10 +262,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "community_post_replies_user_id_user_id_fk"
+            foreignKeyName: "community_post_replies_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -313,10 +313,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "community_posts_user_id_user_id_fk"
+            foreignKeyName: "community_posts_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -361,10 +361,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "derantau_admin_profile_user_id_user_id_fk"
+            foreignKeyName: "derantau_admin_profile_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -499,10 +499,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "hub_owner_profiles_user_id_user_id_fk"
+            foreignKeyName: "hub_owner_profiles_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -625,10 +625,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "nomad_profile_user_id_user_id_fk"
+            foreignKeyName: "nomad_profile_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -672,10 +672,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profile_user_id_user_id_fk"
+            foreignKeyName: "profile_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -710,10 +710,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "regions_user_id_user_id_fk"
+            foreignKeyName: "regions_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -845,33 +845,6 @@ export type Database = {
           },
         ]
       }
-      user: {
-        Row: {
-          created_at: string | null
-          display_name: string | null
-          email: string
-          id: string
-          image_url: string | null
-          role: Database["public"]["Enums"]["user_role"]
-        }
-        Insert: {
-          created_at?: string | null
-          display_name?: string | null
-          email: string
-          id?: string
-          image_url?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
-        }
-        Update: {
-          created_at?: string | null
-          display_name?: string | null
-          email?: string
-          id?: string
-          image_url?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
-        }
-        Relationships: []
-      }
       user_roles: {
         Row: {
           id: string
@@ -879,7 +852,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          id: string
+          id?: string
           role: Database["public"]["Enums"]["user_role"]
           user_id: string
         }
@@ -890,13 +863,40 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_roles_user_id_user_id_fk"
+            foreignKeyName: "user_roles_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          display_name: string | null
+          email: string
+          id: string
+          image_url: string | null
+          roles: Database["public"]["Enums"]["user_role"][]
+        }
+        Insert: {
+          created_at?: string | null
+          display_name?: string | null
+          email: string
+          id?: string
+          image_url?: string | null
+          roles?: Database["public"]["Enums"]["user_role"][]
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string | null
+          email?: string
+          id?: string
+          image_url?: string | null
+          roles?: Database["public"]["Enums"]["user_role"][]
+        }
+        Relationships: []
       }
       users_to_communities: {
         Row: {
@@ -932,10 +932,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "users_to_communities_user_id_user_id_fk"
+            foreignKeyName: "users_to_communities_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -1129,14 +1129,36 @@ export type Database = {
       invite_status: "pending" | "accepted" | "rejected"
       user_app_permissions:
         | "hubs.create"
-        | "hubs.delete"
-        | "hubs.posts.create"
-        | "communities.posts.create"
+        | "hubs.view"
         | "hubs.update"
+        | "hubs.delete"
+        | "hubs.approve"
+        | "hubs.posts.create"
+        | "hubs.posts.view"
         | "hubs.posts.update"
         | "hubs.posts.delete"
+        | "communities.create"
+        | "communities.view"
+        | "communities.update"
+        | "communities.delete"
+        | "communities.moderate"
+        | "communities.posts.create"
+        | "communities.posts.view"
         | "communities.posts.update"
         | "communities.posts.delete"
+        | "regions.create"
+        | "regions.view"
+        | "regions.update"
+        | "regions.delete"
+        | "users.view"
+        | "users.update"
+        | "users.delete"
+        | "users.roles.manage"
+        | "reviews.create"
+        | "reviews.view"
+        | "reviews.update"
+        | "reviews.delete"
+        | "reviews.moderate"
       user_community_permissions:
         | "admin.invite"
         | "admin.remove"
@@ -1146,7 +1168,7 @@ export type Database = {
         | "member.remove"
         | "member.ban"
         | "member.edit"
-      user_role: "regular" | "owner" | "admin"
+      user_role: "regular" | "nomad" | "owner" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never

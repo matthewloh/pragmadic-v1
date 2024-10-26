@@ -21,12 +21,12 @@ export default function HubList({
     hubs,
     states,
     stateId,
-    role,
+    user_roles,
 }: {
     hubs: CompleteHub[]
     states: State[]
     stateId?: StateId
-    role: RoleType
+    user_roles: RoleType[]
 }) {
     const { optimisticHubs, addOptimisticHub } = useOptimisticHubs(hubs, states)
     const [open, setOpen] = useState(false)
@@ -36,7 +36,7 @@ export default function HubList({
         hub ? setActiveHub(hub) : setActiveHub(null)
     }
     const closeModal = () => setOpen(false)
-    const isAdmin = role === "admin"
+    const isAdmin = user_roles.includes("admin")
 
     return (
         <div className="space-y-4">
@@ -52,7 +52,7 @@ export default function HubList({
                     closeModal={closeModal}
                     states={states}
                     stateId={stateId}
-                    role={role}
+                    user_roles={user_roles}
                 />
             </Modal>
             {isAdmin && (

@@ -17,7 +17,7 @@ export default async function EventPage(
 ) {
     const params = await props.params;
     return (
-        <main className="overflow-auto">
+        <main className="container mx-auto h-full w-full overflow-auto">
             <Event id={params.eventId} />
         </main>
     )

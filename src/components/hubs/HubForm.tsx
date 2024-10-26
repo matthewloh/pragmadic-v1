@@ -40,7 +40,7 @@ const HubForm = ({
     closeModal,
     addOptimistic,
     postSuccess,
-    role,
+    user_roles,
 }: {
     hub?: Hub | null
     states: State[]
@@ -49,7 +49,7 @@ const HubForm = ({
     closeModal?: () => void
     addOptimistic?: TAddOptimistic
     postSuccess?: () => void
-    role: RoleType
+    user_roles: RoleType[]
 }) => {
     const { errors, hasErrors, setErrors, handleChange } =
         useValidatedForm<Hub>(insertHubParams)
@@ -60,7 +60,7 @@ const HubForm = ({
 
     const router = useRouter()
     const backpath = useBackPath("hubs")
-    const isAdmin = role === "admin"
+    const isAdmin = user_roles.includes("admin")
 
     const onSuccess = (
         action: Action,
@@ -346,7 +346,7 @@ const SaveButton = ({
     editing,
     errors,
 }: {
-    editing: Boolean
+    editing: boolean
     errors: boolean
 }) => {
     const { pending } = useFormStatus()

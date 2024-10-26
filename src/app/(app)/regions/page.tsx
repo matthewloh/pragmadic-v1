@@ -22,11 +22,11 @@ export default async function RegionsPage() {
 
 const Regions = async () => {
     const { regions } = await getRegions()
-    const { role } = await getUserRole()
+    const { user_roles } = await getUserRole()
 
     return (
         <Suspense fallback={<Loading />}>
-            <RegionList regions={regions} role={role} />
+            <RegionList regions={regions} user_roles={user_roles} />
         </Suspense>
     )
 }

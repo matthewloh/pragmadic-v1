@@ -15,13 +15,13 @@ export default function OptimisticHub({
     hub,
     states,
     stateId,
-    role,
+    user_roles,
 }: {
     hub: Hub
 
     states: State[]
     stateId?: StateId
-    role: RoleType
+    user_roles: RoleType[]
 }) {
     const [open, setOpen] = useState(false)
     const openModal = (_?: Hub) => {
@@ -42,7 +42,7 @@ export default function OptimisticHub({
                     closeModal={closeModal}
                     openModal={openModal}
                     addOptimistic={updateHub}
-                    role={role}
+                    user_roles={user_roles}
                 />
             </Modal>
             <div className="mb-4 flex items-end justify-between">

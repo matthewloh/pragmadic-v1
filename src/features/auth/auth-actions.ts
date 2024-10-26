@@ -107,10 +107,6 @@ export async function signup({
 }): Promise<{ error: string }> {
     const supabase = await createClient()
 
-    // type-casting here for convenience
-    // in practice, you should validate your inputs
-    // TODO: validate inputs
-    // TODO: handle errors in a try/catch block and add isRedirectError(error)
     const { first_name, last_name, email, password } =
         signUpSchema.parse(credentials)
 
@@ -124,6 +120,7 @@ export async function signup({
                 user_name: null,
                 avatar_url: `https://avatar.vercel.sh/${first_name}${last_name}`,
             },
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm`,
         },
     })
     if (error) {
@@ -133,6 +130,6 @@ export async function signup({
         console.log(error)
         redirect("/error")
     }
-    revalidatePath("/", "layout")
-    redirect("/")
+
+    redirect(`/auth/verify-email?email=${encodeURIComponent(email)}`)
 }

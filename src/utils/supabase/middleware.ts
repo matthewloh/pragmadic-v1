@@ -60,15 +60,20 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getSession()
 
     // Get the user's role using the custom getUserRole function
-    const { role } = await getUserRole()
-    console.log(role)
+    const { user_roles } = await getUserRole()
+    console.log(user_roles)
     const url = new URL(request.url)
+
+    await supabase.auth.getUser()
 
     if (session?.user.id) {
         if (url.pathname === "/login") {
             return NextResponse.redirect(new URL("/dashboard", request.url))
         }
-        if (request.nextUrl.pathname.startsWith("/admin") && role !== "admin") {
+        if (
+            request.nextUrl.pathname.startsWith("/admin") &&
+            !user_roles.includes("admin")
+        ) {
             const url = request.nextUrl.clone()
             url.pathname = "/"
             return NextResponse.redirect(url)
@@ -82,43 +87,6 @@ export async function updateSession(request: NextRequest) {
         }
         return supabaseResponse
     }
-
-    // if (
-    //     !user &&
-    //     !request.nextUrl.pathname.startsWith("/login") &&
-    //     !request.nextUrl.pathname.startsWith("/auth")
-    // ) {
-    //     // no user, potentially respond by redirecting the user to the login page
-    //     const url = request.nextUrl.clone()
-    //     url.pathname = "/login"
-    //     return NextResponse.redirect(url)
-    // }
-
-    // If user is already logged in and tries to access the login page, redirect
-    // them to the home page. Exclude /error from this check to avoid circular
-    // redirects.
-    // if (
-    //   user &&
-    //   request.nextUrl.pathname.startsWith("/login") &&
-    //   !request.nextUrl.pathname.startsWith("/error")
-    // ) {
-    //   const url = request.nextUrl.clone();
-    //   url.pathname = "/";
-    //   return NextResponse.redirect(url);
-    // }
-
-    // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
-    // creating a new response object with NextResponse.next() make sure to:
-    // 1. Pass the request in it, like so:
-    //    const myNewResponse = NextResponse.next({ request })
-    // 2. Copy over the cookies, like so:
-    //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-    // 3. Change the myNewResponse object to fit your needs, but avoid changing
-    //    the cookies!
-    // 4. Finally:
-    //    return myNewResponse
-    // If this is not done, you may be causing the browser and server to go out
-    // of sync and terminate the user's session prematurely!
 
     return supabaseResponse
 }

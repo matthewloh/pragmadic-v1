@@ -38,11 +38,12 @@ import ProfileForm from "./profile/ProfileForm"
 import HubOwnerProfileForm from "./hubOwnerProfiles/HubOwnerProfileForm"
 import DerantauAdminProfileForm from "./derantauAdminProfile/DerantauAdminProfileForm"
 import Link from "next/link"
+import { RoleType } from "@/lib/auth/get-user-role"
 
 type ProfileType = "regular" | "owner" | "admin"
 
 type ProfileCatalogueProps = {
-    role?: ProfileType
+    user_roles: RoleType[]
     regularProfile?: CompleteProfile
     hubOwnerProfile?: CompleteHubOwnerProfile
     derantauAdminProfiles?: CompleteDerantauAdminProfile[]
@@ -51,7 +52,7 @@ type ProfileCatalogueProps = {
 }
 
 export default function ProfileCatalogue({
-    role,
+    user_roles,
     regularProfile,
     hubOwnerProfile,
     derantauAdminProfiles,
@@ -340,7 +341,7 @@ export default function ProfileCatalogue({
                         onCreateNew={() => openModal("regular")}
                     />
                 )}
-                {role === "owner" &&
+                {user_roles.includes("owner") &&
                     (optimisticHubOwnerProfile ? (
                         <ProfileCard
                             type="owner"
@@ -355,7 +356,7 @@ export default function ProfileCatalogue({
                             onCreateNew={() => openModal("owner")}
                         />
                     ))}
-                {role === "admin" &&
+                {user_roles.includes("admin") &&
                     (optimisticDerantauAdminProfiles &&
                     optimisticDerantauAdminProfiles.length > 0 ? (
                         optimisticDerantauAdminProfiles.map((profile) => (

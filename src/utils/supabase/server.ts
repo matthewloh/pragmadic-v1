@@ -1,13 +1,33 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { Database } from "./types"
+import { SupabaseAuthClient } from "@supabase/supabase-js/dist/module/lib/SupabaseAuthClient"
 
-export async function createClient() {
+type CreateClientOptions = {
+    admin?: boolean
+    schema?: "public" | "storage"
+}
+
+export async function createClient(options?: CreateClientOptions) {
+    const { admin = false } = options ?? {}
+
     const cookieStore = await cookies()
+
+    const key = admin
+        ? process.env.SUPABASE_SERVICE_KEY!
+        : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+    const auth = admin
+        ? {
+              persistSession: false,
+              autoRefreshToken: false,
+              detectSessionInUrl: false,
+          }
+        : {}
 
     return createServerClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        key,
         {
             cookies: {
                 getAll() {
@@ -25,6 +45,11 @@ export async function createClient() {
                     }
                 },
             },
+            auth,
         },
     )
+}
+
+export async function createAdminClient() {
+    return createClient({ admin: true })
 }

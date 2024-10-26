@@ -1,13 +1,21 @@
 "use client"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { UsersTable } from "@/components/admin/UsersTable"
 import { RolePermissionsTable } from "@/components/admin/RolePermissionsTable"
-import { SelectUser } from "@/lib/db/schema/users"
+import { UsersTable } from "@/components/admin/UsersTable"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RoleType } from "@/lib/auth/get-user-role"
 import { BackButton } from "./shared/BackButton"
 
+interface User {
+    id: string
+    email: string
+    display_name: string | null
+    roles: RoleType[]
+    created_at?: string
+}
+
 interface AdminUsersDashboardProps {
-    initialUsers: SelectUser[]
+    initialUsers: User[]
 }
 
 export function AdminUsersDashboard({
@@ -15,7 +23,7 @@ export function AdminUsersDashboard({
 }: AdminUsersDashboardProps) {
     return (
         <div className="container mx-auto space-y-8 py-6">
-            <div className="flex items-center justify-start">
+            <div className="flex items-center justify-start gap-4">
                 <BackButton currentResource="admin" />
                 <h1 className="text-3xl font-bold text-card-foreground">
                     Admin Dashboard

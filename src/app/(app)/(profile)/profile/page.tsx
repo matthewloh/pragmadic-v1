@@ -23,17 +23,17 @@ export default async function ProfilePageWrapper() {
 }
 
 const Profile = async () => {
-    const { role } = await getUserRole()
+    const { user_roles } = await getUserRole()
     const { profile } = await getSingleProfile()
 
     let hubOwnerProfileData
     let derantauAdminProfileData
     let regions
 
-    if (role === "owner") {
+    if (user_roles.includes("owner")) {
         const { hubOwnerProfile } = await getSingleHubOwnerProfile()
         hubOwnerProfileData = hubOwnerProfile
-    } else if (role === "admin") {
+    } else if (user_roles.includes("admin")) {
         const { derantauAdminProfile } = await getDerantauAdminProfiles()
         const regionsData = await getRegions()
         derantauAdminProfileData = derantauAdminProfile
@@ -44,7 +44,7 @@ const Profile = async () => {
         <div className="container mx-auto space-y-8">
             <h1 className="mb-6 text-3xl font-bold">Your DE Rantau Profiles</h1>
             <ProfileCatalogue
-                role={role}
+                user_roles={user_roles}
                 regularProfile={profile}
                 hubOwnerProfile={hubOwnerProfileData}
                 derantauAdminProfiles={derantauAdminProfileData}

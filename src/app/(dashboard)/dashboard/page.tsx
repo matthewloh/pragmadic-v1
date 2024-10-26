@@ -17,7 +17,7 @@ export default async function DashboardPage() {
     }
 
     const user = session.user
-    const role = session.role
+    const user_roles = session.roles
     return (
         <div
             className={`relative h-full w-full overflow-hidden bg-background text-foreground ${outfit.className}`}

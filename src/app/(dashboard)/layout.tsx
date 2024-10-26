@@ -1,8 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { AutumnFireGradient } from "@/components/gradients"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import MainNavBar from "@/features/dashboard/components/MainNavBar"
-import { getUserRole } from "@/lib/auth/get-user-role"
 import { cookies } from "next/headers"
 
 export default async function DashboardLayout({
