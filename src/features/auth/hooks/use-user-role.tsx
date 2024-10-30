@@ -15,7 +15,7 @@ type SupabaseJwtPayload = JwtPayload & {
 type UserRoleData = {
     session: Session | null
     user: User | null
-    user_roles: RoleType[] 
+    user_roles: RoleType[]
 }
 
 export function useUserRole() {

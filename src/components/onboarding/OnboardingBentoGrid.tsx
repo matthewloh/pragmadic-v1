@@ -31,7 +31,7 @@ const items = [
 
 export function OnboardingBentoGrid() {
     return (
-        <div className="flex h-full flex-col">
+        <div className="flex h-full w-full flex-col">
             <div className="grid flex-grow grid-cols-6 grid-rows-3 gap-6">
                 {items.map((item, index) => (
                     <Link

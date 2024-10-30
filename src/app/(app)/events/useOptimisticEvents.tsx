@@ -1,17 +1,14 @@
 import { type Hub } from "@/lib/db/schema/hubs"
-import { type Event, type CompleteEvent } from "@/lib/db/schema/events"
+import { type Event } from "@/lib/db/schema/events"
 import { OptimisticAction } from "@/lib/utils"
 import { useOptimistic } from "react"
 
 export type TAddOptimistic = (action: OptimisticAction<Event>) => void
 
-export const useOptimisticEvents = (events: CompleteEvent[], hubs: Hub[]) => {
+export const useOptimisticEvents = (events: Event[], hubs: Hub[]) => {
     const [optimisticEvents, addOptimisticEvent] = useOptimistic(
         events,
-        (
-            currentState: CompleteEvent[],
-            action: OptimisticAction<Event>,
-        ): CompleteEvent[] => {
+        (currentState: Event[], action: OptimisticAction<Event>): Event[] => {
             const { data } = action
 
             const optimisticHub = hubs.find((hub) => hub.id === data.hubId)!

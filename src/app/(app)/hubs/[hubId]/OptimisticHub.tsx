@@ -1,39 +1,59 @@
 "use client"
 
-import { useOptimistic, useState } from "react"
 import { TAddOptimistic } from "@/app/(app)/hubs/useOptimisticHubs"
 import { type Hub } from "@/lib/db/schema/hubs"
 import { cn } from "@/lib/utils"
+import { useOptimistic, useState } from "react"
+import {
+    Edit3,
+    MapPin,
+    Globe,
+    Lock,
+    Calendar,
+    Clock,
+    Info,
+    Mail,
+    Building2,
+    Hash,
+    Users,
+} from "lucide-react"
+import { format } from "date-fns"
 
-import { Button } from "@/components/ui/button"
-import Modal from "@/components/shared/Modal"
 import HubForm from "@/components/hubs/HubForm"
+import Modal from "@/components/shared/Modal"
+import { Button } from "@/components/ui/button"
 import { type State, type StateId } from "@/lib/db/schema/states"
-import { RoleType } from "@/lib/auth/get-user-role"
+import { Badge } from "@/components/ui/badge"
+import { BackButton } from "@/components/shared/BackButton"
+import { Separator } from "@/components/ui/separator"
 
 export default function OptimisticHub({
     hub,
     states,
     stateId,
-    user_roles,
 }: {
     hub: Hub
-
     states: State[]
     stateId?: StateId
-    user_roles: RoleType[]
 }) {
     const [open, setOpen] = useState(false)
-    const openModal = (_?: Hub) => {
-        setOpen(true)
-    }
+    const openModal = (_?: Hub) => setOpen(true)
     const closeModal = () => setOpen(false)
     const [optimisticHub, setOptimisticHub] = useOptimistic(hub)
     const updateHub: TAddOptimistic = (input) =>
         setOptimisticHub({ ...input.data })
 
+    const currentState = states.find(
+        (state) => state.id === optimisticHub.stateId,
+    )
+
     return (
-        <div className="m-4">
+        <div
+            className={cn(
+                "relative flex flex-col gap-6 rounded-xl bg-gradient-to-b from-background via-background to-accent/10 p-6",
+                optimisticHub.id === "optimistic" ? "animate-pulse" : "",
+            )}
+        >
             <Modal open={open} setOpen={setOpen}>
                 <HubForm
                     hub={optimisticHub}
@@ -42,23 +62,144 @@ export default function OptimisticHub({
                     closeModal={closeModal}
                     openModal={openModal}
                     addOptimistic={updateHub}
-                    user_roles={user_roles}
                 />
             </Modal>
-            <div className="mb-4 flex items-end justify-between">
-                <h1 className="text-2xl font-semibold">{optimisticHub.name}</h1>
-                <Button className="" onClick={() => setOpen(true)}>
-                    Edit
+
+            {/* Header Section */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <BackButton currentResource="hubs" />
+                    <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Badge
+                                variant={
+                                    optimisticHub.public
+                                        ? "secondary"
+                                        : "destructive"
+                                }
+                                className="flex items-center gap-1 shadow-sm"
+                            >
+                                {optimisticHub.public ? (
+                                    <Globe className="h-3 w-3" />
+                                ) : (
+                                    <Lock className="h-3 w-3" />
+                                )}
+                                {optimisticHub.public ? "Public" : "Private"}
+                            </Badge>
+                            <Badge
+                                variant="outline"
+                                className="flex items-center gap-1 bg-background/50 shadow-sm"
+                            >
+                                <MapPin className="h-3 w-3 text-blue-500" />
+                                {currentState?.name || "Unknown Location"}
+                            </Badge>
+                            <Badge className="flex items-center gap-1 bg-primary/10 text-primary shadow-sm">
+                                <Building2 className="h-3 w-3" />
+                                {optimisticHub.typeOfHub}
+                            </Badge>
+                        </div>
+                        <h1 className="mt-2 bg-gradient-to-br from-primary via-primary/90 to-primary/70 bg-clip-text text-3xl font-bold tracking-tight text-transparent">
+                            {optimisticHub.name}
+                        </h1>
+                    </div>
+                </div>
+                <Button
+                    onClick={() => setOpen(true)}
+                    variant="outline"
+                    size="sm"
+                    className="h-8 gap-2 bg-background/50 shadow-sm hover:bg-accent"
+                >
+                    <Edit3 className="h-4 w-4 text-muted-foreground" />
+                    <span className="hidden sm:inline">Edit Hub</span>
                 </Button>
             </div>
-            <pre
-                className={cn(
-                    "text-wrap break-all rounded-lg bg-secondary p-4",
-                    optimisticHub.id === "optimistic" ? "animate-pulse" : "",
-                )}
-            >
-                {JSON.stringify(optimisticHub, null, 2)}
-            </pre>
+
+            {/* Content Section */}
+            <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                    <div className="rounded-lg border bg-card/30 p-4 shadow-sm">
+                        <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                            <Info className="h-4 w-4 text-blue-500" />
+                            Description
+                        </div>
+                        <p className="text-sm text-foreground/90">
+                            {optimisticHub.description ||
+                                "No description provided."}
+                        </p>
+                    </div>
+                    {optimisticHub.info && (
+                        <div className="rounded-lg border bg-card/30 p-4 shadow-sm">
+                            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                <Hash className="h-4 w-4 text-emerald-500" />
+                                Additional Information
+                            </div>
+                            <p className="text-sm text-foreground/90">
+                                {optimisticHub.info}
+                            </p>
+                        </div>
+                    )}
+                </div>
+                <div className="space-y-4">
+                    <MetadataCard
+                        type={optimisticHub.typeOfHub}
+                        createdAt={optimisticHub.createdAt}
+                        updatedAt={optimisticHub.updatedAt}
+                    />
+                    <ContactCard hub={optimisticHub} />
+                </div>
+            </div>
+
+            <Separator className="my-2" />
+        </div>
+    )
+}
+
+function MetadataCard({
+    type,
+    createdAt,
+    updatedAt,
+}: {
+    type: string
+    createdAt: Date
+    updatedAt: Date
+}) {
+    return (
+        <div className="grid gap-4 rounded-lg border bg-card/30 p-4 shadow-sm sm:grid-cols-2">
+            <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Building2 className="h-4 w-4 text-violet-500" />
+                    Hub Type
+                </div>
+                <p className="text-sm font-medium text-foreground/90">
+                    {type || "Not specified"}
+                </p>
+            </div>
+            <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Clock className="h-4 w-4 text-orange-500" />
+                    Last Updated
+                </div>
+                <p className="text-sm font-medium text-foreground/90">
+                    {format(new Date(updatedAt), "MMM d, yyyy")}
+                </p>
+            </div>
+        </div>
+    )
+}
+
+function ContactCard({ hub }: { hub: Hub }) {
+    return (
+        <div className="rounded-lg border bg-card/30 p-4 shadow-sm">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Users className="h-4 w-4 text-pink-500" />
+                Contact Information
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span className="text-foreground/90">
+                    {hub.userId || "No contact information available"}
+                </span>
+            </div>
         </div>
     )
 }

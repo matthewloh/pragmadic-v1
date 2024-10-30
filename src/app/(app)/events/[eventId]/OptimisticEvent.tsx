@@ -2,23 +2,24 @@
 
 import { useOptimistic, useState } from "react"
 import { TAddOptimistic } from "@/app/(app)/events/useOptimisticEvents"
-import { type Event } from "@/lib/db/schema/events"
+import { CompleteEvent, type Event, type EventId } from "@/lib/db/schema/events"
 import { cn } from "@/lib/utils"
 
 import { Button } from "@/components/ui/button"
 import Modal from "@/components/shared/Modal"
 import EventForm from "@/components/events/EventForm"
-import { type Hub, type HubId } from "@/lib/db/schema/hubs"
+import { type Hub } from "@/lib/db/schema/hubs"
+import { EventInviteForm } from "@/components/events/EventInviteForm"
+import { SelectUser } from "@/lib/db/schema"
 
 export default function OptimisticEvent({
     event,
     hubs,
-    hubId,
+    hubUsers,
 }: {
-    event: Event
-
+    event: CompleteEvent
     hubs: Hub[]
-    hubId?: HubId
+    hubUsers: SelectUser[]
 }) {
     const [open, setOpen] = useState(false)
     const openModal = (_?: Event) => {
@@ -27,7 +28,7 @@ export default function OptimisticEvent({
     const closeModal = () => setOpen(false)
     const [optimisticEvent, setOptimisticEvent] = useOptimistic(event)
     const updateEvent: TAddOptimistic = (input) =>
-        setOptimisticEvent({ ...input.data })
+        setOptimisticEvent({ ...optimisticEvent, ...input.data })
 
     return (
         <div className="m-4">
@@ -35,7 +36,7 @@ export default function OptimisticEvent({
                 <EventForm
                     event={optimisticEvent}
                     hubs={hubs}
-                    hubId={hubId}
+                    hubId={event.hubId}
                     closeModal={closeModal}
                     openModal={openModal}
                     addOptimistic={updateEvent}
@@ -57,6 +58,14 @@ export default function OptimisticEvent({
             >
                 {JSON.stringify(optimisticEvent, null, 2)}
             </pre>
+            <div className="mt-6">
+                <h3 className="mb-4 text-xl font-semibold">Invite Users</h3>
+                <EventInviteForm
+                    event={event}
+                    hub={event.hub!}
+                    hubUsers={hubUsers}
+                />
+            </div>
         </div>
     )
 }

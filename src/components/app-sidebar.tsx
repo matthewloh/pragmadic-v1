@@ -19,13 +19,19 @@ import {
     getProfileItems,
     onboardingSupport,
     pragmadicFeatures,
-} from "@/config/sidebar-items"
+} from "@/config/sidebar-config"
 import { useUserRole } from "@/features/auth/hooks/use-user-role"
 import { outfit } from "@/utils/fonts"
+import { ChevronDownCircle } from "lucide-react"
 import Link from "next/link"
 import * as React from "react"
 import PragmadicLogo from "./branding/pragmadic-logo"
 import { NavUser } from "./nav-user"
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "./ui/collapsible"
 
 export function AppSidebar() {
     const { data: userRoleData } = useUserRole()
@@ -37,10 +43,10 @@ export function AppSidebar() {
 
         return (
             <>
-                <SidebarHeader className="h-[60px] border-b">
+                <SidebarHeader className="border-b">
                     <SidebarMenu>
-                        <SidebarMenuItem className="p-0">
-                            <Link href="/dashboard" className="block w-full">
+                        <SidebarMenuItem className="rounded-xl">
+                            <Link href="/dashboard" className="w-full">
                                 <PragmadicLogo className="w-full" />
                             </Link>
                         </SidebarMenuItem>
@@ -67,25 +73,35 @@ export function AppSidebar() {
                         </SidebarMenu>
                     </SidebarGroup>
 
-                    <SidebarGroup>
-                        <SidebarGroupLabel>
-                            DE Rantau Platform
-                        </SidebarGroupLabel>
-                        <SidebarMenu>
-                            {deRantauPlatform.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
-                                        <Link href={item.url}>
-                                            {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
-                                            )}
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroup>
+                    <Collapsible
+                        defaultOpen={true}
+                        className="group/collapsible"
+                    >
+                        <SidebarGroup>
+                            <SidebarGroupLabel asChild>
+                                <CollapsibleTrigger>
+                                    DE Rantau Platform
+                                    <ChevronDownCircle className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                                </CollapsibleTrigger>
+                            </SidebarGroupLabel>
+                            <CollapsibleContent>
+                                <SidebarMenu>
+                                    {deRantauPlatform.map((item) => (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton asChild>
+                                                <Link href={item.url}>
+                                                    {item.icon && (
+                                                        <item.icon className="mr-2 h-4 w-4" />
+                                                    )}
+                                                    <span>{item.title}</span>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))}
+                                </SidebarMenu>
+                            </CollapsibleContent>
+                        </SidebarGroup>
+                    </Collapsible>
 
                     <SidebarGroup>
                         <SidebarGroupLabel>

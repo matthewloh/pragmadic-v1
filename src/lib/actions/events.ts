@@ -13,7 +13,10 @@ import {
     eventIdSchema,
     insertEventParams,
     updateEventParams,
+    usersToEvents,
 } from "@/lib/db/schema/events"
+import { getUserAuth } from "../auth/utils"
+import { db } from "../db"
 
 const handleErrors = (e: unknown) => {
     const errMsg = "Error, please try again."
@@ -55,4 +58,26 @@ export const deleteEventAction = async (input: EventId) => {
     } catch (e) {
         return handleErrors(e)
     }
+}
+
+export const inviteUserToEvent = async ({
+    eventId,
+    userId,
+    inviteRoleType,
+}: {
+    eventId: string
+    userId: string
+    inviteRoleType: "admin" | "member"
+}) => {
+    const { session } = await getUserAuth()
+    if (!session) {
+        throw new Error("You must be logged in to invite users to an event")
+    }
+
+    await db.insert(usersToEvents).values({
+        eventId,
+        userId,
+        invite_status: "pending",
+        invite_role_type: inviteRoleType,
+    })
 }

@@ -6,7 +6,7 @@ import {
     UpdateEventParams,
     updateEventSchema,
     insertEventSchema,
-    events,
+    hubEvents,
     eventIdSchema,
 } from "@/lib/db/schema/events"
 import { getUserAuth } from "@/lib/auth/utils"
@@ -18,7 +18,7 @@ export const createEvent = async (event: NewEventParams) => {
         userId: session?.user.id!,
     })
     try {
-        const [e] = await db.insert(events).values(newEvent).returning()
+        const [e] = await db.insert(hubEvents).values(newEvent).returning()
         return { event: e }
     } catch (err) {
         const message = (err as Error).message ?? "Error, please try again"
@@ -36,12 +36,12 @@ export const updateEvent = async (id: EventId, event: UpdateEventParams) => {
     })
     try {
         const [e] = await db
-            .update(events)
+            .update(hubEvents)
             .set({ ...newEvent, updatedAt: new Date() })
             .where(
                 and(
-                    eq(events.id, eventId!),
-                    eq(events.userId, session?.user.id!),
+                    eq(hubEvents.id, eventId!),
+                    eq(hubEvents.userId, session?.user.id!),
                 ),
             )
             .returning()
@@ -58,11 +58,11 @@ export const deleteEvent = async (id: EventId) => {
     const { id: eventId } = eventIdSchema.parse({ id })
     try {
         const [e] = await db
-            .delete(events)
+            .delete(hubEvents)
             .where(
                 and(
-                    eq(events.id, eventId!),
-                    eq(events.userId, session?.user.id!),
+                    eq(hubEvents.id, eventId!),
+                    eq(hubEvents.userId, session?.user.id!),
                 ),
             )
             .returning()

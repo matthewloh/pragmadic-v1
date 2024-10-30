@@ -6,6 +6,8 @@ import { MapComponent } from "./MapComponent"
 import { MapSidebar } from "./MapSidebar"
 import { useRouter, useSearchParams } from "next/navigation"
 import { MapProvider } from "react-map-gl"
+import { useSidebar } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
 
 const markers: MarkerData[] = [
     {
@@ -58,19 +60,14 @@ export default function MapClientComponent() {
     const handleBackToMap = () => {
         router.replace("/onboarding/map")
     }
-
+    const { open } = useSidebar()
     return (
         <MapProvider>
-            <div className="relative h-screen w-full">
-                <MapComponent
-                    markers={markers}
-                    onMarkerClick={handleMarkerClick}
-                />
-                <MapSidebar
-                    activeMarker={activeMarker}
-                    onBackToMap={handleBackToMap}
-                />
-            </div>
+            <MapComponent markers={markers} onMarkerClick={handleMarkerClick} />
+            <MapSidebar
+                activeMarker={activeMarker}
+                onBackToMap={handleBackToMap}
+            />
         </MapProvider>
     )
 }

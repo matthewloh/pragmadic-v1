@@ -15,7 +15,7 @@ export default function PragmadicLogo({ className = "" }: PragmadicLogoProps) {
     return (
         <div
             className={cn(
-                "flex size-8 items-center justify-center rounded-2xl bg-gradient-to-r from-slate-50 to-amber-100 shadow-sm transition-all duration-300 hover:shadow-md dark:hover:shadow-slate-300",
+                "flex size-8 items-center justify-center rounded-full bg-gradient-to-r from-slate-50 to-amber-100 p-2 shadow-sm transition-all duration-300 hover:shadow-md dark:hover:shadow-slate-300",
                 className,
                 open ? "h-full flex-row gap-2 p-2" : "",
             )}
@@ -24,7 +24,6 @@ export default function PragmadicLogo({ className = "" }: PragmadicLogoProps) {
                 <Image
                     src="/pragmadic.svg"
                     fill
-                    sizes="32px"
                     alt="PRAGmadic Logo"
                     className="rounded-full object-contain object-center"
                     priority

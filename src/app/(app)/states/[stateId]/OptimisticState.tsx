@@ -23,16 +23,14 @@ import {
     UsersIcon,
     CheckCircleIcon,
 } from "lucide-react"
-import { RoleType } from "@/lib/auth/get-user-role"
+import { useUserRole } from "@/features/auth/hooks/use-user-role"
 
 export default function OptimisticState({
     state,
     regions,
-    user_roles,
 }: {
     state: State
     regions: Region[]
-    user_roles: RoleType[]
 }) {
     const [open, setOpen] = useState(false)
     const openModal = (_?: State) => setOpen(true)
@@ -40,8 +38,8 @@ export default function OptimisticState({
     const [optimisticState, setOptimisticState] = useOptimistic(state)
     const updateState: TAddOptimistic = (input) =>
         setOptimisticState({ ...input.data })
-
-    const isAdmin = user_roles.includes("admin")
+    const { data } = useUserRole()
+    const isAdmin = data?.user_roles?.includes("admin")
 
     return (
         <>

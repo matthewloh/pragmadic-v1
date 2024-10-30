@@ -369,6 +369,56 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          name: string | null
+          object_id: string | null
+          owner_id: string
+          parent_id: string | null
+          path_tokens: string[] | null
+          tag: string | null
+          title: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          name?: string | null
+          object_id?: string | null
+          owner_id: string
+          parent_id?: string | null
+          path_tokens?: string[] | null
+          tag?: string | null
+          title?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          name?: string | null
+          object_id?: string | null
+          owner_id?: string
+          parent_id?: string | null
+          path_tokens?: string[] | null
+          tag?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_owner_id_users_id_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       embeddings: {
         Row: {
           content: string
@@ -398,55 +448,62 @@ export type Database = {
           },
         ]
       }
-      events: {
+      hub_events: {
         Row: {
-          completion_date: string | null
           created_at: string
           description: string
-          event_date: string
+          end_date: string
           hub_id: string
           id: string
           info: string | null
           is_complete: boolean
           name: string
+          start_date: string
           type_of_event: string
           updated_at: string
           user_id: string
         }
         Insert: {
-          completion_date?: string | null
           created_at?: string
           description: string
-          event_date: string
+          end_date: string
           hub_id: string
           id: string
           info?: string | null
           is_complete: boolean
           name: string
+          start_date: string
           type_of_event: string
           updated_at?: string
           user_id: string
         }
         Update: {
-          completion_date?: string | null
           created_at?: string
           description?: string
-          event_date?: string
+          end_date?: string
           hub_id?: string
           id?: string
           info?: string | null
           is_complete?: boolean
           name?: string
+          start_date?: string
           type_of_event?: string
           updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "events_hub_id_hubs_id_fk"
+            foreignKeyName: "hub_events_hub_id_hubs_id_fk"
             columns: ["hub_id"]
             isOneToOne: false
             referencedRelation: "hubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hub_events_user_id_users_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -552,7 +609,35 @@ export type Database = {
             referencedRelation: "states"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "hubs_user_id_users_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      markers: {
+        Row: {
+          id: number
+          latitude: number
+          longitude: number
+          type: string
+        }
+        Insert: {
+          id?: number
+          latitude: number
+          longitude: number
+          type: string
+        }
+        Update: {
+          id?: number
+          latitude?: number
+          longitude?: number
+          type?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -933,6 +1018,96 @@ export type Database = {
           },
           {
             foreignKeyName: "users_to_communities_user_id_users_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users_to_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          member: Database["public"]["Enums"]["invite_role_type"] | null
+          pending: Database["public"]["Enums"]["invite_status"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          member?: Database["public"]["Enums"]["invite_role_type"] | null
+          pending?: Database["public"]["Enums"]["invite_status"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          member?: Database["public"]["Enums"]["invite_role_type"] | null
+          pending?: Database["public"]["Enums"]["invite_status"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_to_events_event_id_hub_events_id_fk"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "hub_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_to_events_user_id_users_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users_to_hubs: {
+        Row: {
+          created_at: string
+          hub_id: string
+          invite_role_type:
+            | Database["public"]["Enums"]["invite_role_type"]
+            | null
+          invite_status: Database["public"]["Enums"]["invite_status"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hub_id: string
+          invite_role_type?:
+            | Database["public"]["Enums"]["invite_role_type"]
+            | null
+          invite_status?: Database["public"]["Enums"]["invite_status"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hub_id?: string
+          invite_role_type?:
+            | Database["public"]["Enums"]["invite_role_type"]
+            | null
+          invite_status?: Database["public"]["Enums"]["invite_status"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_to_hubs_hub_id_hubs_id_fk"
+            columns: ["hub_id"]
+            isOneToOne: false
+            referencedRelation: "hubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_to_hubs_user_id_users_id_fk"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"

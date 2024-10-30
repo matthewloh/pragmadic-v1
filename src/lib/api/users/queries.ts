@@ -14,6 +14,14 @@ export const getUsers = async () => {
     return { users: u }
 }
 
+export const getUser = async () => {
+    const { session } = await getUserAuth()
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, session?.user?.id ?? ""),
+    })
+    return { user }
+}
+
 export const getUserRoles = async () => {
     const { session } = await getUserAuth()
     // TODO: Add admin check here

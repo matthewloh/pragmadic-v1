@@ -16,6 +16,7 @@ import { users } from "@/lib/db/schema/users"
 import { type getCommunities } from "@/lib/api/communities/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"
+import { inviteRoleType, inviteStatusEnum } from "../shared-enums/invites"
 
 export const communities = pgTable("communities", {
     id: varchar("id", { length: 191 })
@@ -75,26 +76,7 @@ export type CompleteCommunity = Awaited<
 
 // Many to many relations with user
 
-export const inviteStatusEnum = pgEnum("invite_status", [
-    "pending",
-    "accepted",
-    "rejected",
-])
-
-export const inviteRoleType = pgEnum("invite_role_type", ["admin", "member"])
-
-export const userCommunityPerms = pgEnum("user_community_permissions", [
-    "admin.invite",
-    "admin.remove",
-    "admin.ban",
-    "admin.edit",
-    "member.invite",
-    "member.remove",
-    "member.ban",
-    "member.edit",
-])
-
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersCommunitiesJoinedRelations = relations(users, ({ many }) => ({
     usersToCommunities: many(usersToCommunities),
 }))
 

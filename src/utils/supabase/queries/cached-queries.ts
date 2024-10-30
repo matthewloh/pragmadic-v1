@@ -22,7 +22,7 @@ export const getUser = async () => {
 
     return unstable_cache(
         async () => {
-            return getUserQuery(supabase, userId)
+            return await getUserQuery(supabase, userId)
         },
         ["user", userId],
         {

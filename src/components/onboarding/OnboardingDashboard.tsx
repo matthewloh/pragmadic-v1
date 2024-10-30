@@ -37,7 +37,6 @@ function EnhancedTitle() {
         </h1>
     )
 }
-
 const contentVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -49,7 +48,7 @@ const contentVariants = {
 
 export function OnboardingDashboard() {
     return (
-        <div className="flex h-full flex-col">
+        <div className="flex h-full w-full flex-col">
             <div className="container mx-auto flex flex-grow flex-col py-8">
                 <EnhancedTitle />
                 <motion.div

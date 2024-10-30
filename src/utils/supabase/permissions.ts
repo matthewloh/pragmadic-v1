@@ -45,10 +45,8 @@ export const PERMISSIONS = {
     REVIEWS_MODERATE: "reviews.moderate",
 } as const
 
-// Create a type from the permissions object
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS]
 
-// Define roles and their associated permissions
 export const ROLES = {
     REGULAR: "regular",
     NOMAD: "nomad",
@@ -58,7 +56,6 @@ export const ROLES = {
 
 export type Role = (typeof ROLES)[keyof typeof ROLES]
 
-// Define role-permission mappings
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     [ROLES.REGULAR]: [
         PERMISSIONS.COMMUNITIES_POSTS_CREATE,

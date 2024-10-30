@@ -1,4 +1,5 @@
 "use client"
+
 import georgetown from "@/assets/georgetown.jpg"
 import muralwall from "@/assets/muralwall.jpg"
 import {
@@ -11,19 +12,20 @@ import UserButton from "@/features/auth/components/UserButton"
 import { useUserRole } from "@/features/auth/hooks/use-user-role"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
-import { Building2 } from "lucide-react"
+import {
+    Building2,
+    Info,
+    Contact,
+    Wrench,
+    Image as ImageIcon,
+    CheckCircle2,
+    Menu,
+    X,
+} from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import {
-    FcAbout,
-    FcAdvertising,
-    FcApprove,
-    FcContacts,
-    FcServices,
-} from "react-icons/fc"
-import PragmadicLogo from "./branding/pragmadic-logo"
 import { Button } from "./ui/button"
 
 const listVariant = {
@@ -48,7 +50,7 @@ export function LandingHeader() {
     const [isOpen, setOpen] = useState(false)
     const [showBlur, setShowBlur] = useState(false)
     const [hidden, setHidden] = useState(false)
-    const { data: { user } = {} } = useUserRole() // Destructure session and user directly
+    const { data: { user } = {} } = useUserRole()
 
     const lastPath = `/${pathname.split("/").pop()}`
 
@@ -71,31 +73,56 @@ export function LandingHeader() {
         {
             title: "Pragmadic",
             cover: (
-                <Link href="/" onClick={handleOnClick}>
+                <Link
+                    href="/"
+                    onClick={handleOnClick}
+                    className="block h-full w-full overflow-hidden"
+                >
                     <Image
-                        alt="Cool Gama"
+                        alt="Georgetown"
                         src={georgetown}
-                        quality={60}
-                        className="object-cover"
+                        quality={75}
+                        placeholder="blur"
+                        className="h-full w-full object-cover transition-transform duration-300 ease-in-out hover:scale-110"
+                        width={423}
+                        height={252}
                     />
                 </Link>
             ),
             children: [
-                { path: "/about", title: "About", icon: <FcAbout size={20} /> },
+                {
+                    path: "/about",
+                    title: "About",
+                    icon: (
+                        <Info size={20} className="text-primary-foreground" />
+                    ),
+                },
                 {
                     path: "/contact",
                     title: "Contact",
-                    icon: <FcContacts size={20} />,
+                    icon: (
+                        <Contact
+                            size={20}
+                            className="text-primary-foreground"
+                        />
+                    ),
                 },
                 {
                     path: "/services",
                     title: "Services",
-                    icon: <FcServices size={20} />,
+                    icon: (
+                        <Wrench size={20} className="text-primary-foreground" />
+                    ),
                 },
                 {
                     path: "/portfolio",
                     title: "Portfolio",
-                    icon: <FcAdvertising size={20} />,
+                    icon: (
+                        <ImageIcon
+                            size={20}
+                            className="text-primary-foreground"
+                        />
+                    ),
                 },
             ],
         },
@@ -105,25 +132,52 @@ export function LandingHeader() {
         {
             title: "DE Rantau",
             cover: (
-                <Link href="/de-rantau" onClick={handleOnClick}>
-                    <Image alt="Mural Wall" src={muralwall} quality={60} />
+                <Link
+                    href="/de-rantau"
+                    onClick={handleOnClick}
+                    className="block h-full w-full overflow-hidden"
+                >
+                    <Image
+                        alt="Mural Wall"
+                        src={muralwall}
+                        quality={75}
+                        placeholder="blur"
+                        className="h-full w-full object-cover transition-transform duration-300 ease-in-out hover:scale-110"
+                        width={423}
+                        height={252}
+                    />
                 </Link>
             ),
             children: [
                 {
                     path: "https://mdec.my/derantau",
                     title: "DE Rantau",
-                    icon: <FcApprove size={20} />,
+                    icon: (
+                        <CheckCircle2
+                            size={20}
+                            className="text-primary-foreground"
+                        />
+                    ),
                 },
                 {
                     path: "https://mdec.my/derantau/foreign",
                     title: "Foreign Applicants",
-                    icon: <FcApprove size={20} />,
+                    icon: (
+                        <CheckCircle2
+                            size={20}
+                            className="text-primary-foreground"
+                        />
+                    ),
                 },
                 {
                     path: "https://mdec.my/derantau/hub",
                     title: "DE Rantau Hubs",
-                    icon: <Building2 size={20} />,
+                    icon: (
+                        <Building2
+                            size={20}
+                            className="text-primary-foreground"
+                        />
+                    ),
                 },
             ],
         },
@@ -137,8 +191,19 @@ export function LandingHeader() {
                     "duration-1s animate-header-slide-down-fade transition ease-in-out",
             )}
         >
-            <nav className="z-20 flex h-12 items-center rounded-2xl border border-border bg-primary bg-opacity-70 px-4 backdrop-blur-xl backdrop-filter">
-                {/* <PragmadicLogo /> */}
+            <nav className="z-20 flex h-12 items-center rounded-full border border-border bg-primary bg-opacity-70 px-4 backdrop-blur-xl backdrop-filter">
+                <Link href="/" className="flex items-center">
+                    <div className="relative mr-2 size-8 flex-shrink-0">
+                        <Image
+                            src="/pragmadic.svg"
+                            fill
+                            sizes="32px"
+                            alt="PRAGmadic Logo"
+                            className="rounded-full object-contain object-center"
+                            priority
+                        />
+                    </div>
+                </Link>
                 <ul className="mx-3 hidden space-x-2 text-sm font-medium md:flex">
                     {links.map(({ path, title, children, cover }) => {
                         if (path) {
@@ -169,7 +234,7 @@ export function LandingHeader() {
                                 {children && (
                                     <div
                                         className={cn(
-                                            "absolute -left-[1px] top-[48px] flex h-0 w-[676px] overflow-hidden border-l-[1px] border-r-[1px] bg-primary transition-all duration-300 ease-in-out group-hover:h-[250px]",
+                                            "absolute -left-[1px] top-[48px] flex h-0 w-[556px] overflow-hidden border-l-[1px] border-r-[1px] bg-primary transition-all duration-300 ease-in-out group-hover:h-[250px]",
                                             hidden && "hidden",
                                         )}
                                     >
@@ -196,9 +261,7 @@ export function LandingHeader() {
                                             })}
                                         </ul>
 
-                                        <div className="flex-1 p-4">
-                                            {cover}
-                                        </div>
+                                        <div className="flex-1">{cover}</div>
                                         <div className="absolute bottom-0 w-full border-b-[1px]" />
                                     </div>
                                 )}
@@ -211,27 +274,11 @@ export function LandingHeader() {
                     className="ml-auto bg-primary-foreground p-2 md:hidden"
                     onClick={() => handleToggleMenu()}
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={18}
-                        height={13}
-                        fill="none"
-                    >
-                        <path
-                            fill="currentColor"
-                            d="M0 12.195v-2.007h18v2.007H0Zm0-5.017V5.172h18v2.006H0Zm0-5.016V.155h18v2.007H0Z"
-                        />
-                    </svg>
+                    <Menu className="text-primary" size={18} />
                 </button>
                 {user ? (
                     <UserButton user={user} />
                 ) : (
-                    // <Link
-                    //     href="/dashboard"
-                    //     className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
-                    // >
-                    //     Dashboard
-                    // </Link>
                     <Link
                         className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
                         href="/login"
@@ -249,7 +296,16 @@ export function LandingHeader() {
                     <div className="relative ml-[1px] mt-4 flex justify-between p-3 px-4">
                         <button type="button" onClick={handleToggleMenu}>
                             <span className="sr-only">Pragmadic Logo</span>
-                            <PragmadicLogo />
+                            <div className="relative mr-2 size-8 flex-shrink-0">
+                                <Image
+                                    src="/pragmadic.svg"
+                                    fill
+                                    sizes="32px"
+                                    alt="PRAGmadic Logo"
+                                    className="rounded-full object-contain object-center"
+                                    priority
+                                />
+                            </div>
                         </button>
 
                         <Button
@@ -257,15 +313,7 @@ export function LandingHeader() {
                             className="absolute right-[10px] top-2 ml-auto p-2 md:hidden"
                             onClick={handleToggleMenu}
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width={24}
-                                height={24}
-                                className="fill-primary-foreground"
-                            >
-                                <path fill="none" d="M0 0h24v24H0V0z" />
-                                <path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
-                            </svg>
+                            <X className="text-primary-foreground" size={24} />
                         </Button>
                     </div>
 
@@ -361,12 +409,6 @@ export function LandingHeader() {
                                 {user ? (
                                     <UserButton user={user} />
                                 ) : (
-                                    // <Link
-                                    //     href="/dashboard"
-                                    //     className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
-                                    // >
-                                    //     Dashboard
-                                    // </Link>
                                     <Link
                                         className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
                                         href="/login"
@@ -386,6 +428,36 @@ export function LandingHeader() {
                     showBlur && "opacity-100 md:visible",
                 )}
             />
+            {links.map(
+                ({ title, children, cover }) =>
+                    children && (
+                        <div
+                            key={title}
+                            className={cn(
+                                "absolute left-0 top-[48px] flex h-0 w-full max-w-[676px] overflow-hidden border-x border-border bg-primary transition-all duration-300 ease-in-out group-hover:h-[250px]",
+                                hidden && "hidden",
+                            )}
+                        >
+                            <ul className="flex-0 mt-2 w-[200px] space-y-5 p-4">
+                                {children.map((child) => (
+                                    <li key={child.title}>
+                                        <Link
+                                            onClick={handleOnClick}
+                                            href={child.path}
+                                            className="flex items-center space-x-2 text-primary-foreground transition-opacity duration-200 hover:opacity-70"
+                                        >
+                                            <span>{child.icon}</span>
+                                            <span className="text-sm font-medium text-primary-foreground">
+                                                {child.title}
+                                            </span>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="h-full flex-1">{cover}</div>
+                        </div>
+                    ),
+            )}
         </header>
     )
 }

@@ -1,5 +1,5 @@
 {
-  "id": "c2e9732a-973e-42c2-b376-25136998d913",
+  "id": "320cd992-b5e6-45ec-8304-1dc67a338f60",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -746,6 +746,144 @@
         }
       }
     },
+    "public.documents": {
+      "name": "documents",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "path_tokens": {
+          "name": "path_tokens",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "object_id": {
+          "name": "object_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tag": {
+          "name": "tag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "documents_search_idx": {
+          "name": "documents_search_idx",
+          "columns": [
+            {
+              "expression": "(\n                    setweight(to_tsvector('english', COALESCE(\"title\", '')),'A') ||\n                    setweight(to_tsvector('english', COALESCE(\"body\", '')),'B')\n                )",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        },
+        "documents_path_tokens_idx": {
+          "name": "documents_path_tokens_idx",
+          "columns": [
+            {
+              "expression": "path_tokens",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "documents_parent_idx": {
+          "name": "documents_parent_idx",
+          "columns": [
+            {
+              "expression": "parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "documents_owner_id_users_id_fk": {
+          "name": "documents_owner_id_users_id_fk",
+          "tableFrom": "documents",
+          "tableTo": "users",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "public.embeddings": {
       "name": "embeddings",
       "schema": "",
@@ -811,8 +949,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.events": {
-      "name": "events",
+    "public.hub_events": {
+      "name": "hub_events",
       "schema": "",
       "columns": {
         "id": {
@@ -839,17 +977,17 @@
           "primaryKey": false,
           "notNull": true
         },
-        "event_date": {
-          "name": "event_date",
-          "type": "date",
+        "start_date": {
+          "name": "start_date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
-        "completion_date": {
-          "name": "completion_date",
-          "type": "date",
+        "end_date": {
+          "name": "end_date",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "is_complete": {
           "name": "is_complete",
@@ -871,7 +1009,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "varchar(256)",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -892,9 +1030,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "events_hub_id_hubs_id_fk": {
-          "name": "events_hub_id_hubs_id_fk",
-          "tableFrom": "events",
+        "hub_events_hub_id_hubs_id_fk": {
+          "name": "hub_events_hub_id_hubs_id_fk",
+          "tableFrom": "hub_events",
           "tableTo": "hubs",
           "columnsFrom": [
             "hub_id"
@@ -904,9 +1042,107 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "hub_events_user_id_users_id_fk": {
+          "name": "hub_events_user_id_users_id_fk",
+          "tableFrom": "hub_events",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.users_to_events": {
+      "name": "users_to_events",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_id": {
+          "name": "event_id",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "pending": {
+          "name": "pending",
+          "type": "invite_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "member": {
+          "name": "member",
+          "type": "invite_role_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "users_to_events_user_id_users_id_fk": {
+          "name": "users_to_events_user_id_users_id_fk",
+          "tableFrom": "users_to_events",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "users_to_events_event_id_hub_events_id_fk": {
+          "name": "users_to_events_event_id_hub_events_id_fk",
+          "tableFrom": "users_to_events",
+          "tableTo": "hub_events",
+          "columnsFrom": [
+            "event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "users_to_events_user_id_event_id_pk": {
+          "name": "users_to_events_user_id_event_id_pk",
+          "columns": [
+            "user_id",
+            "event_id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "public.hub_owner_profiles": {
@@ -1061,14 +1297,14 @@
           "primaryKey": false,
           "notNull": false
         },
-        "state_id": {
-          "name": "state_id",
-          "type": "varchar(256)",
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
+        "state_id": {
+          "name": "state_id",
           "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true
@@ -1090,6 +1326,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "hubs_user_id_users_id_fk": {
+          "name": "hubs_user_id_users_id_fk",
+          "tableFrom": "hubs",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
         "hubs_state_id_states_id_fk": {
           "name": "hubs_state_id_states_id_fk",
           "tableFrom": "hubs",
@@ -1105,6 +1354,93 @@
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.users_to_hubs": {
+      "name": "users_to_hubs",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hub_id": {
+          "name": "hub_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "invite_status": {
+          "name": "invite_status",
+          "type": "invite_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'pending'"
+        },
+        "invite_role_type": {
+          "name": "invite_role_type",
+          "type": "invite_role_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'member'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "users_to_hubs_user_id_users_id_fk": {
+          "name": "users_to_hubs_user_id_users_id_fk",
+          "tableFrom": "users_to_hubs",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "users_to_hubs_hub_id_hubs_id_fk": {
+          "name": "users_to_hubs_hub_id_hubs_id_fk",
+          "tableFrom": "users_to_hubs",
+          "tableTo": "hubs",
+          "columnsFrom": [
+            "hub_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "users_to_hubs_user_id_hub_id_pk": {
+          "name": "users_to_hubs_user_id_hub_id_pk",
+          "columns": [
+            "user_id",
+            "hub_id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "auth.users": {
@@ -1645,6 +1981,40 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "public.markers": {
+      "name": "markers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "public.messages": {
       "name": "messages",
       "schema": "",
@@ -1798,37 +2168,6 @@
     }
   },
   "enums": {
-    "public.invite_role_type": {
-      "name": "invite_role_type",
-      "schema": "public",
-      "values": [
-        "admin",
-        "member"
-      ]
-    },
-    "public.invite_status": {
-      "name": "invite_status",
-      "schema": "public",
-      "values": [
-        "pending",
-        "accepted",
-        "rejected"
-      ]
-    },
-    "public.user_community_permissions": {
-      "name": "user_community_permissions",
-      "schema": "public",
-      "values": [
-        "admin.invite",
-        "admin.remove",
-        "admin.ban",
-        "admin.edit",
-        "member.invite",
-        "member.remove",
-        "member.ban",
-        "member.edit"
-      ]
-    },
     "public.user_app_permissions": {
       "name": "user_app_permissions",
       "schema": "public",

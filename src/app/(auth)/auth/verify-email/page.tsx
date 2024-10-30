@@ -2,14 +2,22 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { MailOpen } from "lucide-react"
+import { headers } from "next/headers"
+import { redirect } from "next/navigation"
 
 type SearchParams = Promise<{ email: string }>
 
 export default async function VerifyEmailPage(props: {
-    searchParams: SearchParams
+    searchParams: Promise<SearchParams>
 }) {
+    const headersList = await headers()
     const { email } = await props.searchParams
-
+    if (email) {
+        const sanitizedEmail = decodeURIComponent(email)
+        const currentPath =
+            headersList.get("x-pathname") || "/auth/verify-email"
+        redirect(currentPath)
+    }
     return (
         <div className="container relative flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-1 lg:px-0">
             <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">

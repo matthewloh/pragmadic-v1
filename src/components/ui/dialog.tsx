@@ -67,6 +67,26 @@ const DialogHeader = ({
 )
 DialogHeader.displayName = "DialogHeader"
 
+const DialogContentFrameless = React.forwardRef<
+    React.ElementRef<typeof DialogPrimitive.Content>,
+    React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
+>(({ className, children, ...props }, ref) => (
+    <DialogPortal>
+        <DialogOverlay />
+        <DialogPrimitive.Content
+            ref={ref}
+            className={cn(
+                "fixed left-1/2 top-1/2 z-50 w-[90vw] max-w-xl -translate-x-1/2 -translate-y-1/2 border bg-background text-primary data-[state=closed]:animate-[dialog-content-hide_100ms] data-[state=open]:animate-[dialog-content-show_100ms] dark:border-none dark:p-px",
+                className,
+            )}
+            {...props}
+        >
+            {children}
+        </DialogPrimitive.Content>
+    </DialogPortal>
+))
+DialogContentFrameless.displayName = "DialogContentFrameless"
+
 const DialogFooter = ({
     className,
     ...props
@@ -119,4 +139,5 @@ export {
     DialogFooter,
     DialogTitle,
     DialogDescription,
+    DialogContentFrameless,
 }

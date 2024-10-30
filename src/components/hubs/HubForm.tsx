@@ -31,6 +31,7 @@ import {
 } from "@/lib/actions/hubs"
 import { type State, type StateId } from "@/lib/db/schema/states"
 import { RoleType } from "@/lib/auth/get-user-role"
+import { useUserRole } from "@/features/auth/hooks/use-user-role"
 
 const HubForm = ({
     states,
@@ -40,7 +41,6 @@ const HubForm = ({
     closeModal,
     addOptimistic,
     postSuccess,
-    user_roles,
 }: {
     hub?: Hub | null
     states: State[]
@@ -49,7 +49,6 @@ const HubForm = ({
     closeModal?: () => void
     addOptimistic?: TAddOptimistic
     postSuccess?: () => void
-    user_roles: RoleType[]
 }) => {
     const { errors, hasErrors, setErrors, handleChange } =
         useValidatedForm<Hub>(insertHubParams)
@@ -60,6 +59,8 @@ const HubForm = ({
 
     const router = useRouter()
     const backpath = useBackPath("hubs")
+    const { data } = useUserRole()
+    const user_roles = data?.user_roles ?? []
     const isAdmin = user_roles.includes("admin")
 
     const onSuccess = (

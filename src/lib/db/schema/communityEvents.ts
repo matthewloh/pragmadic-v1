@@ -1,20 +1,23 @@
+import { type getCommunityEvents } from "@/lib/api/communityEvents/queries"
+import { users } from "@/lib/db/schema/users"
 import { sql } from "drizzle-orm"
 import {
-    varchar,
+    boolean,
+    pgEnum,
+    pgTable,
     text,
     timestamp,
-    boolean,
-    pgTable,
     uuid,
+    varchar,
 } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 import { communities } from "./communities"
-import { users } from "@/lib/db/schema/users"
-import { type getCommunityEvents } from "@/lib/api/communityEvents/queries"
 
+import { EVENT_TYPES } from "@/features/events/types"
 import { nanoid, timestamps } from "@/lib/utils"
 
+// Community Events
 export const communityEvents = pgTable("community_events", {
     id: varchar("id", { length: 191 })
         .primaryKey()

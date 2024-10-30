@@ -4,6 +4,7 @@ import {
     Briefcase,
     Building,
     Calendar,
+    Files,
     Flag,
     Globe,
     HelpCircle,
@@ -45,10 +46,11 @@ export const pragmadicFeatures: NavItem[] = [
 export const deRantauPlatform: NavItem[] = [
     { title: "DE Rantau Regions", url: "/regions", icon: Flag },
     { title: "DE Rantau States", url: "/states", icon: MapPin },
+    { title: "Hubs", url: "/hubs", icon: Building },
     { title: "Hub Events", url: "/events", icon: Calendar },
     { title: "Hub Reviews", url: "/reviews", icon: Star },
     { title: "Communities", url: "/communities", icon: Users },
-    { title: "Local Business Directory", url: "/hubs", icon: Building },
+    { title: "Community Events", url: "/community-events", icon: Calendar },
 ]
 
 export const onboardingSupport: NavItem[] = [
@@ -73,6 +75,11 @@ export const teams = [
 export const adminOnlyItems = [
     { title: "Admin Dashboard", url: "/admin", icon: Settings },
     { title: "User Management", url: "/admin/users", icon: Users },
+    {
+        title: "Knowledge Base Management",
+        url: "/admin/chat",
+        icon: Files,
+    },
     { title: "Hub Management", url: "/admin/hubs", icon: Building },
     {
         title: "Communities Management",

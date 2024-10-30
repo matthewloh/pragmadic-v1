@@ -1,5 +1,5 @@
 import { db } from "@/lib/db/index"
-import { eq, and } from "drizzle-orm"
+import { eq, and, desc } from "drizzle-orm"
 import { getUserAuth } from "@/lib/auth/utils"
 import {
     type CommunityId,
@@ -19,8 +19,20 @@ import { users } from "@/lib/db/schema"
 
 export const getCommunities = async () => {
     const { session } = await getUserAuth()
-    const rows = await db.select().from(communities)
-    const c = rows
+    const rows = await db
+        .select({
+            community: communities,
+            membershipInfo: usersToCommunities,
+        })
+        .from(communities)
+        .leftJoin(
+            usersToCommunities,
+            eq(communities.id, usersToCommunities.communityId),
+        )
+    const c = rows.map((r) => ({
+        ...r.community,
+        ...r.membershipInfo,
+    }))
     return { communities: c }
 }
 
@@ -166,4 +178,40 @@ export const getCommunitiesWithCommunityMembers = async () => {
         .leftJoin(users, eq(usersToCommunities.userId, users.id))
 
     return { communities: result }
+}
+
+export const getCommunityByIdWithEvents = async (communityId: string) => {
+    const { session } = await getUserAuth()
+    if (!session) throw new Error("Unauthorized")
+
+    const community = await db.query.communities.findFirst({
+        where: eq(communities.id, communityId),
+    })
+
+    const events = !community
+        ? []
+        : await db.query.communityEvents.findMany({
+              where: eq(communityEvents.communityId, community.id),
+              orderBy: [desc(communityEvents.createdAt)],
+          })
+
+    return { community, events }
+}
+
+export const getCommunityByIdWithPosts = async (communityId: string) => {
+    const { session } = await getUserAuth()
+    if (!session) throw new Error("Unauthorized")
+
+    const community = await db.query.communities.findFirst({
+        where: eq(communities.id, communityId),
+    })
+
+    const posts = !community
+        ? []
+        : await db.query.communityPosts.findMany({
+              where: eq(communityPosts.communityId, community.id),
+              orderBy: [desc(communityPosts.createdAt)],
+          })
+
+    return { community, posts }
 }

@@ -125,3 +125,13 @@ main,
 .animate-pulse {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+.map_container {
+    height: 100%;
+    width: auto;
+}
+
+.mapboxgl-canvas {
+    height: 100%;
+    width: 100%;
+}

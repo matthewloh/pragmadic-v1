@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import OptimisticHub from "@/app/(app)/hubs/[hubId]/OptimisticHub"
 import EventList from "@/components/events/EventList"
 import ReviewList from "@/components/reviews/ReviewList"
-import { getHubByIdWithEventsAndReviews } from "@/lib/api/hubs/queries"
+import { getHubByIdWithEventsAndReviewsAndInvites } from "@/lib/api/hubs/queries"
 import { getStates } from "@/lib/api/states/queries"
 
 import Loading from "@/app/loading"
@@ -32,7 +32,8 @@ const Hub = async ({
     id: string
     user_roles: RoleType[]
 }) => {
-    const { hub, events, reviews } = await getHubByIdWithEventsAndReviews(id)
+    const { hub, events, reviews } =
+        await getHubByIdWithEventsAndReviewsAndInvites(id)
     const { states } = await getStates()
 
     if (!hub) notFound()
@@ -44,7 +45,6 @@ const Hub = async ({
                     hub={hub}
                     states={states}
                     stateId={hub.stateId}
-                    user_roles={user_roles}
                 />
             </div>
             <div className="relative mx-4 mt-8">

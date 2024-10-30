@@ -1,8 +1,7 @@
 import { upload } from "@/utils/supabase/storage"
+import { SupabaseClient } from "@supabase/supabase-js"
 import { useState } from "react"
 import useSupabaseBrowser from "../client"
-import { SupabaseClient } from "@supabase/supabase-js"
-
 interface UploadParams {
     file: File
     path: string

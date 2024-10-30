@@ -3,7 +3,7 @@ import { Suspense } from "react"
 import Loading from "@/app/loading"
 import EventList from "@/components/events/EventList"
 import { getEvents } from "@/lib/api/events/queries"
-import { getHubs } from "@/lib/api/hubs/queries"
+import { getHubs, getHubsOfUser } from "@/lib/api/hubs/queries"
 
 export const revalidate = 0
 
@@ -22,7 +22,7 @@ export default async function EventsPage() {
 
 const Events = async () => {
     const { events } = await getEvents()
-    const { hubs } = await getHubs()
+    const { hubs } = await getHubsOfUser()
     return (
         <Suspense fallback={<Loading />}>
             <EventList events={events} hubs={hubs} />

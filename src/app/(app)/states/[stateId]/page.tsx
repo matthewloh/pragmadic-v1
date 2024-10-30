@@ -9,6 +9,7 @@ import HubList from "@/components/hubs/HubList"
 
 import { BackButton } from "@/components/shared/BackButton"
 import Loading from "@/app/loading"
+import { getUser } from "@/lib/api/users/queries"
 
 export const revalidate = 0
 
@@ -28,7 +29,7 @@ export default async function StatePage(props: {
 const State = async ({ id }: { id: string }) => {
     const { state, hubs } = await getStateByIdWithHubs(id)
     const { regions } = await getRegions()
-    const { user_roles } = await getUserRole()
+    const { user } = await getUser()
 
     if (!state) notFound()
 
@@ -40,11 +41,7 @@ const State = async ({ id }: { id: string }) => {
                     {state.name}
                 </h1>
             </div>
-            <OptimisticState
-                state={state}
-                regions={regions}
-                user_roles={user_roles}
-            />
+            <OptimisticState state={state} regions={regions} />
             <div className="mt-12">
                 <h2 className="mb-4 text-2xl font-semibold">
                     Hubs in {state.name}
@@ -53,7 +50,7 @@ const State = async ({ id }: { id: string }) => {
                     states={[]}
                     stateId={state.id}
                     hubs={hubs}
-                    user_roles={user_roles}
+                    user={user ?? null}
                 />
             </div>
         </div>

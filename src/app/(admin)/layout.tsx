@@ -21,7 +21,7 @@ export default async function AdminLayout({
                     </div>
                 </header>
                 <div
-                    className={`container relative flex h-full flex-grow overflow-hidden ${outfit.className}`}
+                    className={`relative flex h-full flex-grow overflow-hidden ${outfit.className}`}
                 >
                     {children}
                 </div>

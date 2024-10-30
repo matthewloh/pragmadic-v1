@@ -16,13 +16,11 @@ export default async function OnboardingLayout({
         <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
             <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out">
-                <main className="flex overflow-hidden">
-                    <div className="flex-grow">
-                        <div
-                            className={`relative h-full w-full shadow-sm ${outfit.className}`}
-                        >
-                            {children}
-                        </div>
+                <main className="flex flex-grow overflow-auto">
+                    <div
+                        className={`relative flex h-full w-full flex-grow shadow-sm ${outfit.className}`}
+                    >
+                        {children}
                     </div>
                 </main>
             </div>
