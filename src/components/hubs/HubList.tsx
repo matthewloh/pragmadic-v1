@@ -50,29 +50,7 @@ export default function HubList({
     const closeModal = () => setOpen(false)
 
     return (
-        <div className="flex h-full flex-1 flex-col gap-8 bg-gradient-to-br from-background to-secondary/20 p-4 md:p-8">
-            <div className="flex items-center justify-start gap-2">
-                <h1 className="text-3xl font-bold text-foreground md:text-4xl">
-                    Hubs
-                </h1>
-                {isAdmin && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                    >
-                        <Button
-                            onClick={() => openModal()}
-                            variant="outline"
-                            className="gap-2 bg-background/60 backdrop-blur-sm hover:bg-background/80"
-                        >
-                            <PlusIcon className="h-4 w-4" />
-                            <span className="hidden sm:inline">New Hub</span>
-                        </Button>
-                    </motion.div>
-                )}
-            </div>
-
+        <div className="flex h-full flex-1 flex-col gap-2 bg-gradient-to-br from-background to-primary/30">
             <Modal
                 open={open}
                 setOpen={setOpen}
@@ -88,7 +66,16 @@ export default function HubList({
                 />
             </Modal>
 
-            <div className="h-full flex-grow">
+            {optimisticHubs.length > 0 && isAdmin && (
+                <div className="mb-4 flex justify-start">
+                    <Button onClick={() => openModal()} className="gap-2">
+                        <PlusIcon className="h-4 w-4" />
+                        Add Hub
+                    </Button>
+                </div>
+            )}
+
+            <div className="h-full flex-1">
                 <AnimatePresence>
                     {isLoading ? (
                         <SkeletonLoader />
@@ -136,7 +123,9 @@ const EmptyState = ({
         >
             <h2 className="text-2xl font-bold text-foreground">No Hubs Yet</h2>
             <p className="text-muted-foreground">
-                Get started by creating your first hub.
+                {isAdmin
+                    ? "Get started by creating your first hub."
+                    : "No hubs are currently available."}
             </p>
             {isAdmin && (
                 <Button onClick={() => openModal()} className="mt-4">

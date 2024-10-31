@@ -6,10 +6,8 @@ export * from "./regions"
 export * from "./states"
 export * from "./reviews"
 export * from "./resources"
-export * from "./markers"
-export * from "./messages"
+export * from "./mapMarkers"
 export * from "./chats"
-export * from "./assistantResponses"
 export * from "./documents"
 
 // Community related schemas

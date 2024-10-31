@@ -50,8 +50,8 @@ export default function RegionList({
                     closeModal={closeModal}
                 />
             </Modal>
-            {isAdmin && (
-                <div className="flex justify-end">
+            {optimisticRegions.length > 0 && isAdmin && (
+                <div className="flex justify-start">
                     <Button onClick={() => openModal()} className="gap-2">
                         <PlusIcon className="h-4 w-4" /> Add Region
                     </Button>

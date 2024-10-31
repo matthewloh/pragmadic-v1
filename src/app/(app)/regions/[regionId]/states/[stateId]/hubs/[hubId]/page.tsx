@@ -43,10 +43,10 @@ const Hub = async ({
     if (!hub) notFound()
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
                 <BackButton currentResource="hubs" />
                 <h1 className="text-3xl font-bold text-primary">{hub.name}</h1>
-            </div>
+            </div> */}
             <Card>
                 <CardHeader>
                     <CardTitle>Hub Details</CardTitle>

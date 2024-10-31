@@ -1,13 +1,12 @@
 "use client"
 
+import { useSidebar } from "@/components/ui/sidebar"
 import { MarkerData, MarkerType } from "@/types/map"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
+import { MapProvider } from "react-map-gl"
 import { MapComponent } from "./MapComponent"
 import { MapSidebar } from "./MapSidebar"
-import { useRouter, useSearchParams } from "next/navigation"
-import { MapProvider } from "react-map-gl"
-import { useSidebar } from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils"
 
 const markers: MarkerData[] = [
     {
@@ -17,6 +16,7 @@ const markers: MarkerData[] = [
         latitude: 5.4146,
         title: "Summer Concert",
         description: "Annual music festival",
+        object_id: "1",
     },
     {
         id: 2,
@@ -25,6 +25,7 @@ const markers: MarkerData[] = [
         latitude: 5.4164,
         title: "City Park",
         description: "Large urban park",
+        object_id: "2",
     },
     {
         id: 3,
@@ -33,6 +34,7 @@ const markers: MarkerData[] = [
         latitude: 5.4182,
         title: "Historical Site",
         description: "18th century fort",
+        object_id: "3",
     },
 ]
 

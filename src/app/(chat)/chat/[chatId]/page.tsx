@@ -4,12 +4,10 @@ import { Chat } from "@/lib/db/schema/chats"
 import { type Message } from "ai"
 import { notFound } from "next/navigation"
 
-export default async function ChatById(
-    props: {
-        params: Promise<{ chatId: string }>
-    }
-) {
-    const params = await props.params;
+export default async function ChatById(props: {
+    params: Promise<{ chatId: string }>
+}) {
+    const params = await props.params
     const { chatId } = params
     const { chat: chatFromDb } = await getChatById(chatId)
     if (!chatFromDb) {

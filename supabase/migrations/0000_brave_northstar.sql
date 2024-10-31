@@ -10,14 +10,6 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "assistant_responses" (
-	"id" varchar(191) PRIMARY KEY NOT NULL,
-	"tool_invocations" text,
-	"usage" text,
-	"finish_reason" varchar(256),
-	"message_id" varchar(256) NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "chats" (
 	"id" varchar(191) PRIMARY KEY NOT NULL,
 	"name" text,
@@ -108,18 +100,34 @@ CREATE TABLE IF NOT EXISTS "derantau_admin_profile" (
 	CONSTRAINT "derantau_admin_profile_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "document_chunks" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"document_id" uuid NOT NULL,
+	"file_path" text NOT NULL,
+	"content" text NOT NULL,
+	"embedding" vector(1536) NOT NULL,
+	"metadata" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "documents" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" text,
+	"name" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"metadata" jsonb,
 	"path_tokens" text[],
+	"path" text,
 	"parent_id" text,
 	"object_id" uuid,
 	"owner_id" uuid NOT NULL,
-	"tag" text,
 	"title" text,
-	"body" text
+	"body" text,
+	"content_type" varchar(50),
+	"source_url" text,
+	"chunk_count" integer DEFAULT 0,
+	"processed_at" timestamp with time zone,
+	"status" varchar(20) DEFAULT 'pending'
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "embeddings" (
@@ -277,20 +285,36 @@ CREATE TABLE IF NOT EXISTS "resources" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "markers" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"type" varchar(255) NOT NULL,
-	"longitude" double precision NOT NULL,
-	"latitude" double precision NOT NULL
+CREATE TABLE IF NOT EXISTS "event_markers" (
+	"id" varchar(191) PRIMARY KEY NOT NULL,
+	"latitude" numeric(10, 8) NOT NULL,
+	"longitude" numeric(11, 8) NOT NULL,
+	"address" text NOT NULL,
+	"venue" varchar(256),
+	"user_id" uuid NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"event_id" varchar(191) NOT NULL,
+	"event_type" varchar(50) NOT NULL,
+	"start_time" timestamp NOT NULL,
+	"end_time" timestamp NOT NULL,
+	"object_id" uuid
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "messages" (
+CREATE TABLE IF NOT EXISTS "hub_markers" (
 	"id" varchar(191) PRIMARY KEY NOT NULL,
-	"role" varchar(256) NOT NULL,
-	"content" text NOT NULL,
-	"chat_id" varchar(256) NOT NULL,
+	"latitude" numeric(20, 16) NOT NULL,
+	"longitude" numeric(20, 16) NOT NULL,
+	"address" text NOT NULL,
+	"venue" varchar(256),
+	"user_id" uuid NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"hub_id" varchar(191) NOT NULL,
+	"amenities" jsonb,
+	"operating_hours" jsonb,
+	"object_id" uuid,
+	CONSTRAINT "hub_markers_hub_id_unique" UNIQUE("hub_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "nomad_profile" (
@@ -305,12 +329,6 @@ CREATE TABLE IF NOT EXISTS "nomad_profile" (
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "nomad_profile_user_id_unique" UNIQUE("user_id")
 );
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "assistant_responses" ADD CONSTRAINT "assistant_responses_message_id_messages_id_fk" FOREIGN KEY ("message_id") REFERENCES "public"."messages"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "chats" ADD CONSTRAINT "chats_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
@@ -392,6 +410,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "derantau_admin_profile" ADD CONSTRAINT "derantau_admin_profile_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "document_chunks" ADD CONSTRAINT "document_chunks_document_id_documents_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."documents"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -499,7 +523,25 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "messages" ADD CONSTRAINT "messages_chat_id_chats_id_fk" FOREIGN KEY ("chat_id") REFERENCES "public"."chats"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "event_markers" ADD CONSTRAINT "event_markers_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "event_markers" ADD CONSTRAINT "event_markers_event_id_hub_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."hub_events"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "hub_markers" ADD CONSTRAINT "hub_markers_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "hub_markers" ADD CONSTRAINT "hub_markers_hub_id_hubs_id_fk" FOREIGN KEY ("hub_id") REFERENCES "public"."hubs"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -510,10 +552,13 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "chunks_embedding_idx" ON "document_chunks" USING hnsw ("embedding" vector_cosine_ops);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "chunks_document_idx" ON "document_chunks" USING btree ("document_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "documents_search_idx" ON "documents" USING gin ((
-                    setweight(to_tsvector('english', COALESCE("title", '')),'A') ||
-                    setweight(to_tsvector('english', COALESCE("body", '')),'B')
-                ));--> statement-breakpoint
+                setweight(to_tsvector('english', COALESCE("title", '')),'A') ||
+                setweight(to_tsvector('english', COALESCE("body", '')),'B')
+            ));--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "documents_path_tokens_idx" ON "documents" USING btree ("path_tokens");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "documents_parent_idx" ON "documents" USING btree ("parent_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "documents_status_idx" ON "documents" USING btree ("status");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "embeddingIndex" ON "embeddings" USING hnsw ("embedding" vector_cosine_ops);

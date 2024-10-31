@@ -45,8 +45,8 @@ export const updateDerantauAdminProfileAction = async (
 ) => {
     try {
         const payload = updateDerantauAdminProfileParams.parse(input)
-        await updateDerantauAdminProfile(payload.id, payload)
         revalidateDerantauAdminProfiles()
+        await updateDerantauAdminProfile(payload.id, payload)
     } catch (e) {
         return handleErrors(e)
     }

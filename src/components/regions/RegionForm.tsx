@@ -1,27 +1,26 @@
 import { z } from "zod"
 
+import { useValidatedForm } from "@/lib/hooks/useValidatedForm"
+import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import { useFormStatus } from "react-dom"
-import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { useValidatedForm } from "@/lib/hooks/useValidatedForm"
 
-import { type Action, cn } from "@/lib/utils"
 import { type TAddOptimistic } from "@/app/(app)/regions/useOptimisticRegions"
+import { type Action, cn } from "@/lib/utils"
 
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useBackPath } from "@/components/shared/BackButton"
 
 import { Checkbox } from "@/components/ui/checkbox"
 
-import { type Region, insertRegionParams } from "@/lib/db/schema/regions"
 import {
     createRegionAction,
     deleteRegionAction,
     updateRegionAction,
 } from "@/lib/actions/regions"
+import { type Region, insertRegionParams } from "@/lib/db/schema/regions"
 
 const RegionForm = ({
     region,
@@ -45,7 +44,6 @@ const RegionForm = ({
     const [pending, startMutation] = useTransition()
 
     const router = useRouter()
-    const backpath = useBackPath("regions")
 
     const onSuccess = (
         action: Action,
@@ -61,7 +59,7 @@ const RegionForm = ({
             router.refresh()
             postSuccess && postSuccess()
             toast.success(`Region ${action}d!`)
-            if (action === "delete") router.push(backpath)
+            if (action === "delete") router.push("/regions")
         }
     }
 

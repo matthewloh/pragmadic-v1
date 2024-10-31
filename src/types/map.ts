@@ -11,4 +11,5 @@ export interface MarkerData {
     latitude: number
     title: string
     description: string
+    object_id: string // to be retrieved from database
 }

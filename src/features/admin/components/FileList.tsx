@@ -11,7 +11,8 @@ import {
 import useSupabaseBrowser from "@/utils/supabase/client"
 import { useRemoveFiles } from "@supabase-cache-helpers/storage-react-query"
 import { useDirectory } from "@supabase-cache-helpers/storage-react-query"
-import { FileText, FolderOpen, Loader2, Trash2 } from "lucide-react"
+import { FileIcon } from "@/components/shared/FileIcon"
+import { FolderOpen, Loader2, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import {
     AlertDialog,
@@ -69,6 +70,46 @@ export function FileList({ folder }: FileListProps) {
         }
     }
 
+    const getMimeType = (fileName: string) => {
+        const extension = fileName.split(".").pop()?.toLowerCase()
+        const mimeTypes: Record<string, string> = {
+            pdf: "application/pdf",
+            doc: "application/msword",
+            docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            txt: "text/plain",
+            md: "text/markdown",
+            // Add more mime types as needed
+        }
+        return mimeTypes[extension || ""] || "application/octet-stream"
+    }
+
+    const formatFileSize = (bytes: number) => {
+        const units = ["B", "KB", "MB", "GB"]
+        let size = bytes
+        let unitIndex = 0
+
+        while (size >= 1024 && unitIndex < units.length - 1) {
+            size /= 1024
+            unitIndex++
+        }
+
+        return `${size.toFixed(1)} ${units[unitIndex]}`
+    }
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+        })
+    }
+
+    const getFileExtension = (fileName: string) => {
+        return fileName.split(".").pop()?.toUpperCase() || ""
+    }
+
     // Loading state
     if (isLoading) {
         return (
@@ -99,8 +140,10 @@ export function FileList({ folder }: FileListProps) {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Upload Date</TableHead>
+                        <TableHead className="w-[40%]">Name</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Size</TableHead>
+                        <TableHead>Last Modified</TableHead>
                         <TableHead className="w-[100px]">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -108,11 +151,23 @@ export function FileList({ folder }: FileListProps) {
                     {files_data.map((file) => (
                         <TableRow key={file.id}>
                             <TableCell className="flex items-center space-x-2">
-                                <FileText className="h-4 w-4 text-muted-foreground" />
-                                <span>{file.name}</span>
+                                <FileIcon
+                                    mimeType={getMimeType(file.name)}
+                                    className="text-muted-foreground"
+                                    size={16}
+                                />
+                                <span className="truncate" title={file.name}>
+                                    {file.name}
+                                </span>
                             </TableCell>
-                            <TableCell>
-                                {new Date(file.created_at).toLocaleDateString()}
+                            <TableCell className="text-muted-foreground">
+                                {getFileExtension(file.name)}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
+                                {formatFileSize(file.metadata?.size || 0)}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
+                                {formatDate(file.created_at)}
                             </TableCell>
                             <TableCell>
                                 <AlertDialog>

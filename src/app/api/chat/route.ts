@@ -1,16 +1,13 @@
 import { createResource } from "@/lib/actions/resources"
+import { anthropicModel, customModel, geminiModel } from "@/lib/ai/custom-model"
 import { findRelevantContent } from "@/lib/ai/embeddings"
 import {
-    createChatWithMessages,
-    createMessage,
+    createMessage
 } from "@/lib/api/chats/mutations"
-import { db } from "@/lib/db"
-import { openai } from "@ai-sdk/openai"
+import { createClient } from "@/utils/supabase/server"
 import { convertToCoreMessages, streamText, tool } from "ai"
 import { z } from "zod"
 import { getSession } from "../../../utils/supabase/queries/cached-queries"
-import { createClient } from "@/utils/supabase/server"
-import { customModel, geminiModel, anthropicModel } from "@/lib/ai/custom-model"
 
 // Allow streaming responses up to 60 seconds
 export const maxDuration = 60

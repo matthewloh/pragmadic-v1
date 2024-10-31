@@ -7,6 +7,7 @@ import { getHubs, getHubUsersById } from "@/lib/api/hubs/queries"
 
 import Loading from "@/app/loading"
 import { BackButton } from "@/components/shared/BackButton"
+import { getEventMarkerByEventId } from "@/features/onboarding/map/hub/queries"
 
 export const revalidate = 0
 
@@ -27,6 +28,8 @@ const Event = async ({ id }: { id: string }) => {
 
     const { hubs } = await getHubs()
     const { users: hubUsers } = await getHubUsersById(event.hubId)
+    // Just enforcing one event can have one marker for now
+    const marker = await getEventMarkerByEventId(id)
     return (
         <Suspense fallback={<Loading />}>
             <div className="relative">
@@ -35,6 +38,7 @@ const Event = async ({ id }: { id: string }) => {
                     event={event}
                     hubs={hubs}
                     hubUsers={hubUsers}
+                    marker={marker}
                 />
             </div>
         </Suspense>

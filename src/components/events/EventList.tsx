@@ -83,7 +83,7 @@ export default function EventList({
                 </div>
             </div>
 
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="sync">
                 {optimisticEvents.length === 0 ? (
                     <EmptyState openModal={openModal} />
                 ) : (

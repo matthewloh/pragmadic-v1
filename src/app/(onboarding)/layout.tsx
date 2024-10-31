@@ -13,7 +13,7 @@ export default async function OnboardingLayout({
     const defaultOpen = cookieStore.get("sidebar:state")?.value === "false"
 
     return (
-        <SidebarProvider defaultOpen={defaultOpen}>
+        <SidebarProvider defaultOpen={false}>
             <AppSidebar />
             <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out">
                 <main className="flex flex-grow overflow-auto">

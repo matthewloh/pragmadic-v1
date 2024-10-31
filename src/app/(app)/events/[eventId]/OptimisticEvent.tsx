@@ -1,25 +1,29 @@
 "use client"
 
-import { useOptimistic, useState } from "react"
 import { TAddOptimistic } from "@/app/(app)/events/useOptimisticEvents"
-import { CompleteEvent, type Event, type EventId } from "@/lib/db/schema/events"
+import { TAddOptimistic as TAddOptimisticMarker } from "@/app/(app)/regions/[regionId]/states/[stateId]/hubs/[hubId]/events/[eventId]/useOptimisticEventMarkers"
+import { CompleteEvent, type Event } from "@/lib/db/schema/events"
 import { cn } from "@/lib/utils"
+import { useOptimistic, useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import Modal from "@/components/shared/Modal"
 import EventForm from "@/components/events/EventForm"
-import { type Hub } from "@/lib/db/schema/hubs"
 import { EventInviteForm } from "@/components/events/EventInviteForm"
-import { SelectUser } from "@/lib/db/schema"
+import MarkerForm from "@/components/map/MarkerForm"
+import Modal from "@/components/shared/Modal"
+import { Button } from "@/components/ui/button"
+import { EventMarker, SelectUser } from "@/lib/db/schema"
+import { type Hub } from "@/lib/db/schema/hubs"
 
 export default function OptimisticEvent({
     event,
     hubs,
     hubUsers,
+    marker,
 }: {
     event: CompleteEvent
     hubs: Hub[]
     hubUsers: SelectUser[]
+    marker: EventMarker | null
 }) {
     const [open, setOpen] = useState(false)
     const openModal = (_?: Event) => {
@@ -27,8 +31,13 @@ export default function OptimisticEvent({
     }
     const closeModal = () => setOpen(false)
     const [optimisticEvent, setOptimisticEvent] = useOptimistic(event)
+    const [optimisticMarker, setOptimisticMarker] = useOptimistic(marker)
+
     const updateEvent: TAddOptimistic = (input) =>
         setOptimisticEvent({ ...optimisticEvent, ...input.data })
+
+    const updateMarker: TAddOptimisticMarker = (input) =>
+        setOptimisticMarker({ ...optimisticMarker, ...input.data })
 
     return (
         <div className="m-4">
@@ -66,6 +75,11 @@ export default function OptimisticEvent({
                     hubUsers={hubUsers}
                 />
             </div>
+            <MarkerForm
+                marker={optimisticMarker}
+                event={event}
+                addOptimistic={updateMarker}
+            />
         </div>
     )
 }

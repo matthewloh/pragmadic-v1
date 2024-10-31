@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { useUpload } from "@supabase-cache-helpers/storage-react-query"
 import useSupabaseBrowser from "@/utils/supabase/client"
+import { generateEmbeddingsForPdfAction } from "../actions/upload-file"
 
 interface FileUploadProps {
     folder: string
@@ -15,6 +16,7 @@ interface FileUploadProps {
 
 export function FileUpload({ folder }: FileUploadProps) {
     const [file, setFile] = useState<File | null>(null)
+    const [isProcessing, setIsProcessing] = useState(false)
     const supabase = useSupabaseBrowser()
 
     const { mutateAsync: upload, isPending } = useUpload(
@@ -23,6 +25,11 @@ export function FileUpload({ folder }: FileUploadProps) {
             buildFileName: ({ fileName }) => `${folder}/${fileName}`,
         },
     )
+
+    const resetUpload = () => {
+        setFile(null)
+        setIsProcessing(false)
+    }
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles?.length) {
@@ -46,36 +53,32 @@ export function FileUpload({ folder }: FileUploadProps) {
         if (!file || !folder) return
 
         try {
-            await upload(
-                { files: [file] },
-                {
-                    onSuccess: (data) => {
-                        const hasError = data.some(
-                            (result) => result.error !== null,
-                        )
-                        if (!hasError) {
-                            toast.success("File uploaded successfully")
-                            setFile(null)
-                        }
-                    },
-                    onError: (error) => {
-                        console.error("Upload error:", error)
-                        toast.error(error.message || "Failed to upload file")
-                    },
-                    onSettled: (data, error) => {
-                        if (
-                            error ||
-                            data?.some((result) => result.error !== null)
-                        ) {
-                            toast.error("Upload failed")
-                        }
-                        setFile(null)
-                    },
-                },
-            )
+            setIsProcessing(true)
+
+            // Upload to Supabase
+            const uploadResult = await upload({ files: [file] })
+            const result = uploadResult[0] // Get first result
+
+            if (result.error) {
+                throw new Error(`Upload failed: ${result.error.message}`)
+            }
+
+            if (!result.data) {
+                throw new Error("Upload failed: No data returned")
+            }
+
+            // Process the uploaded file using the fullPath
+            await generateEmbeddingsForPdfAction(result.data.fullPath, folder)
+            toast.success("File processed successfully")
+            resetUpload()
         } catch (error) {
-            console.error("Unexpected error:", error)
-            toast.error("An unexpected error occurred")
+            console.error("Upload error:", error)
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to process file",
+            )
+            resetUpload()
         }
     }
 
@@ -105,7 +108,7 @@ export function FileUpload({ folder }: FileUploadProps) {
                                     size="icon"
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        setFile(null)
+                                        resetUpload()
                                     }}
                                 >
                                     <X className="h-4 w-4" />
@@ -127,13 +130,13 @@ export function FileUpload({ folder }: FileUploadProps) {
 
             <Button
                 onClick={handleUpload}
-                disabled={!file || isPending}
+                disabled={!file || isPending || isProcessing}
                 className="w-full"
             >
-                {isPending ? (
+                {isPending || isProcessing ? (
                     <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
+                        {isPending ? "Uploading..." : "Processing..."}
                     </>
                 ) : (
                     <>

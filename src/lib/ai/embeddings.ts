@@ -1,8 +1,8 @@
-import { embed, embedMany } from "ai"
-import { openai } from "@ai-sdk/openai"
 import { db } from "@/lib/db"
-import { cosineDistance, desc, gt, sql } from "drizzle-orm"
 import { embeddings } from "@/lib/db/schema/embeddings"
+import { openai } from "@ai-sdk/openai"
+import { embed, embedMany } from "ai"
+import { cosineDistance, desc, gt, sql } from "drizzle-orm"
 
 const embeddingModel = openai.embedding("text-embedding-ada-002")
 

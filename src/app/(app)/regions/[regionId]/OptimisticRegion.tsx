@@ -57,12 +57,16 @@ export default function OptimisticRegion({
                             <CardTitle className="text-2xl font-bold text-primary">
                                 {optimisticRegion.name}
                             </CardTitle>
-                            <CardDescription className="flex items-center text-sm text-muted-foreground mt-1">
+                            <CardDescription className="mt-1 flex items-center text-sm text-muted-foreground">
                                 <MapPinIcon className="mr-1 h-3 w-3" /> Region
                             </CardDescription>
                         </div>
                         {isAdmin && (
-                            <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setOpen(true)}
+                            >
                                 <Edit2Icon className="h-4 w-4" />
                             </Button>
                         )}
@@ -71,21 +75,40 @@ export default function OptimisticRegion({
                 <CardContent className="pt-6">
                     <div className="space-y-4">
                         <div>
-                            <h4 className="text-sm font-semibold text-muted-foreground mb-1">Description</h4>
-                            <p className="text-sm">{optimisticRegion.description || "No description available."}</p>
+                            <h4 className="mb-1 text-sm font-semibold text-muted-foreground">
+                                Description
+                            </h4>
+                            <p className="text-sm">
+                                {optimisticRegion.description ||
+                                    "No description available."}
+                            </p>
                         </div>
                         <div className="flex items-center justify-between">
                             <div>
-                                <h4 className="text-sm font-semibold text-muted-foreground mb-1">Status</h4>
-                                <Badge variant={optimisticRegion.public ? "default" : "secondary"}>
-                                    {optimisticRegion.public ? "Public" : "Private"}
+                                <h4 className="mb-1 text-sm font-semibold text-muted-foreground">
+                                    Status
+                                </h4>
+                                <Badge
+                                    variant={
+                                        optimisticRegion.public
+                                            ? "default"
+                                            : "secondary"
+                                    }
+                                >
+                                    {optimisticRegion.public
+                                        ? "Public"
+                                        : "Private"}
                                 </Badge>
                             </div>
                             <div className="text-right">
-                                <h4 className="text-sm font-semibold text-muted-foreground mb-1">Created</h4>
-                                <p className="text-sm flex items-center justify-end">
+                                <h4 className="mb-1 text-sm font-semibold text-muted-foreground">
+                                    Created
+                                </h4>
+                                <p className="flex items-center justify-end text-sm">
                                     <CalendarIcon className="mr-1 h-3 w-3" />
-                                    {new Date(optimisticRegion.createdAt).toLocaleDateString()}
+                                    {new Date(
+                                        optimisticRegion.createdAt,
+                                    ).toLocaleDateString()}
                                 </p>
                             </div>
                         </div>

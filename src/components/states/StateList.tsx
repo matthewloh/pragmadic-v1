@@ -57,8 +57,8 @@ export default function StateList({
                     regionId={regionId}
                 />
             </Modal>
-            {isAdmin && (
-                <div className="flex justify-end">
+            {optimisticStates.length > 0 && isAdmin && (
+                <div className="flex justify-start">
                     <Button onClick={() => openModal()} className="gap-2">
                         <PlusIcon className="h-4 w-4" /> Add State
                     </Button>
