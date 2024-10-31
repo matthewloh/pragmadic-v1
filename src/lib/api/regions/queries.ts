@@ -6,6 +6,10 @@ import { states, type CompleteState } from "@/lib/db/schema/states"
 
 export const getRegions = async () => {
     const { session } = await getUserAuth()
+    if (!session)
+        return {
+            regions: [],
+        }
     const rows = await db.select().from(regions)
     const r = rows
     return { regions: r }
@@ -17,12 +21,7 @@ export const getRegionById = async (id: RegionId) => {
     const [row] = await db
         .select()
         .from(regions)
-        .where(
-            and(
-                eq(regions.id, regionId),
-                eq(regions.userId, session?.user.id!),
-            ),
-        )
+        .where(eq(regions.id, regionId))
     if (row === undefined) return {}
     const r = row
     return { region: r }

@@ -2,13 +2,18 @@ import { Suspense } from "react"
 
 import Loading from "@/app/loading"
 import NomadProfileList from "@/components/nomadProfile/NomadProfileList"
-import { getNomadProfiles } from "@/lib/api/nomadProfile/queries"
+import {
+    getNomadProfileByUserId,
+    getNomadProfiles,
+} from "@/lib/api/nomadProfile/queries"
+import { getUser } from "@/lib/api/users/queries"
+import { notFound } from "next/navigation"
 
 export const revalidate = 0
 
 export default async function NomadProfilePage() {
     return (
-        <main>
+        <main className="h-full w-full overflow-auto">
             <div className="relative">
                 <div className="flex justify-between">
                     <h1 className="my-2 text-2xl font-semibold">
@@ -22,8 +27,10 @@ export default async function NomadProfilePage() {
 }
 
 const NomadProfile = async () => {
-    const { nomadProfile } = await getNomadProfiles()
-
+    const { user } = await getUser()
+    if (!user) notFound()
+    const { nomadProfile } = await getNomadProfileByUserId(user.id)
+    console.log(nomadProfile)
     return (
         <Suspense fallback={<Loading />}>
             <NomadProfileList nomadProfile={nomadProfile} />

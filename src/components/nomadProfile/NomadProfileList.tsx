@@ -1,33 +1,31 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-
-import { cn } from "@/lib/utils"
 import {
     type NomadProfile,
     CompleteNomadProfile,
 } from "@/lib/db/schema/nomadProfile"
 import Modal from "@/components/shared/Modal"
-
-import { useOptimisticNomadProfiles } from "@/app/(app)/nomad-profile/useOptimisticNomadProfile"
-import { Button } from "@/components/ui/button"
+import { useOptimisticNomadProfile } from "@/app/(app)/nomad-profile/useOptimisticNomadProfile"
 import NomadProfileForm from "./NomadProfileForm"
+import ProfileCard from "@/features/profile/components/ProfileCard"
 import { PlusIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 type TOpenModal = (nomadProfile?: NomadProfile) => void
 
 export default function NomadProfileList({
     nomadProfile,
 }: {
-    nomadProfile: CompleteNomadProfile[]
+    nomadProfile: CompleteNomadProfile | null
 }) {
-    const { optimisticNomadProfiles, addOptimisticNomadProfile } =
-        useOptimisticNomadProfiles(nomadProfile)
+    const { optimisticNomadProfile, addOptimisticNomadProfile } =
+        useOptimisticNomadProfile(nomadProfile)
     const [open, setOpen] = useState(false)
+    const [isExpanded, setIsExpanded] = useState(false)
     const [activeNomadProfile, setActiveNomadProfile] =
         useState<NomadProfile | null>(null)
+
     const openModal = (nomadProfile?: NomadProfile) => {
         setOpen(true)
         nomadProfile
@@ -35,6 +33,7 @@ export default function NomadProfileList({
             : setActiveNomadProfile(null)
     }
     const closeModal = () => setOpen(false)
+    const toggleExpand = () => setIsExpanded(!isExpanded)
 
     return (
         <div>
@@ -43,7 +42,7 @@ export default function NomadProfileList({
                 setOpen={setOpen}
                 title={
                     activeNomadProfile
-                        ? "Edit NomadProfile"
+                        ? "Edit Nomad Profile"
                         : "Create Nomad Profile"
                 }
             >
@@ -56,56 +55,28 @@ export default function NomadProfileList({
             </Modal>
             <div className="absolute right-0 top-0">
                 <Button onClick={() => openModal()} variant={"outline"}>
-                    +
+                    <PlusIcon className="h-4 w-4" />
                 </Button>
             </div>
-            {optimisticNomadProfiles.length === 0 ? (
+            {!optimisticNomadProfile ? (
                 <EmptyState openModal={openModal} />
             ) : (
-                <ul>
-                    {optimisticNomadProfiles.map((nomadProfile) => (
-                        <NomadProfile
-                            nomadProfile={nomadProfile}
-                            key={nomadProfile.id}
-                            openModal={openModal}
-                        />
-                    ))}
-                </ul>
+                <ProfileCard
+                    profile={{
+                        id: optimisticNomadProfile.id,
+                        type: "nomad",
+                        exists: true,
+                        title: "Digital Nomad Profile",
+                        description:
+                            optimisticNomadProfile.bio ||
+                            "Manage your nomad profile details",
+                    }}
+                    isExpanded={isExpanded}
+                    onToggle={toggleExpand}
+                    onManage={() => openModal(optimisticNomadProfile)}
+                />
             )}
         </div>
-    )
-}
-
-const NomadProfile = ({
-    nomadProfile,
-    openModal,
-}: {
-    nomadProfile: CompleteNomadProfile
-    openModal: TOpenModal
-}) => {
-    const optimistic = nomadProfile.id === "optimistic"
-    const deleting = nomadProfile.id === "delete"
-    const mutating = optimistic || deleting
-    const pathname = usePathname()
-    const basePath = pathname.includes("nomad-profile")
-        ? pathname
-        : pathname + "/nomad-profile/"
-
-    return (
-        <li
-            className={cn(
-                "my-2 flex justify-between",
-                mutating ? "animate-pulse opacity-30" : "",
-                deleting ? "text-destructive" : "",
-            )}
-        >
-            <div className="w-full">
-                <div>{nomadProfile.bio}</div>
-            </div>
-            <Button variant={"link"} asChild>
-                <Link href={basePath + "/" + nomadProfile.id}>Edit</Link>
-            </Button>
-        </li>
     )
 }
 
@@ -120,7 +91,7 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
             </p>
             <div className="mt-6">
                 <Button onClick={() => openModal()}>
-                    <PlusIcon className="h-4" /> New Nomad Profile{" "}
+                    <PlusIcon className="mr-2 h-4 w-4" /> New Nomad Profile
                 </Button>
             </div>
         </div>

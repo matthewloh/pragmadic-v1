@@ -43,7 +43,7 @@ const State = async ({ id }: { id: string }) => {
                     <CardTitle>State Details</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <OptimisticState state={state} regions={regions} />
+                    <OptimisticState state={state} regions={regions || []} />
                 </CardContent>
             </Card>
             <Card>

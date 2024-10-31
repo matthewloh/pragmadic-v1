@@ -5,8 +5,8 @@ import { useOptimisticProfile } from "@/app/(app)/(profile)/profile/useOptimisti
 import { Profile, type CompleteProfile } from "@/lib/db/schema/profile"
 import Modal from "@/components/shared/Modal"
 import ProfileForm from "./ProfileForm"
-import { RegularProfileCard } from "./RegularProfileCard"
 import { PlusIcon } from "lucide-react"
+import ProfileCard from "@/features/profile/components/ProfileCard"
 
 type TOpenModal = (profile?: Profile) => void
 
@@ -26,7 +26,6 @@ export default function ProfileList({
         profile ? setActiveProfile(profile) : setActiveProfile(null)
     }
     const closeModal = () => setOpen(false)
-
     const toggleExpand = () => setIsExpanded(!isExpanded)
 
     return (
@@ -44,11 +43,19 @@ export default function ProfileList({
                 />
             </Modal>
             {optimisticProfile ? (
-                <RegularProfileCard
-                    profile={optimisticProfile}
+                <ProfileCard
+                    profile={{
+                        id: optimisticProfile.id,
+                        type: "regular",
+                        exists: true,
+                        title: "Regular Profile",
+                        description:
+                            optimisticProfile.bio ||
+                            "Manage your profile details",
+                    }}
                     isExpanded={isExpanded}
                     onToggle={toggleExpand}
-                    onManage={openModal}
+                    onManage={() => openModal(optimisticProfile)}
                 />
             ) : (
                 <EmptyState openModal={openModal} />

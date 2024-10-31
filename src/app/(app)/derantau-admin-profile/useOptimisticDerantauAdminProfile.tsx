@@ -10,17 +10,17 @@ export type TAddOptimistic = (
     action: OptimisticAction<DerantauAdminProfile>,
 ) => void
 
-export const useOptimisticDerantauAdminProfiles = (
-    derantauAdminProfile: CompleteDerantauAdminProfile[],
+export const useOptimisticDerantauAdminProfile = (
+    derantauAdminProfile: CompleteDerantauAdminProfile | null,
     regions: Region[],
 ) => {
-    const [optimisticDerantauAdminProfiles, addOptimisticDerantauAdminProfile] =
+    const [optimisticDerantauAdminProfile, addOptimisticDerantauAdminProfile] =
         useOptimistic(
             derantauAdminProfile,
             (
-                currentState: CompleteDerantauAdminProfile[],
+                currentState: CompleteDerantauAdminProfile | null,
                 action: OptimisticAction<DerantauAdminProfile>,
-            ): CompleteDerantauAdminProfile[] => {
+            ): CompleteDerantauAdminProfile | null => {
                 const { data } = action
 
                 const optimisticRegion = regions.find(
@@ -35,21 +35,11 @@ export const useOptimisticDerantauAdminProfiles = (
 
                 switch (action.action) {
                     case "create":
-                        return currentState.length === 0
-                            ? [optimisticDerantauAdminProfile]
-                            : [...currentState, optimisticDerantauAdminProfile]
+                        return optimisticDerantauAdminProfile
                     case "update":
-                        return currentState.map((item) =>
-                            item.id === data.id
-                                ? { ...item, ...optimisticDerantauAdminProfile }
-                                : item,
-                        )
+                        return optimisticDerantauAdminProfile
                     case "delete":
-                        return currentState.map((item) =>
-                            item.id === data.id
-                                ? { ...item, id: "delete" }
-                                : item,
-                        )
+                        return null
                     default:
                         return currentState
                 }
@@ -58,6 +48,6 @@ export const useOptimisticDerantauAdminProfiles = (
 
     return {
         addOptimisticDerantauAdminProfile,
-        optimisticDerantauAdminProfiles,
+        optimisticDerantauAdminProfile,
     }
 }

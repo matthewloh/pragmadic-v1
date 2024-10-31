@@ -17,6 +17,8 @@ import {
     Role,
 } from "@/utils/supabase/permissions"
 import { RoleType } from "@/lib/auth/get-user-role"
+import { z } from "zod"
+import { createSelectSchema } from "drizzle-zod"
 
 const authSchema = pgSchema("auth")
 
@@ -87,3 +89,5 @@ export type UserWithRolesAndPermissions = SelectUser & {
     roles: RoleType[]
     permissions: Permission[]
 }
+export const userIdSchema = createSelectSchema(users).pick({ id: true })
+export type UserId = z.infer<typeof userIdSchema>["id"]

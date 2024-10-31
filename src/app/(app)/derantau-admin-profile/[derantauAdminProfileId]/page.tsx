@@ -10,14 +10,12 @@ import { BackButton } from "@/components/shared/BackButton"
 
 export const revalidate = 0
 
-export default async function DerantauAdminProfilePage(
-    props: {
-        params: Promise<{ derantauAdminProfileId: string }>
-    }
-) {
-    const params = await props.params;
+export default async function DerantauAdminProfilePage(props: {
+    params: Promise<{ derantauAdminProfileId: string }>
+}) {
+    const params = await props.params
     return (
-        <main className="overflow-auto">
+        <main className="h-full w-full overflow-auto">
             <DerantauAdminProfile id={params.derantauAdminProfileId} />
         </main>
     )
@@ -34,7 +32,7 @@ const DerantauAdminProfile = async ({ id }: { id: string }) => {
                 <BackButton currentResource="derantau-admin-profile" />
                 <OptimisticDerantauAdminProfile
                     derantauAdminProfile={derantauAdminProfile}
-                    regions={regions}
+                    regions={regions || []}
                 />
             </div>
         </Suspense>

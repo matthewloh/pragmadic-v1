@@ -26,7 +26,7 @@ const Regions = async () => {
 
     return (
         <Suspense fallback={<Loading />}>
-            <RegionList regions={regions} user_roles={user_roles} />
+            <RegionList regions={regions || []} user_roles={user_roles} />
         </Suspense>
     )
 }

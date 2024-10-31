@@ -17,7 +17,7 @@ export const getDerantauAdminProfiles = async () => {
         .leftJoin(regions, eq(derantauAdminProfile.regionId, regions.id))
         .where(eq(derantauAdminProfile.userId, session?.user.id!))
     const d = rows.map((r) => ({ ...r.derantauAdminProfile, region: r.region }))
-    return { derantauAdminProfile: d }
+    return { derantauAdminProfiles: d }
 }
 
 export const getSingleDerantauAdminProfile = async () => {
@@ -52,4 +52,18 @@ export const getDerantauAdminProfileById = async (
     if (row === undefined) return {}
     const d = { ...row.derantauAdminProfile, region: row.region }
     return { derantauAdminProfile: d }
+}
+
+export const getDerantauAdminProfilesByUserId = async (userId: string) => {
+    const rows = await db
+        .select({ derantauAdminProfile: derantauAdminProfile, region: regions })
+        .from(derantauAdminProfile)
+        .leftJoin(regions, eq(derantauAdminProfile.regionId, regions.id))
+        .where(eq(derantauAdminProfile.userId, userId))
+
+    const d = rows.map((r) => ({
+        ...r.derantauAdminProfile,
+        region: r.region,
+    }))
+    return { derantauAdminProfiles: d }
 }

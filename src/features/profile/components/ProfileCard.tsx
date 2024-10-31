@@ -1,6 +1,6 @@
 import React from "react"
 import { motion } from "framer-motion"
-import { User, Building2, ShieldCheck, ChevronRight } from "lucide-react"
+import { User, Building2, ShieldCheck, Globe, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 
-type ProfileType = "regular" | "owner" | "admin"
+type ProfileType = "regular" | "owner" | "admin" | "nomad"
 
 type ProfileCardProps = {
     profile: {
@@ -36,6 +36,21 @@ const ProfileIcon = ({ type }: { type: ProfileType }) => {
             return <Building2 className="h-6 w-6" />
         case "admin":
             return <ShieldCheck className="h-6 w-6" />
+        case "nomad":
+            return <Globe className="h-6 w-6" />
+    }
+}
+
+const getProfilePath = (type: ProfileType, id: string) => {
+    switch (type) {
+        case "regular":
+            return `/profile/${id}`
+        case "owner":
+            return `/hub-owner-profile/${id}`
+        case "nomad":
+            return `/nomad-profile/${id}`
+        case "admin":
+            return `/derantau-admin-profile/${id}`
     }
 }
 
@@ -52,7 +67,9 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             transition={{ type: "spring", stiffness: 100 }}
         >
             <Card
-                className={`w-full transition-all duration-300 ${isExpanded ? "bg-primary/5" : ""}`}
+                className={`w-full transition-all duration-300 ${
+                    isExpanded ? "bg-primary/5" : ""
+                }`}
             >
                 <CardHeader className="cursor-pointer" onClick={onToggle}>
                     <CardTitle className="flex items-center justify-between">
@@ -75,25 +92,46 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                                 ? "Your profile is set up and ready to use. You can view and edit your information."
                                 : "You haven't created this profile yet. Click the button below to get started."}
                         </p>
-                        <Button
-                            variant={profile.exists ? "outline" : "default"}
-                            className="w-full"
-                            onClick={onManage}
-                        >
-                            {profile.exists
-                                ? "Manage Profile"
-                                : "Create Profile"}
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                variant={profile.exists ? "outline" : "default"}
+                                className="flex-1"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onManage()
+                                }}
+                            >
+                                {profile.exists
+                                    ? "Manage Profile"
+                                    : "Create Profile"}
+                            </Button>
+                            {profile.exists && (
+                                <Link
+                                    href={getProfilePath(
+                                        profile.type,
+                                        profile.id,
+                                    )}
+                                    className="flex-1"
+                                >
+                                    <Button
+                                        variant="default"
+                                        className="w-full"
+                                    >
+                                        View Profile
+                                    </Button>
+                                </Link>
+                            )}
+                        </div>
                     </CardContent>
                 )}
                 <CardFooter className="flex justify-end p-2">
                     <Button variant="ghost" size="icon" onClick={onToggle}>
                         <ChevronRight
-                            className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
+                            className={`h-4 w-4 transition-transform duration-200 ${
+                                isExpanded ? "rotate-90" : ""
+                            }`}
                         />
                     </Button>
-
-                    <Link href={`/profile/${profile.id}`} />
                 </CardFooter>
             </Card>
         </motion.div>

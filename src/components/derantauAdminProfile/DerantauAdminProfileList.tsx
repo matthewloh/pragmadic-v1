@@ -1,82 +1,82 @@
 "use client"
 
 import { useState } from "react"
-import { useOptimisticDerantauAdminProfiles } from "@/app/(app)/derantau-admin-profile/useOptimisticDerantauAdminProfile"
+import { useOptimisticDerantauAdminProfile } from "@/app/(app)/derantau-admin-profile/useOptimisticDerantauAdminProfile"
 import {
-    DerantauAdminProfile,
+    type DerantauAdminProfile,
     type CompleteDerantauAdminProfile,
 } from "@/lib/db/schema/derantauAdminProfile"
+import { type Region } from "@/lib/db/schema/regions"
 import Modal from "@/components/shared/Modal"
 import DerantauAdminProfileForm from "./DerantauAdminProfileForm"
-import { RegionId, type Region } from "@/lib/db/schema/regions"
-import { AdminProfileCard } from "../profile/AdminProfileCard"
+import ProfileCard from "@/features/profile/components/ProfileCard"
 import { PlusIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 type TOpenModal = (derantauAdminProfile?: DerantauAdminProfile) => void
 
 export default function DerantauAdminProfileList({
-    derantauAdminProfiles,
+    derantauAdminProfile,
     regions,
-    regionId,
 }: {
-    derantauAdminProfiles: CompleteDerantauAdminProfile[]
+    derantauAdminProfile: CompleteDerantauAdminProfile | null
     regions: Region[]
-    regionId?: RegionId
 }) {
     const {
-        optimisticDerantauAdminProfiles,
+        optimisticDerantauAdminProfile,
         addOptimisticDerantauAdminProfile,
-    } = useOptimisticDerantauAdminProfiles(derantauAdminProfiles, regions)
+    } = useOptimisticDerantauAdminProfile(derantauAdminProfile, regions)
     const [open, setOpen] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
-    const [activeDerantauAdminProfile, setActiveDerantauAdminProfile] =
+    const [activeProfile, setActiveProfile] =
         useState<DerantauAdminProfile | null>(null)
 
-    const openModal = (derantauAdminProfile?: DerantauAdminProfile) => {
+    const openModal = (profile?: DerantauAdminProfile) => {
         setOpen(true)
-        derantauAdminProfile
-            ? setActiveDerantauAdminProfile(derantauAdminProfile)
-            : setActiveDerantauAdminProfile(null)
+        profile ? setActiveProfile(profile) : setActiveProfile(null)
     }
-    const closeModal = () => {
-        setOpen(false)
-        setActiveDerantauAdminProfile(null)
-    }
+    const closeModal = () => setOpen(false)
     const toggleExpand = () => setIsExpanded(!isExpanded)
+
     return (
         <div>
             <Modal
                 open={open}
                 setOpen={setOpen}
                 title={
-                    activeDerantauAdminProfile
+                    activeProfile
                         ? "Edit Admin Profile"
                         : "Create Admin Profile"
                 }
             >
                 <DerantauAdminProfileForm
-                    derantauAdminProfile={activeDerantauAdminProfile}
+                    derantauAdminProfile={activeProfile}
                     addOptimistic={addOptimisticDerantauAdminProfile}
                     openModal={openModal}
                     closeModal={closeModal}
                     regions={regions}
-                    regionId={regionId}
                 />
             </Modal>
-            {optimisticDerantauAdminProfiles ? (
-                <ul>
-                    {optimisticDerantauAdminProfiles.map((profile) => (
-                        <AdminProfileCard
-                            key={profile.id}
-                            profile={profile}
-                            isExpanded={isExpanded}
-                            onToggle={toggleExpand}
-                            onManage={openModal}
-                        />
-                    ))}
-                </ul>
-            ) : (
+            <div className="absolute right-0 top-0">
+                <Button onClick={() => openModal()} variant={"outline"}>
+                    <PlusIcon className="h-4 w-4" />
+                </Button>
+            </div>
+            {!optimisticDerantauAdminProfile ? (
                 <EmptyState openModal={openModal} />
+            ) : (
+                <ProfileCard
+                    profile={{
+                        id: optimisticDerantauAdminProfile.id,
+                        type: "admin",
+                        exists: true,
+                        title: `Admin Profile - ${optimisticDerantauAdminProfile.department}`,
+                        description: `${optimisticDerantauAdminProfile.position} - ${optimisticDerantauAdminProfile.adminLevel}`,
+                    }}
+                    isExpanded={isExpanded}
+                    onToggle={toggleExpand}
+                    onManage={() => openModal(optimisticDerantauAdminProfile)}
+                />
             )}
         </div>
     )
@@ -92,17 +92,9 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
                 Get started by creating a new admin profile.
             </p>
             <div className="mt-6">
-                <button
-                    type="button"
-                    className="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
-                    onClick={() => openModal()}
-                >
-                    <PlusIcon
-                        className="-ml-0.5 mr-1.5 h-5 w-5"
-                        aria-hidden="true"
-                    />
-                    New Admin Profile
-                </button>
+                <Button onClick={() => openModal()}>
+                    <PlusIcon className="mr-2 h-4 w-4" /> New Admin Profile
+                </Button>
             </div>
         </div>
     )

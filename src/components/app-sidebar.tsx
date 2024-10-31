@@ -164,7 +164,9 @@ export function AppSidebar() {
                     )}
 
                     <SidebarGroup>
-                        <SidebarGroupLabel>Profile</SidebarGroupLabel>
+                        <SidebarGroupLabel>
+                            Profile Management
+                        </SidebarGroupLabel>
                         <SidebarMenu>
                             {profileItems.map((item) => (
                                 <SidebarMenuItem key={item.title}>

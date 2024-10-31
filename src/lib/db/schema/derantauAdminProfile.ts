@@ -72,4 +72,4 @@ export type DerantauAdminProfileId = z.infer<
 // this type infers the return from getDerantauAdminProfile() - meaning it will include any joins
 export type CompleteDerantauAdminProfile = Awaited<
     ReturnType<typeof getDerantauAdminProfiles>
->["derantauAdminProfile"][number]
+>["derantauAdminProfiles"][number]

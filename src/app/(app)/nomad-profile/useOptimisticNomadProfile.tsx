@@ -7,15 +7,15 @@ import { useOptimistic } from "react"
 
 export type TAddOptimistic = (action: OptimisticAction<NomadProfile>) => void
 
-export const useOptimisticNomadProfiles = (
-    nomadProfile: CompleteNomadProfile[],
+export const useOptimisticNomadProfile = (
+    nomadProfile: CompleteNomadProfile | null,
 ) => {
-    const [optimisticNomadProfiles, addOptimisticNomadProfile] = useOptimistic(
+    const [optimisticNomadProfile, addOptimisticNomadProfile] = useOptimistic(
         nomadProfile,
         (
-            currentState: CompleteNomadProfile[],
+            currentState: CompleteNomadProfile | null,
             action: OptimisticAction<NomadProfile>,
-        ): CompleteNomadProfile[] => {
+        ): CompleteNomadProfile | null => {
             const { data } = action
 
             const optimisticNomadProfile = {
@@ -26,24 +26,23 @@ export const useOptimisticNomadProfiles = (
 
             switch (action.action) {
                 case "create":
-                    return currentState.length === 0
-                        ? [optimisticNomadProfile]
-                        : [...currentState, optimisticNomadProfile]
+                    return currentState === null
+                        ? optimisticNomadProfile
+                        : { ...currentState, ...optimisticNomadProfile }
                 case "update":
-                    return currentState.map((item) =>
-                        item.id === data.id
-                            ? { ...item, ...optimisticNomadProfile }
-                            : item,
-                    )
+                    return currentState === null
+                        ? optimisticNomadProfile
+                        : { ...currentState, ...optimisticNomadProfile }
                 case "delete":
-                    return currentState.map((item) =>
-                        item.id === data.id ? { ...item, id: "delete" } : item,
-                    )
+                    return null
                 default:
                     return currentState
             }
         },
     )
 
-    return { addOptimisticNomadProfile, optimisticNomadProfiles }
+    return {
+        addOptimisticNomadProfile,
+        optimisticNomadProfile,
+    }
 }

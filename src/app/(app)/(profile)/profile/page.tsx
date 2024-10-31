@@ -1,56 +1,27 @@
 import Loading from "@/app/loading"
-import DerantauAdminProfileList from "@/components/derantauAdminProfile/DerantauAdminProfileList"
-import HubOwnerProfileList from "@/components/hubOwnerProfiles/HubOwnerProfileList"
-import ProfileCatalogue from "@/components/profile-catalogue"
 import ProfileList from "@/components/profile/ProfileList"
-import { getDerantauAdminProfiles } from "@/lib/api/derantauAdminProfile/queries"
-import { getSingleHubOwnerProfile } from "@/lib/api/hubOwnerProfiles/queries"
 import { getSingleProfile } from "@/lib/api/profile/queries"
-import { getRegions } from "@/lib/api/regions/queries"
-import { getUserRole } from "@/lib/auth/get-user-role"
 import { Suspense } from "react"
 
 export const revalidate = 0
 
-export default async function ProfilePageWrapper() {
+export default async function ProfilePage() {
     return (
-        <div className="container mx-auto max-w-5xl p-4">
-            <Suspense fallback={<Loading />}>
-                <Profile />
-            </Suspense>
-        </div>
+        <main className="h-full w-full p-4">
+            <div className="relative">
+                <div className="flex justify-between">
+                    <h1 className="my-2 text-2xl font-semibold">Profile</h1>
+                </div>
+                <Suspense fallback={<Loading />}>
+                    <ProfileManager />
+                </Suspense>
+            </div>
+        </main>
     )
 }
 
-const Profile = async () => {
-    const { user_roles } = await getUserRole()
+const ProfileManager = async () => {
     const { profile } = await getSingleProfile()
 
-    let hubOwnerProfileData
-    let derantauAdminProfileData
-    let regions
-
-    if (user_roles.includes("owner")) {
-        const { hubOwnerProfile } = await getSingleHubOwnerProfile()
-        hubOwnerProfileData = hubOwnerProfile
-    } else if (user_roles.includes("admin")) {
-        const { derantauAdminProfile } = await getDerantauAdminProfiles()
-        const regionsData = await getRegions()
-        derantauAdminProfileData = derantauAdminProfile
-        regions = regionsData.regions
-    }
-
-    return (
-        <div className="container mx-auto space-y-8">
-            <h1 className="mb-6 text-3xl font-bold">Your DE Rantau Profiles</h1>
-            <ProfileCatalogue
-                user_roles={user_roles}
-                regularProfile={profile}
-                hubOwnerProfile={hubOwnerProfileData}
-                derantauAdminProfiles={derantauAdminProfileData}
-                regions={regions}
-                regionId={derantauAdminProfileData?.[0]?.regionId ?? undefined}
-            />
-        </div>
-    )
+    return <ProfileList profile={profile} />
 }

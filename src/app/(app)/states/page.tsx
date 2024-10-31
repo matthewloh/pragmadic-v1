@@ -29,7 +29,7 @@ const States = async () => {
         <Suspense fallback={<Loading />}>
             <StateList
                 states={states}
-                regions={regions}
+                regions={regions || []}
                 user_roles={user_roles}
             />
         </Suspense>

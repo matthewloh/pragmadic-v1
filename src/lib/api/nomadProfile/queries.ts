@@ -6,6 +6,7 @@ import {
     nomadProfileIdSchema,
     nomadProfile,
 } from "@/lib/db/schema/nomadProfile"
+import { UserId } from "@/lib/db/schema"
 
 export const getNomadProfiles = async () => {
     const { session } = await getUserAuth()
@@ -30,6 +31,16 @@ export const getNomadProfileById = async (id: NomadProfileId) => {
             ),
         )
     if (row === undefined) return {}
+    const n = row
+    return { nomadProfile: n }
+}
+
+export const getNomadProfileByUserId = async (userId: UserId) => {
+    const [row] = await db
+        .select()
+        .from(nomadProfile)
+        .where(eq(nomadProfile.userId, userId))
+    if (row === undefined) return { nomadProfile: null }
     const n = row
     return { nomadProfile: n }
 }

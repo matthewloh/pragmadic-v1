@@ -41,7 +41,7 @@ const State = async ({ id }: { id: string }) => {
                     {state.name}
                 </h1>
             </div>
-            <OptimisticState state={state} regions={regions} />
+            <OptimisticState state={state} regions={regions || []} />
             <div className="mt-12">
                 <h2 className="mb-4 text-2xl font-semibold">
                     Hubs in {state.name}
