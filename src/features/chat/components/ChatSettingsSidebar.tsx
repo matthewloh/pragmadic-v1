@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import ChatHistoryPopover from "@/features/chat/components/ChatHistoryPopover"
-import ModelSelector from "@/features/chat/components/ModelSelector"
+import ModelSelector, { ModelOption } from "./ModelSelector"
 import { cn } from "@/lib/utils"
 import { AnimatePresence, motion } from "framer-motion"
 import { Home, LucideIcon, MessageSquarePlus, Pin } from "lucide-react"
@@ -19,38 +19,43 @@ type ChatSettingsSidebarIconComponentProps = {
     onClick?: () => void
 }
 
-export default function ChatSettingsSidebar() {
-    const [isExpanded, setIsExpanded] = useState(false)
+interface ChatSettingsSidebarProps {
+    isExpanded: boolean
+    selectedModel: ModelOption
+    onModelSelect: (model: ModelOption) => void
+    onExpandChange: (expanded: boolean) => void
+}
+
+export function ChatSettingsSidebar({
+    isExpanded,
+    selectedModel,
+    onModelSelect,
+    onExpandChange,
+}: ChatSettingsSidebarProps) {
     const [isPinned, setIsPinned] = useState(false)
-    const [expandTimeout, setExpandTimeout] = useState<NodeJS.Timeout | null>(
-        null,
-    )
+    const [isHovered, setIsHovered] = useState(false)
 
     const handleMouseEnter = () => {
-        const timeout = setTimeout(() => {
-            if (!isPinned) setIsExpanded(true)
-        }, 200)
-        setExpandTimeout(timeout)
+        setIsHovered(true)
+        if (!isPinned) {
+            onExpandChange(true)
+        }
     }
 
     const handleMouseLeave = () => {
-        const timeout = setTimeout(() => {
-            if (!isPinned) setIsExpanded(false)
-        }, 400)
-        setExpandTimeout(timeout)
+        setIsHovered(false)
+        if (!isPinned) {
+            onExpandChange(false)
+        }
     }
 
     const togglePin = () => {
-        setIsPinned((prev) => !prev)
-    }
-
-    useEffect(() => {
-        return () => {
-            if (expandTimeout) {
-                clearTimeout(expandTimeout)
-            }
+        const newPinned = !isPinned
+        setIsPinned(newPinned)
+        if (!newPinned) {
+            onExpandChange(false)
         }
-    }, [expandTimeout])
+    }
 
     return (
         <motion.aside
@@ -91,9 +96,8 @@ export default function ChatSettingsSidebar() {
                 />
                 <ModelSelector
                     isExpanded={isExpanded}
-                    onSelect={(provider, model) => {
-                        console.log(`Selected: ${provider} - ${model}`)
-                    }}
+                    selectedModel={selectedModel}
+                    onSelect={onModelSelect}
                 />
                 <ChatHistoryPopover isExpanded={isExpanded} />
             </nav>

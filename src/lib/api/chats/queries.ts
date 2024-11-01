@@ -24,4 +24,3 @@ export const getChatById = async (id: ChatId) => {
     const c = row
     return { chat: c }
 }
-

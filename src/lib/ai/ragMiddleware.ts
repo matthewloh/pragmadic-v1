@@ -1,118 +1,115 @@
-// TODO: Implement the RAG middleware
-// import { getChunksByFilePaths } from "@/app/db"
-// import { openai } from "@ai-sdk/openai"
-// import {
-//     cosineSimilarity,
-//     embed,
-//     Experimental_LanguageModelV1Middleware,
-//     generateObject,
-//     generateText,
-// } from "ai"
-// import { z } from "zod"
+import { getChunksByDocumentIds } from "@/features/chat/queries"
+import { openai } from "@ai-sdk/openai"
+import {
+    cosineSimilarity,
+    embed,
+    Experimental_LanguageModelV1Middleware,
+    generateObject,
+    generateText,
+} from "ai"
+import { z } from "zod"
+import { getUserAuth } from "../auth/utils"
 
-// // schema for validating the custom provider metadata
-// const selectionSchema = z.object({
-//     files: z.object({
-//         selection: z.array(z.string()),
-//     }),
-// })
+// schema for validating the custom provider metadata
+const selectionSchema = z.object({
+    documents: z.object({
+        selection: z.array(z.string()),
+    }),
+})
 
-// export const ragMiddleware: Experimental_LanguageModelV1Middleware = {
-//     transformParams: async ({ params }) => {
-//         // const session = await auth();
+export const ragMiddleware: Experimental_LanguageModelV1Middleware = {
+    transformParams: async ({ params }) => {
+        const { session } = await getUserAuth()
+        if (!session) return params
+        console.log("params", params)
+        const { prompt: messages, providerMetadata } = params
 
-//         // if (!session) return params; // no user session
+        // validate the provider metadata with Zod:
+        const { success, data } = selectionSchema.safeParse(providerMetadata)
+        if (!success) return params // no documents selected
 
-//         const { prompt: messages, providerMetadata } = params
+        const selectedDocumentIds = data.documents.selection
+        if (selectedDocumentIds.length === 0) return params
 
-//         // validate the provider metadata with Zod:
-//         const { success, data } = selectionSchema.safeParse(providerMetadata)
+        const recentMessage = messages.pop()
+        if (!recentMessage || recentMessage.role !== "user") {
+            if (recentMessage) messages.push(recentMessage)
+            return params
+        }
 
-//         if (!success) return params // no files selected
+        const lastUserMessageContent = recentMessage.content
+            .filter((content) => content.type === "text")
+            .map((content) => content.text)
+            .join("\n")
 
-//         const selection = data.files.selection
+        // Classify the user prompt
+        const { object: classification } = await generateObject({
+            model: openai("gpt-4o-mini", { structuredOutputs: true }),
+            output: "enum",
+            enum: ["question", "statement", "tool-call", "other"],
+            system: "classify the user message as a question, statement, tool-call, or other",
+            prompt: lastUserMessageContent,
+        })
+        console.log("classification", classification)
+        // only use RAG for questions
+        if (classification !== "question") {
+            messages.push(recentMessage)
+            return params
+        }
 
-//         const recentMessage = messages.pop()
+        // Generate hypothetical answer
+        const { text: hypotheticalAnswer } = await generateText({
+            model: openai("gpt-4o-mini", { structuredOutputs: true }),
+            system: "Answer the users question:",
+            prompt: lastUserMessageContent,
+        })
+        console.log("hypotheticalAnswer", hypotheticalAnswer)
+        // Embed the hypothetical answer
+        const { embedding: hypotheticalAnswerEmbedding } = await embed({
+            model: openai.embedding("text-embedding-3-small"),
+            value: hypotheticalAnswer,
+        })
 
-//         if (!recentMessage || recentMessage.role !== "user") {
-//             if (recentMessage) {
-//                 messages.push(recentMessage)
-//             }
+        // Get document chunks from Supabase
+        const chunksBySelection = await getChunksByDocumentIds({
+            documentIds: selectedDocumentIds,
+        })
 
-//             return params
-//         }
+        if (!chunksBySelection) {
+            messages.push(recentMessage)
+            return params
+        }
 
-//         const lastUserMessageContent = recentMessage.content
-//             .filter((content) => content.type === "text")
-//             .map((content) => content.text)
-//             .join("\n")
+        // Calculate similarities and rank chunks
+        const chunksWithSimilarity = chunksBySelection.map((chunk) => ({
+            ...chunk,
+            similarity: cosineSimilarity(
+                hypotheticalAnswerEmbedding,
+                chunk.embedding,
+            ),
+        }))
 
-//         // Classify the user prompt as whether it requires more context or not
-//         const { object: classification } = await generateObject({
-//             // fast model for classification:
-//             model: openai("gpt-4o-mini", { structuredOutputs: true }),
-//             output: "enum",
-//             enum: ["question", "statement", "other"],
-//             system: "classify the user message as a question, statement, or other",
-//             prompt: lastUserMessageContent,
-//         })
+        // Sort by similarity and take top K chunks
+        chunksWithSimilarity.sort((a, b) => b.similarity - a.similarity)
+        const k = 10
+        const topKChunks = chunksWithSimilarity.slice(0, k)
 
-//         // only use RAG for questions
-//         if (classification !== "question") {
-//             messages.push(recentMessage)
-//             return params
-//         }
+        // Add context to the message
+        messages.push({
+            role: "user",
+            content: [
+                ...recentMessage.content,
+                {
+                    type: "text",
+                    text: "\nRelevant context from selected documents:",
+                },
+                ...topKChunks.map((chunk) => ({
+                    type: "text" as const,
+                    text: chunk.content,
+                })),
+            ],
+        })
 
-//         // Use hypothetical document embeddings:
-//         const { text: hypotheticalAnswer } = await generateText({
-//             // fast model for generating hypothetical answer:
-//             model: openai("gpt-4o-mini", { structuredOutputs: true }),
-//             system: "Answer the users question:",
-//             prompt: lastUserMessageContent,
-//         })
-
-//         // Embed the hypothetical answer
-//         const { embedding: hypotheticalAnswerEmbedding } = await embed({
-//             model: openai.embedding("text-embedding-3-small"),
-//             value: hypotheticalAnswer,
-//         })
-
-//         // find relevant chunks based on the selection
-//         const chunksBySelection = await getChunksByFilePaths({
-//             filePaths: selection.map(
-//                 (path) => `${session.user?.email}/${path}`,
-//             ),
-//         })
-
-//         const chunksWithSimilarity = chunksBySelection.map((chunk) => ({
-//             ...chunk,
-//             similarity: cosineSimilarity(
-//                 hypotheticalAnswerEmbedding,
-//                 chunk.embedding,
-//             ),
-//         }))
-
-//         // rank the chunks by similarity and take the top K
-//         chunksWithSimilarity.sort((a, b) => b.similarity - a.similarity)
-//         const k = 10
-//         const topKChunks = chunksWithSimilarity.slice(0, k)
-
-//         // add the chunks to the last user message
-//         messages.push({
-//             role: "user",
-//             content: [
-//                 ...recentMessage.content,
-//                 {
-//                     type: "text",
-//                     text: "Here is some relevant information that you can use to answer the question:",
-//                 },
-//                 ...topKChunks.map((chunk) => ({
-//                     type: "text" as const,
-//                     text: chunk.content,
-//                 })),
-//             ],
-//         })
-
-//         return { ...params, prompt: messages }
-//     },
-// }
+        return { ...params, prompt: messages }
+    },
+}

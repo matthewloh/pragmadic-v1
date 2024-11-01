@@ -1,20 +1,22 @@
-import { createResource } from "@/lib/actions/resources"
-import { anthropicModel, customModel, geminiModel } from "@/lib/ai/custom-model"
-import { findRelevantContent } from "@/lib/ai/embeddings"
 import {
-    createMessage
-} from "@/lib/api/chats/mutations"
+    anthropicModel,
+    geminiFlashModel,
+    geminiProModel,
+    gpt4ominiModel,
+    gpt4oModel,
+} from "@/lib/ai/custom-model"
+import { createMessage } from "@/lib/api/chats/mutations"
 import { createClient } from "@/utils/supabase/server"
-import { convertToCoreMessages, streamText, tool } from "ai"
-import { z } from "zod"
+import { convertToCoreMessages, streamText } from "ai"
 import { getSession } from "../../../utils/supabase/queries/cached-queries"
 
 // Allow streaming responses up to 60 seconds
 export const maxDuration = 60
 
 export async function POST(req: Request) {
-    const { chatId, messages, selectedFilePathnames, model } = await req.json()
+    const { chatId, messages, model, selectedDocumentIds } = await req.json()
     console.log("model", model)
+    console.log("selectedDocumentIds", selectedDocumentIds)
     const {
         data: { session },
     } = await getSession()
@@ -24,64 +26,41 @@ export async function POST(req: Request) {
     }
 
     let selectedModel
+
     switch (model) {
         case "gpt-4o":
+            selectedModel = gpt4oModel
+            break
         case "gpt-4o-mini":
-            selectedModel = customModel
+            selectedModel = gpt4ominiModel
             break
         case "claude-3-haiku":
             selectedModel = anthropicModel
             break
         case "gemini-1.5-pro-002":
+            selectedModel = geminiProModel
+            break
         default:
-            selectedModel = geminiModel
+            selectedModel = geminiFlashModel
             break
     }
 
     const result = await streamText({
         model: selectedModel,
-        system: `You are a helpful assistant. Check your knowledge base before answering any questions.
-    Only respond to questions using information from tool calls. Prioritize using the tools to answer questions.
-    if no relevant information is found in the tool calls, respond, "Sorry, I don't know.". Attempt to use tools before responding.`,
+        system: `You are a helpful assistant. Use the provided context to answer questions accurately.
+        If no relevant context is provided, say "I don't have enough information to answer that question."
+        Always cite your sources when using information from the context.`,
         messages: convertToCoreMessages(messages),
         experimental_providerMetadata: {
-            files: {
-                selection: selectedFilePathnames,
+            documents: {
+                selection: selectedDocumentIds || [],
             },
         },
-        maxSteps: 3,
-        tools: {
-            addResource: tool({
-                description: `add a resource to your knowledge base
-      If the user provides a random piece of knowledge unprompted use this tool without asking for confirmation.`,
-                parameters: z.object({
-                    content: z
-                        .string()
-                        .describe(
-                            "the content or resource to add to the knowledge base",
-                        ),
-                }),
-                execute: async ({ content }) => createResource({ content }),
-            }),
-            getInformation: tool({
-                description: `get information from your knowledge base to answer questions.`,
-                parameters: z.object({
-                    question: z.string().describe("the users question"),
-                }),
-                execute: async ({ question }) => findRelevantContent(question),
-            }),
-        },
         async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
-            // implement your own storage logic:
-            // await saveChat({ text, toolCalls, toolResults });
             await createMessage({
                 id: chatId,
                 messages: [...messages, { role: "assistant", content: text }],
             })
-        },
-        experimental_telemetry: {
-            isEnabled: true,
-            functionId: "stream-text",
         },
     })
 

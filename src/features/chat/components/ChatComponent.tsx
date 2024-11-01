@@ -14,6 +14,11 @@ import { useEffect, useState } from "react"
 import { useScrollAnchor } from "../hooks/use-scroll-anchor"
 import { ChatMessage } from "./ChatMessage"
 import MultimodalInput from "./MultimodalInput"
+import { Badge } from "@/components/ui/badge"
+import { options, ModelOption } from "./ModelSelector"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
+import { DocumentRow } from "./DocumentSelector"
 
 type ReferencedDocument = {
     id: string
@@ -24,18 +29,20 @@ type ReferencedDocument = {
 
 interface ChatComponentProps {
     chatId: string
+    initialMessages: Array<Message>
     onDocumentsReferenced: (docs: ReferencedDocument[]) => void
     isDocPanelOpen: boolean
-    initialMessages: Array<Message> | undefined
-    model: string
+    selectedModel: ModelOption
+    selectedDocumentIds: string[]
 }
 
 export function ChatComponent({
     chatId,
+    initialMessages,
     onDocumentsReferenced,
     isDocPanelOpen,
-    initialMessages,
-    model,
+    selectedModel,
+    selectedDocumentIds,
 }: ChatComponentProps) {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -45,6 +52,7 @@ export function ChatComponent({
     >([])
 
     const [uploadedFiles, setUploadedFiles] = useState<FileInfo[]>([])
+
     const {
         messages,
         handleSubmit,
@@ -57,13 +65,17 @@ export function ChatComponent({
     } = useChat({
         body: {
             chatId,
-            selectedFilePathnames,
-            model: searchParams.get("model") || "gemini-1.5-pro-002",
+            selectedDocumentIds,
+            model: selectedModel.model,
         },
         initialMessages,
         onFinish: () => {
             router.push(`/chat/${chatId}`)
             window.history.replaceState(null, "", `/chat/${chatId}`)
+        },
+        async onToolCall({ toolCall }) {
+            console.log("toolCall", toolCall.toolName)
+            console.log("toolCall", toolCall.toolCallId)
         },
     })
 
@@ -90,10 +102,6 @@ export function ChatComponent({
         }, 1000)
     }
 
-    const handleFileUpload = (files: FileInfo[]) => {
-        setUploadedFiles((prevFiles) => [...prevFiles, ...files])
-        // Implement actual file upload logic here
-    }
     useEffect(() => {
         if (isAtBottom) {
             scrollToBottom()
@@ -101,6 +109,16 @@ export function ChatComponent({
     }, [messages, isAtBottom, scrollToBottom])
 
     const [attachments, setAttachments] = useState<Array<Attachment>>([])
+
+    const supabase = useSupabaseBrowser()
+
+    // Query to get the full document data for selected IDs
+    const { data: selectedDocuments = [] } = useQuery(
+        supabase.from("documents").select("*").in("id", selectedDocumentIds),
+        {
+            enabled: selectedDocumentIds.length > 0,
+        },
+    )
 
     return (
         <div className="flex h-full flex-col bg-background text-foreground">
@@ -146,7 +164,9 @@ export function ChatComponent({
                 setAttachments={setAttachments}
                 messages={messages}
                 append={append}
-                model={model}
+                selectedModel={selectedModel}
+                selectedDocumentIds={selectedDocumentIds}
+                selectedDocuments={selectedDocuments as DocumentRow[] | null}
             />
             {!isAtBottom && (
                 <Button

@@ -11,6 +11,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarRail,
+    useSidebar,
 } from "@/components/ui/sidebar"
 import {
     adminOnlyItems,
@@ -32,10 +33,11 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "./ui/collapsible"
+import { cn } from "@/lib/utils"
 
 export function AppSidebar() {
     const { data: userRoleData } = useUserRole()
-
+    const { open } = useSidebar()
     const sidebarContent = React.useMemo(() => {
         if (!userRoleData?.user_roles) return null
 
@@ -43,7 +45,7 @@ export function AppSidebar() {
 
         return (
             <>
-                <SidebarHeader className="border-b">
+                <SidebarHeader className={cn("h-[60px]", outfit.className)}>
                     <SidebarMenu>
                         <SidebarMenuItem className="rounded-xl">
                             <Link href="/dashboard" className="w-full">

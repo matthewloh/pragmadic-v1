@@ -2,6 +2,9 @@ import { redirect } from "next/navigation"
 import { getUserRole } from "./get-user-role"
 import { AuthSession, UserMetadata } from "./types"
 
+// Add to existing types
+export type UserRole = "admin" | "owner" | "nomad" | "regular"
+
 export const getUserAuth = async (): Promise<AuthSession> => {
     const { session, user_roles } = await getUserRole()
 

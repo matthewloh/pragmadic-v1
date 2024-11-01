@@ -37,7 +37,7 @@ export const findRelevantContent = async (userQuery: string) => {
     const userQueryEmbedded = await generateEmbedding(userQuery)
     const similarity = sql<number>`1 - (${cosineDistance(
         embeddings.embedding,
-        userQueryEmbedded,
+        userQueryEmbedded
     )})`
     const similarGuides = await db
         .select({ name: embeddings.content, similarity })

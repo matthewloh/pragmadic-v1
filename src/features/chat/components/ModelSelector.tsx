@@ -15,48 +15,38 @@ import { FcGoogle } from "react-icons/fc"
 import { SiAnthropic } from "react-icons/si"
 import { ChevronsUpDown } from "lucide-react"
 
-const options = [
+export const options = [
     { provider: "OpenAI", model: "gpt-4o-mini", name: "GPT-4o-mini" },
     { provider: "OpenAI", model: "gpt-4o", name: "GPT-4o" },
     { provider: "Google", model: "gemini-1.5-pro-002", name: "Gemini" },
     { provider: "Anthropic", model: "claude-3-haiku", name: "Claude Haiku" },
-]
+] as const
+
+export type ModelOption = (typeof options)[number]
 
 export default function ModelSelector({
     isExpanded,
-    onSelect = (provider: string, model: string) => {
-        console.log(`Selected: ${provider} - ${model}`)
-    },
+    selectedModel,
+    onSelect,
 }: {
     isExpanded: boolean
-    onSelect: (provider: string, model: string) => void
+    selectedModel: ModelOption
+    onSelect: (option: ModelOption) => void
 }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [open, setOpen] = useState(false)
-    const [selectedOption, setSelectedOption] = useState(options[0])
 
-    useEffect(() => {
-        const modelParam = searchParams.get("model")
-        if (modelParam) {
-            const option = options.find((opt) => opt.model === modelParam)
-            if (option) {
-                setSelectedOption(option)
-            }
-        }
-    }, [searchParams])
-
-    const updateURL = (provider: string, model: string) => {
+    const updateURL = (model: string) => {
         const params = new URLSearchParams(searchParams)
         params.set("model", model)
         router.push(`?${params.toString()}`)
     }
 
-    const handleSelect = (option: (typeof options)[0]) => {
-        setSelectedOption(option)
+    const handleSelect = (option: ModelOption) => {
         setOpen(false)
-        updateURL(option.provider, option.model)
-        onSelect(option.provider, option.model)
+        updateURL(option.model)
+        onSelect(option)
     }
 
     const getProviderIcon = (provider: string) => {
@@ -86,7 +76,7 @@ export default function ModelSelector({
                             : "justify-center px-0",
                     )}
                 >
-                    {getProviderIcon(selectedOption.provider)}
+                    {getProviderIcon(selectedModel.provider)}
                     <AnimatePresence>
                         {isExpanded && (
                             <motion.span
@@ -96,7 +86,7 @@ export default function ModelSelector({
                                 transition={{ duration: 0.2 }}
                                 className="ml-4 overflow-hidden whitespace-nowrap"
                             >
-                                {`${selectedOption.provider} - ${selectedOption.name}`}
+                                {`${selectedModel.provider} - ${selectedModel.name}`}
                             </motion.span>
                         )}
                     </AnimatePresence>
@@ -109,7 +99,7 @@ export default function ModelSelector({
                             key={`${option.provider}-${option.model}`}
                             className={cn(
                                 "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-                                selectedOption.model === option.model &&
+                                selectedModel.model === option.model &&
                                     "animate-pulse border-2 border-primary",
                             )}
                             onClick={() => handleSelect(option)}

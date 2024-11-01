@@ -1,26 +1,16 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { cn } from "@/lib/utils"
-import { useEffect, useState } from "react"
-import {
-    ResizableHandle,
-    ResizablePanel,
-    ResizablePanelGroup,
-} from "@/components/ui/resizable"
-import { ChatComponent } from "@/features/chat/components/ChatComponent"
-import ChatSettingsSidebar from "@/features/chat/components/ChatSettingsSidebar"
 import { Message } from "ai"
-import { Maximize2, X } from "lucide-react"
-import { useSearchParams } from "next/navigation"
-
-type ReferencedDocument = {
-    id: string
-    title: string
-    content: string
-    relevance: number
-}
+import { Maximize2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { ChatComponent } from "./ChatComponent"
+import { ChatSettingsSidebar } from "./ChatSettingsSidebar"
+import { ReferencedDocumentsPanel } from "./ReferencedDocumentsPanel"
+import { ModelOption, options } from "./ModelSelector"
+import { ReferencedDocument } from "@/types/documents"
 
 type ChatContentProps = {
     chatId: string
@@ -36,11 +26,15 @@ export default function ChatContentClient({
     )
     const [isDocPanelOpen, setIsDocPanelOpen] = useState(false)
     const [isTransitioning, setIsTransitioning] = useState(false)
-    const searchParams = useSearchParams()
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false)
+    const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([])
+    const [selectedModel, setSelectedModel] = useState<ModelOption>(
+        options.find((opt) => opt.model === "gemini-1.5-pro-002") || options[0],
+    )
 
     useEffect(() => {
         setIsTransitioning(true)
-        const timer = setTimeout(() => setIsTransitioning(false), 300) // Match this with the CSS transition duration
+        const timer = setTimeout(() => setIsTransitioning(false), 300)
         return () => clearTimeout(timer)
     }, [isDocPanelOpen])
 
@@ -51,6 +45,10 @@ export default function ChatContentClient({
         }
     }
 
+    const handleDocumentsSelected = (documentIds: string[]) => {
+        setSelectedDocumentIds(documentIds)
+    }
+
     return (
         <>
             <div className="flex h-full flex-col">
@@ -58,7 +56,12 @@ export default function ChatContentClient({
                     direction="horizontal"
                     className="h-full flex-1"
                 >
-                    <ChatSettingsSidebar />
+                    <ChatSettingsSidebar
+                        isExpanded={isSidebarExpanded}
+                        selectedModel={selectedModel}
+                        onModelSelect={setSelectedModel}
+                        onExpandChange={setIsSidebarExpanded}
+                    />
                     <ResizablePanel
                         defaultSize={70}
                         minSize={50}
@@ -74,81 +77,19 @@ export default function ChatContentClient({
                                 initialMessages={initialMessages}
                                 onDocumentsReferenced={updateReferencedDocs}
                                 isDocPanelOpen={isDocPanelOpen}
-                                model={
-                                    searchParams.get("model") ||
-                                    "gemini-1.5-pro-002"
-                                }
+                                selectedModel={selectedModel}
+                                selectedDocumentIds={selectedDocumentIds}
                             />
                         </div>
                     </ResizablePanel>
-                    <ResizableHandle
-                        withHandle
-                        className={cn(
-                            "transition-opacity duration-300 ease-in-out",
-                            !isDocPanelOpen && "pointer-events-none opacity-0",
-                        )}
+                    <ReferencedDocumentsPanel
+                        isOpen={isDocPanelOpen}
+                        isTransitioning={isTransitioning}
+                        documents={referencedDocs}
+                        onClose={() => setIsDocPanelOpen(false)}
+                        onDocumentsSelected={handleDocumentsSelected}
+                        selectedDocuments={selectedDocumentIds}
                     />
-                    <ResizablePanel
-                        defaultSize={30}
-                        minSize={0}
-                        maxSize={50}
-                        className={cn(
-                            "transition-all duration-300 ease-in-out",
-                            !isDocPanelOpen && "w-0 min-w-0 max-w-0 opacity-0",
-                            isTransitioning && "resize-none",
-                        )}
-                    >
-                        <div
-                            className={cn(
-                                "relative h-full overflow-hidden transition-all duration-300 ease-in-out",
-                                !isDocPanelOpen &&
-                                    "pointer-events-none opacity-0",
-                            )}
-                        >
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="absolute right-2 top-2 z-10"
-                                onClick={() => setIsDocPanelOpen(false)}
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
-                            <ScrollArea className="h-full p-4">
-                                <h2 className="mb-4 text-lg font-semibold">
-                                    Referenced Documents
-                                </h2>
-                                {referencedDocs.length > 0 ? (
-                                    <ul className="space-y-4">
-                                        {referencedDocs.map((doc) => (
-                                            <li
-                                                key={doc.id}
-                                                className="rounded-lg border p-4"
-                                            >
-                                                <h3 className="mb-2 font-medium">
-                                                    {doc.title}
-                                                </h3>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {doc.content.substring(
-                                                        0,
-                                                        150,
-                                                    )}
-                                                    ...
-                                                </p>
-                                                <span className="mt-2 inline-block text-xs text-muted-foreground">
-                                                    Relevance:{" "}
-                                                    {doc.relevance.toFixed(2)}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <p className="text-muted-foreground">
-                                        No documents referenced yet.
-                                    </p>
-                                )}
-                            </ScrollArea>
-                        </div>
-                    </ResizablePanel>
                 </ResizablePanelGroup>
             </div>
             <Button

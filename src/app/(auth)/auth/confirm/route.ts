@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
     const token_hash = searchParams.get("token_hash")
     const type = searchParams.get("type") as EmailOtpType | null
     const next = searchParams.get("next") ?? "/"
+    const redirectTo = request.nextUrl.clone()
+    redirectTo.pathname = next
 
     if (token_hash && type) {
         const supabase = await createClient()
@@ -18,19 +20,14 @@ export async function GET(request: NextRequest) {
         })
 
         if (!error) {
-            // Create a clean URL without query parameters
-            const cleanRedirectUrl = new URL(request.url)
-            cleanRedirectUrl.pathname = next
-            cleanRedirectUrl.search = "" // Remove all query parameters
-
-            return NextResponse.redirect(cleanRedirectUrl)
+            return NextResponse.redirect(redirectTo)
         }
     }
 
     // For error cases, redirect to error page
-    const errorRedirect = new URL(request.url)
+
+    const errorRedirect = request.nextUrl.clone()
     errorRedirect.pathname = "/auth/auth-code-error"
-    errorRedirect.search = "" // Remove query parameters
 
     return NextResponse.redirect(errorRedirect)
 }

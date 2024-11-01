@@ -13,6 +13,9 @@ import { motion } from "framer-motion"
 import { CornerDownLeft, Mic, Paperclip, StopCircle } from "lucide-react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { PreviewAttachment } from "./PreviewAttachment"
+import { Badge } from "@/components/ui/badge"
+import { ModelOption } from "./ModelSelector"
+import { DocumentRow } from "@/features/chat/components/DocumentSelector"
 
 const suggestedActions = [
     {
@@ -45,7 +48,9 @@ type ChatTextAreaProps = {
         },
         chatRequestOptions?: ChatRequestOptions,
     ) => void
-    model: string
+    selectedModel: ModelOption
+    selectedDocumentIds: string[]
+    selectedDocuments?: DocumentRow[] | null
 }
 
 export default function MultimodalInput({
@@ -58,7 +63,9 @@ export default function MultimodalInput({
     messages,
     append,
     handleSubmit,
-    model,
+    selectedModel,
+    selectedDocumentIds,
+    selectedDocuments = [],
 }: ChatTextAreaProps) {
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -151,6 +158,25 @@ export default function MultimodalInput({
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
         >
+            <div className="mb-2 flex flex-wrap items-center gap-2 px-2">
+                <Badge variant="secondary" className="text-xs">
+                    {selectedModel.provider} - {selectedModel.name}
+                </Badge>
+                {selectedDocuments && selectedDocuments.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {selectedDocuments.map((doc) => (
+                            <Badge
+                                key={doc.id}
+                                variant="outline"
+                                className="text-xs"
+                            >
+                                {doc.metadata?.fullPath || doc.name}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             {messages.length === 0 &&
                 attachments.length === 0 &&
                 uploadQueue.length === 0 && (
