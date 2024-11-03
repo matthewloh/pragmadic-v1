@@ -1,23 +1,77 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { EventMarker } from "@/lib/db/schema"
+import { formatDate } from "@/lib/utils"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
+import { motion } from "framer-motion"
+import {
+    Calendar,
+    ChevronLeft,
+    ChevronRight,
+    Clock,
+    MapPin,
+} from "lucide-react"
 import Image from "next/image"
-import { MarkerData, MarkerType } from "@/types/map"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { useState } from "react"
+
+type EventMarkerWithEvent = EventMarker & {
+    event: {
+        id: string | null
+        name: string | null
+        description: string | null
+        type_of_event: string | null
+        start_date: string | null
+        end_date: string | null
+        info: string | null
+        hub_id: string | null
+        user_id: string | null
+    } | null
+}
 
 interface MapSidebarProps {
-    activeMarker: MarkerData | null
     onBackToMap: () => void
 }
 
-export function MapSidebar({ activeMarker, onBackToMap }: MapSidebarProps) {
+export function MapSidebar({ onBackToMap }: MapSidebarProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true)
-
+    const supabase = useSupabaseBrowser()
+    const searchParams = useSearchParams()
+    const markerId = searchParams.get("marker")
+    const type = searchParams.get("type")
+    const {
+        data: eventDetails,
+        error: eventError,
+        isLoading: eventLoading,
+    } = useQuery<EventMarkerWithEvent>(
+        supabase
+            .from("event_markers")
+            .select(
+                `
+                *,
+                event:hub_events (
+                    id,
+                    name,
+                    description,
+                    type_of_event,
+                    start_date,
+                    end_date,
+                    info,
+                    hub_id,
+                    user_id
+                )
+            `,
+            )
+            .eq("id", markerId || "")
+            .single(),
+    )
+    console.log(eventDetails)
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen)
     }
@@ -26,171 +80,90 @@ export function MapSidebar({ activeMarker, onBackToMap }: MapSidebarProps) {
         <>
             <Card className="mb-4">
                 <CardHeader>
-                    <CardTitle>This week</CardTitle>
+                    <CardTitle>Nearby Events</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="mb-2 flex items-center space-x-2">
-                        <Image
-                            src="/placeholder.svg"
-                            alt="Movie Night"
-                            width={40}
-                            height={40}
-                            className="rounded"
-                        />
-                        <div>
-                            <p className="font-semibold">Movie Night</p>
-                            <p className="text-sm text-muted-foreground">
-                                Outdoor movie night
-                            </p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            <Button className="mb-4 w-full">
-                <Plus className="mr-2 h-4 w-4" /> Add spot to section
-            </Button>
-            <Card className="mb-4">
-                <CardHeader>
-                    <CardTitle>Coming up</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-2">
-                        {[
-                            "Art Walk",
-                            "Park Cleanup",
-                            "Bike Ride",
-                            "Dog Walk",
-                        ].map((event, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center space-x-2"
-                            >
-                                <Image
-                                    src="/placeholder.svg"
-                                    alt={event}
-                                    width={40}
-                                    height={40}
-                                    className="rounded"
-                                />
-                                <div>
-                                    <p className="font-semibold">{event}</p>
-                                    <p className="text-sm text-muted-foreground">
-                                        Event description
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <p className="text-sm text-muted-foreground">
+                        Click on a marker to view event details
+                    </p>
                 </CardContent>
             </Card>
         </>
     )
 
-    const EventContent = ({
-        title,
-        description,
-    }: {
-        title: string
-        description: string
-    }) => (
-        <Card>
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Image
-                    src="/placeholder.svg"
-                    alt={title}
-                    width={320}
-                    height={200}
-                    className="mb-4 rounded"
-                />
-                <p className="mb-2">Date: June 15, 2024</p>
-                <p className="mb-2">Time: 7:00 PM - 10:00 PM</p>
-                <p className="mb-4">Location: Central Park</p>
-                <p>{description}</p>
-            </CardContent>
-        </Card>
-    )
+    const EventContent = ({ marker }: { marker: EventMarkerWithEvent }) => {
+        if (!marker) return null
 
-    const LocationContent = ({
-        title,
-        description,
-    }: {
-        title: string
-        description: string
-    }) => (
-        <Card>
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Image
-                    src="/placeholder.svg"
-                    alt={title}
-                    width={320}
-                    height={200}
-                    className="mb-4 rounded"
-                />
-                <p className="mb-2">Address: 123 Main St, Anytown, USA</p>
-                <p className="mb-4">Hours: 9:00 AM - 5:00 PM</p>
-                <p>{description}</p>
-            </CardContent>
-        </Card>
-    )
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>{marker.event?.name || marker.venue}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="relative aspect-video overflow-hidden rounded-lg">
+                        <Image
+                            src="/placeholder.svg"
+                            alt={marker.event?.name || "Event"}
+                            fill
+                            className="object-cover"
+                        />
+                    </div>
 
-    const InfoContent = ({
-        title,
-        description,
-    }: {
-        title: string
-        description: string
-    }) => (
-        <Card>
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="mb-4">{description}</p>
-                <ul className="list-disc pl-5">
-                    <li>Fact 1 about {title}</li>
-                    <li>Fact 2 about {title}</li>
-                    <li>Fact 3 about {title}</li>
-                </ul>
-            </CardContent>
-        </Card>
-    )
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <Calendar className="h-4 w-4" />
+                            <span>
+                                {formatDate(marker.event?.start_date || "")}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <Clock className="h-4 w-4" />
+                            <span>
+                                {marker.event?.start_date &&
+                                    new Date(
+                                        marker.event.start_date,
+                                    ).toLocaleTimeString()}{" "}
+                                -{" "}
+                                {marker.event?.end_date &&
+                                    new Date(
+                                        marker.event.end_date,
+                                    ).toLocaleTimeString()}
+                            </span>
+                        </div>
+
+                        <div className="flex items-start gap-2 text-muted-foreground">
+                            <MapPin className="mt-1 h-4 w-4" />
+                            <span>{marker.address}</span>
+                        </div>
+                    </div>
+
+                    {marker.event?.description && (
+                        <p className="text-sm">{marker.event.description}</p>
+                    )}
+
+                    <div className="flex gap-2">
+                        <Button className="w-full" variant={"link"} asChild>
+                            <Link
+                                href={`/hubs/${marker.event?.hub_id}/events/${marker.event?.id}`}
+                            >
+                                Join Event
+                            </Link>
+                        </Button>
+                        <Button variant="outline" className="w-full">
+                            Share
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+        )
+    }
 
     const renderContent = () => {
-        if (!activeMarker) {
+        if (!markerId || !eventDetails) {
             return <DefaultContent />
         }
-
-        switch (activeMarker.type) {
-            case MarkerType.Event:
-                return (
-                    <EventContent
-                        title={activeMarker.title}
-                        description={activeMarker.description}
-                    />
-                )
-            case MarkerType.Location:
-                return (
-                    <LocationContent
-                        title={activeMarker.title}
-                        description={activeMarker.description}
-                    />
-                )
-            case MarkerType.Info:
-                return (
-                    <InfoContent
-                        title={activeMarker.title}
-                        description={activeMarker.description}
-                    />
-                )
-            default:
-                return <DefaultContent />
-        }
+        return <EventContent marker={eventDetails} />
     }
 
     return (
@@ -221,15 +194,9 @@ export function MapSidebar({ activeMarker, onBackToMap }: MapSidebarProps) {
                 >
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-xl font-bold">Map Explorer</h2>
-                        {activeMarker && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={onBackToMap}
-                            >
-                                Back to Map
-                            </Button>
-                        )}
+                        <Button variant="ghost" size="sm" onClick={onBackToMap}>
+                            Back to Map
+                        </Button>
                     </div>
                     <Input
                         type="text"

@@ -1,20 +1,19 @@
-import { MarkerType } from '@/types/map'
-import { Calendar, MapPin, Info } from 'lucide-react'
+import { Calendar, Info, MapPin } from "lucide-react"
 
 interface MarkerIconProps {
-  type: MarkerType
-  className?: string
+    type: "event" | "location" | "info"
+    className?: string
 }
 
 export function MarkerIcon({ type, className = "h-4 w-4" }: MarkerIconProps) {
-  switch (type) {
-    case MarkerType.Event:
-      return <Calendar className={className} />
-    case MarkerType.Location:
-      return <MapPin className={className} />
-    case MarkerType.Info:
-      return <Info className={className} />
-    default:
-      return <MapPin className={className} />
-  }
+    switch (type) {
+        case "event":
+            return <Calendar className={className} />
+        case "location":
+            return <MapPin className={className} />
+        case "info":
+            return <Info className={className} />
+        default:
+            return <MapPin className={className} />
+    }
 }

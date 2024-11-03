@@ -13,8 +13,10 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { MarkerData, MarkerType } from "@/types/map"
+import { useSidebar } from "@/components/ui/sidebar"
+import { EventMarker } from "@/lib/db/schema/mapMarkers"
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css"
+import { formatDate } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { RefreshCw } from "lucide-react"
 import "mapbox-gl/dist/mapbox-gl.css"
@@ -27,28 +29,23 @@ import Map, {
     useMap,
 } from "react-map-gl"
 import { toast } from "sonner"
+import GeocoderControl from "./GeocoderControl"
 import { MarkerIcon } from "./MarkerIcon"
 
-import { useSidebar } from "@/components/ui/sidebar"
-import GeocoderControl from "@/features/onboarding/components/GeocoderControl"
-
 interface MapComponentProps {
-    markers: MarkerData[]
-    onMarkerClick: (markerId: number) => void
+    eventMarkers: EventMarker[]
+    onMarkerClick: (markerId: string) => void
 }
 
 export function MapComponent({
-    markers = [],
+    eventMarkers = [],
     onMarkerClick,
 }: MapComponentProps) {
     const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!
     const { theme } = useTheme()
-    const { open } = useSidebar()
 
-    const mapboxLightStyle =
-        "mapbox://styles/matthewloh/cm1w37guu00tb01pl1an725qt"
-    const mapboxDarkStyle =
-        "mapbox://styles/matthewloh/cm1w34g4z01db01qp4sgz027i"
+    const mapboxLightStyle = "mapbox://styles/matthewloh/cm1w37guu00tb01pl1an725qt"
+    const mapboxDarkStyle = "mapbox://styles/matthewloh/cm1w34g4z01db01qp4sgz027i"
 
     const [viewState, setViewState] = useState({
         longitude: 100.3327,
@@ -56,8 +53,6 @@ export function MapComponent({
         zoom: 16,
     })
 
-    const [mapLoaded, setMapLoaded] = useState(false)
-    const { current: map } = useMap()
     const onResult = useCallback((e: any) => {
         const { result } = e
         if (result.center) {
@@ -69,19 +64,6 @@ export function MapComponent({
         }
     }, [])
 
-    const getMarkerColor = (type: MarkerType) => {
-        switch (type) {
-            case MarkerType.Event:
-                return "bg-purple-500 hover:bg-purple-600"
-            case MarkerType.Location:
-                return "bg-blue-500 hover:bg-blue-600"
-            case MarkerType.Info:
-                return "bg-green-500 hover:bg-green-600"
-            default:
-                return "bg-gray-500 hover:bg-gray-600"
-        }
-    }
-
     return (
         <div className="flex h-full w-full flex-grow flex-col">
             <Map
@@ -92,13 +74,12 @@ export function MapComponent({
                 mapStyle={theme === "dark" ? mapboxDarkStyle : mapboxLightStyle}
                 projection={"globe" as any}
                 doubleClickZoom={false}
-                onLoad={() => setMapLoaded(true)}
             >
-                {markers.map((marker) => (
+                {eventMarkers.map((marker) => (
                     <Marker
                         key={marker.id}
-                        longitude={marker.longitude}
-                        latitude={marker.latitude}
+                        longitude={Number(marker.longitude)}
+                        latitude={Number(marker.latitude)}
                         anchor="bottom"
                     >
                         <Popover>
@@ -110,54 +91,33 @@ export function MapComponent({
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        className={`rounded-full ${getMarkerColor(marker.type)}`}
+                                        className="rounded-full bg-purple-500 hover:bg-purple-600"
                                     >
-                                        <MarkerIcon
-                                            type={marker.type}
-                                            className="h-4 w-4 text-white"
-                                        />
+                                        <MarkerIcon type="event" className="h-4 w-4 text-white" />
                                     </Button>
                                 </motion.div>
                             </PopoverTrigger>
-                            <PopoverContent
-                                className="w-80 p-0"
-                                align="center"
-                                side="top"
-                            >
+                            <PopoverContent className="w-80 p-0" align="center" side="top">
                                 <Card className="border-0">
-                                    <CardHeader
-                                        className={`text-white ${getMarkerColor(marker.type)}`}
-                                    >
+                                    <CardHeader className="text-white bg-purple-500">
                                         <CardTitle className="flex items-center">
-                                            <MarkerIcon
-                                                type={marker.type}
-                                                className="mr-2 h-5 w-5"
-                                            />
-                                            {marker.title}
+                                            <MarkerIcon type="event" className="mr-2 h-5 w-5" />
+                                            {marker.venue || "Event Location"}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="pt-4">
-                                        <p>{marker.description}</p>
-                                        {marker.type === MarkerType.Event && (
-                                            <p className="mt-2 text-sm text-muted-foreground">
-                                                Date: June 15, 2024 • Time: 7:00
-                                                PM
-                                            </p>
-                                        )}
-                                        {marker.type ===
-                                            MarkerType.Location && (
-                                            <p className="mt-2 text-sm text-muted-foreground">
-                                                Open: 9:00 AM - 5:00 PM
-                                            </p>
-                                        )}
+                                        <p>{marker.address}</p>
+                                        <p className="mt-2 text-sm text-muted-foreground">
+                                            Start: {formatDate(marker.startTime.toISOString())}
+                                            <br />
+                                            End: {formatDate(marker.endTime.toISOString())}
+                                        </p>
                                     </CardContent>
                                     <CardFooter>
                                         <Button
                                             variant="secondary"
                                             className="w-full"
-                                            onClick={() =>
-                                                onMarkerClick(marker.id)
-                                            }
+                                            onClick={() => onMarkerClick(marker.id)}
                                         >
                                             View Details
                                         </Button>
@@ -167,6 +127,7 @@ export function MapComponent({
                         </Popover>
                     </Marker>
                 ))}
+
                 <GeocoderControl
                     mapboxAccessToken={mapboxToken}
                     position="top-right"

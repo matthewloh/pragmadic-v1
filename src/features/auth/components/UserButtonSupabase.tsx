@@ -11,24 +11,27 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { useUserRole } from "@/features/auth/hooks/use-user-role" // Import the hook
+import { useUserRole } from "@/features/auth/hooks/use-user-role"
 import { SignOut } from "./SignOutButton"
+import { SelectUser } from "@/lib/db/schema"
 
 export default function UserButtonSupabase({
     className,
+    user,
 }: {
     className?: string
+    user?: SelectUser
 }) {
-    const { data: { session, user } = {} } = useUserRole() // Destructure session and user directly
+    const { data: { session } = {} } = useUserRole()
 
+    // Use the image_url from our database user profile
     const avatarImageLink =
-        user?.user_metadata.avatar_url ??
-        user?.user_metadata.picture ??
-        `https://avatar.vercel.sh/${user?.user_metadata.full_name}`
+        user?.image_url ?? // First try our uploaded profile image
+        session?.user?.user_metadata?.avatar_url ?? // Then try OAuth avatar if exists
+        session?.user?.user_metadata?.picture ?? // Then try OAuth picture if exists
+        `https://api.dicebear.com/7.x/initials/svg?seed=${user?.display_name}` // Fallback to generated avatar
 
-    const avatarFallback = user?.user_metadata.full_name
-        ?.charAt(0)
-        .toUpperCase()
+    const avatarFallback = user?.display_name?.charAt(0).toUpperCase() ?? "?"
 
     return (
         <DropdownMenu modal={false}>
@@ -41,7 +44,7 @@ export default function UserButtonSupabase({
                 >
                     <AvatarImage
                         src={avatarImageLink}
-                        alt={`${user?.user_metadata.full_name}`}
+                        alt={user?.display_name ?? "User avatar"}
                     />
                     <AvatarFallback>
                         <span className="text-primary">{avatarFallback}</span>
@@ -54,7 +57,7 @@ export default function UserButtonSupabase({
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="truncate">
-                                {user?.user_metadata.name}
+                                {user?.display_name}
                             </span>
                             <span className="truncate text-xs font-normal text-[#606060]">
                                 {user?.email}
@@ -65,6 +68,9 @@ export default function UserButtonSupabase({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                     <Link href="/">Home</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
                 </DropdownMenuItem>
                 <div className="flex flex-row items-center justify-between p-2">
                     <p className="text-sm">Theme</p>

@@ -1,4 +1,10 @@
+import { RoleType } from "@/lib/auth/get-user-role"
 import { nanoid } from "@/lib/utils"
+import {
+    Permission,
+    PERMISSIONS,
+    ROLES
+} from "@/utils/supabase/permissions"
 import { sql } from "drizzle-orm"
 import {
     pgEnum,
@@ -10,15 +16,8 @@ import {
     uuid,
     varchar,
 } from "drizzle-orm/pg-core"
-import {
-    PERMISSIONS,
-    ROLES,
-    Permission,
-    Role,
-} from "@/utils/supabase/permissions"
-import { RoleType } from "@/lib/auth/get-user-role"
-import { z } from "zod"
 import { createSelectSchema } from "drizzle-zod"
+import { z } from "zod"
 
 const authSchema = pgSchema("auth")
 

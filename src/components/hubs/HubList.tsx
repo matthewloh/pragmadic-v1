@@ -199,7 +199,7 @@ const HubCard = ({
                         <Button asChild variant="secondary" size="sm">
                             <Link href={`/hubs/${hub.id}/invites`}>
                                 <Users className="mr-2 h-4 w-4" />
-                                Invites
+                                View Members
                             </Link>
                         </Button>
                         <Button asChild variant="secondary" size="sm">

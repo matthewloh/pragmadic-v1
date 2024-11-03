@@ -23,6 +23,8 @@ export default async function HubInviteDetailPage(props: {
     const { invite } = await getHubInviteById(params.hubId, params.inviteId)
     if (!invite) notFound()
 
+    const isInvitedUser = invite.user_id === session.user.id
+
     return (
         <main className="overflow-auto">
             <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">

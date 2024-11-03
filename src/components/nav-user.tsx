@@ -40,6 +40,13 @@ export function NavUser() {
         )
     }
 
+    const fullName = user.user_metadata.full_name || "DE Rantau User"
+    const initials = fullName
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -50,19 +57,15 @@ export function NavUser() {
                     <Avatar className="h-8 w-8 rounded-full">
                         <AvatarImage
                             src={user.user_metadata.avatar_url}
-                            alt={user.user_metadata.full_name}
+                            alt={fullName}
                         />
                         <AvatarFallback className="rounded-full">
-                            {user.user_metadata.full_name
-                                .split(" ")
-                                .map((n: string) => n[0])
-                                .join("")
-                                .toUpperCase()}
+                            {initials}
                         </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">
-                            {user.user_metadata.full_name}
+                            {fullName}
                         </span>
                         <span className="truncate text-xs">{user.email}</span>
                     </div>
@@ -80,19 +83,15 @@ export function NavUser() {
                         <Avatar className="h-8 w-8 rounded-full">
                             <AvatarImage
                                 src={user.user_metadata.avatar_url}
-                                alt={user.user_metadata.full_name}
+                                alt={fullName}
                             />
                             <AvatarFallback className="rounded-full">
-                                {user.user_metadata.full_name
-                                    .split(" ")
-                                    .map((n: string) => n[0])
-                                    .join("")
-                                    .toUpperCase()}
+                                {initials}
                             </AvatarFallback>
                         </Avatar>
                         <div className="grid flex-1 text-left text-sm leading-tight">
                             <span className="truncate font-semibold">
-                                {user.user_metadata.full_name}
+                                {fullName}
                             </span>
                             <span className="truncate text-xs">
                                 {user.email}

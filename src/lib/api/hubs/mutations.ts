@@ -13,6 +13,7 @@ import {
 } from "@/lib/db/schema/hubs"
 import { getUserAuth } from "@/lib/auth/utils"
 import { getSession } from "@/utils/supabase/queries/cached-queries"
+import { revalidatePath } from "next/cache"
 
 export const createHub = async (hub: NewHubParams) => {
     const { session } = await getUserAuth()
@@ -170,4 +171,18 @@ export const leaveHub = async (hubId: string) => {
         console.error(message)
         throw { error: message }
     }
+}
+
+export const createHubJoinRequest = async (hubId: string) => {
+    const { session } = await getUserAuth()
+    if (!session) throw new Error("Unauthorized")
+
+    await db.insert(usersToHubs).values({
+        hub_id: hubId,
+        user_id: session.user.id,
+        invite_status: "pending",
+        invite_role_type: "member",
+    })
+
+    revalidatePath(`/hubs/${hubId}/invites`)
 }

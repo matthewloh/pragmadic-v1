@@ -1,13 +1,18 @@
-import { Suspense } from "react"
-import { notFound } from "next/navigation"
-import { HubInviteList } from "@/components/hubs/HubInviteList"
 import Loading from "@/app/loading"
-import { getUserAuth } from "@/lib/auth/utils"
-import { getHubById } from "@/lib/api/hubs/queries"
-import { BackButton } from "@/components/shared/BackButton"
+import { HubInviteList } from "@/components/hubs/HubInviteList"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { getHubById } from "@/lib/api/hubs/queries"
+import { getUserAuth } from "@/lib/auth/utils"
+import { db } from "@/lib/db"
+import { usersToHubs } from "@/lib/db/schema/hubs"
+import { and, eq } from "drizzle-orm"
 import { ArrowLeftIcon } from "lucide-react"
+import Link from "next/link"
+import { notFound } from "next/navigation"
+import { Suspense } from "react"
+import { createHubJoinRequest } from "@/lib/api/hubs/mutations"
+import { createHubJoinRequestAction } from "@/lib/actions/hubs"
+import JoinButton from "@/components/user-to-hubs/join-button"
 
 export const revalidate = 0
 
@@ -23,6 +28,15 @@ export default async function HubInvitesPage(props: {
     const { hub } = await getHubById(params.hubId)
     if (!hub) notFound()
 
+    const isOwner = hub.userId === session.user.id
+
+    const membership = await db.query.usersToHubs.findFirst({
+        where: and(
+            eq(usersToHubs.hub_id, params.hubId),
+            eq(usersToHubs.user_id, session.user.id),
+        ),
+    })
+
     return (
         <main className="overflow-auto">
             <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
@@ -36,9 +50,17 @@ export default async function HubInvitesPage(props: {
                         </Link>
                     </Button>
                 </div>
-                <Suspense fallback={<Loading />}>
-                    <HubInviteList hubId={params.hubId} />
-                </Suspense>
+                {isOwner ? (
+                    <Suspense fallback={<Loading />}>
+                        <HubInviteList hubId={params.hubId} />
+                    </Suspense>
+                ) : membership ? (
+                    <Suspense fallback={<Loading />}>
+                        <HubInviteList hubId={params.hubId} />
+                    </Suspense>
+                ) : (
+                    <JoinButton hubId={params.hubId} />
+                )}
             </div>
         </main>
     )

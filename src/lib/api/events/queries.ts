@@ -27,12 +27,7 @@ export const getEventById = async (id: EventId) => {
     const [row] = await db
         .select({ event: hubEvents, hub: hubs })
         .from(hubEvents)
-        .where(
-            and(
-                eq(hubEvents.id, eventId),
-                eq(hubEvents.userId, session?.user.id!),
-            ),
-        )
+        .where(and(eq(hubEvents.id, eventId)))
         .leftJoin(hubs, eq(hubEvents.hubId, hubs.id))
     if (row === undefined) return {}
     const e = { ...row.event, hub: row.hub }

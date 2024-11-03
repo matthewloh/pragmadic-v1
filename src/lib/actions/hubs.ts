@@ -1,7 +1,12 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createHub, deleteHub, updateHub } from "@/lib/api/hubs/mutations"
+import {
+    createHub,
+    createHubJoinRequest,
+    deleteHub,
+    updateHub,
+} from "@/lib/api/hubs/mutations"
 import {
     HubId,
     NewHubParams,
@@ -48,6 +53,13 @@ export const deleteHubAction = async (input: HubId) => {
         const payload = hubIdSchema.parse({ id: input })
         await deleteHub(payload.id)
         revalidateHubs()
+    } catch (e) {
+        return handleErrors(e)
+    }
+}
+export const createHubJoinRequestAction = async (hubId: string) => {
+    try {
+        await createHubJoinRequest(hubId)
     } catch (e) {
         return handleErrors(e)
     }

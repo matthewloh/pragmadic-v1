@@ -1,75 +1,35 @@
 "use client"
 
 import { useSidebar } from "@/components/ui/sidebar"
-import { MarkerData, MarkerType } from "@/types/map"
+import { EventMarker } from "@/lib/db/schema/mapMarkers"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
 import { MapProvider } from "react-map-gl"
 import { MapComponent } from "./MapComponent"
 import { MapSidebar } from "./MapSidebar"
 
-const markers: MarkerData[] = [
-    {
-        id: 1,
-        type: MarkerType.Event,
-        longitude: 100.3296,
-        latitude: 5.4146,
-        title: "Summer Concert",
-        description: "Annual music festival",
-        object_id: "1",
-    },
-    {
-        id: 2,
-        type: MarkerType.Location,
-        longitude: 100.3327,
-        latitude: 5.4164,
-        title: "City Park",
-        description: "Large urban park",
-        object_id: "2",
-    },
-    {
-        id: 3,
-        type: MarkerType.Info,
-        longitude: 100.3358,
-        latitude: 5.4182,
-        title: "Historical Site",
-        description: "18th century fort",
-        object_id: "3",
-    },
-]
-
-export default function MapClientComponent() {
-    const [activeMarker, setActiveMarker] = useState<MarkerData | null>(null)
+export default function MapClientComponent({
+    eventMarkers,
+}: {
+    eventMarkers: EventMarker[]
+}) {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { open } = useSidebar()
 
-    useEffect(() => {
-        const markerId = searchParams.get("marker")
-        if (markerId) {
-            const marker = markers.find((m) => m.id === parseInt(markerId))
-            setActiveMarker(marker || null)
-        } else {
-            setActiveMarker(null)
-        }
-    }, [searchParams])
-
-    const handleMarkerClick = (markerId: number) => {
+    const handleMarkerClick = (markerId: string) => {
         const params = new URLSearchParams(searchParams)
-        params.set("marker", markerId.toString())
+        params.set("marker", markerId)
+        params.set("type", "event")
         router.replace(`/onboarding/map?${params.toString()}`)
     }
 
-    const handleBackToMap = () => {
-        router.replace("/onboarding/map")
-    }
-    const { open } = useSidebar()
     return (
         <MapProvider>
-            <MapComponent markers={markers} onMarkerClick={handleMarkerClick} />
-            <MapSidebar
-                activeMarker={activeMarker}
-                onBackToMap={handleBackToMap}
+            <MapComponent 
+                eventMarkers={eventMarkers} 
+                onMarkerClick={handleMarkerClick} 
             />
+            <MapSidebar onBackToMap={() => router.replace("/onboarding/map")} />
         </MapProvider>
     )
 }
