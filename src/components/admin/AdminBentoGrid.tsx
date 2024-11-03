@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, MessageSquare } from "lucide-react"
+import { Users, MessageSquare, Database } from "lucide-react"
 import { motion } from "framer-motion"
 
 const MotionCard = motion(Card)
@@ -18,6 +18,13 @@ const items = [
         description: "Manage chat settings and knowledge base",
         icon: MessageSquare,
         href: "/admin/chat",
+        className: "col-span-3 row-span-3",
+    },
+    {
+        title: "Demo: Seed Data",
+        description: "Seed data for demo purposes",
+        icon: Database,
+        href: "/admin/seed-data",
         className: "col-span-3 row-span-3",
     },
 ]

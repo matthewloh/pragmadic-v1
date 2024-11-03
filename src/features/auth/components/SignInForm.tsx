@@ -23,6 +23,7 @@ import { FcGoogle } from "react-icons/fc"
 import { toast } from "sonner"
 import { loginSchema, LoginValues } from "../zod/schemas/validation"
 import { PasswordInput } from "./PasswordInput"
+import { SignInMagicLink } from "./SignInMagicLink"
 
 export function SignInForm() {
     const [error, setError] = useState<string>()
@@ -158,6 +159,8 @@ export function SignInForm() {
                     Continue with GitHub
                 </Button>
             </div>
+            <Separator />
+            <SignInMagicLink />
         </Form>
     )
 }

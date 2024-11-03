@@ -11,8 +11,10 @@ import { EventInviteForm } from "@/components/events/EventInviteForm"
 import MarkerForm from "@/components/map/MarkerForm"
 import Modal from "@/components/shared/Modal"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { EventMarker, SelectUser } from "@/lib/db/schema"
 import { type Hub } from "@/lib/db/schema/hubs"
+import { PencilIcon } from "lucide-react"
 
 export default function OptimisticEvent({
     event,
@@ -26,9 +28,7 @@ export default function OptimisticEvent({
     marker: EventMarker | null
 }) {
     const [open, setOpen] = useState(false)
-    const openModal = (_?: Event) => {
-        setOpen(true)
-    }
+    const openModal = (_?: Event) => setOpen(true)
     const closeModal = () => setOpen(false)
     const [optimisticEvent, setOptimisticEvent] = useOptimistic(event)
     const [optimisticMarker, setOptimisticMarker] = useOptimistic(marker)
@@ -40,7 +40,7 @@ export default function OptimisticEvent({
         setOptimisticMarker({ ...optimisticMarker, ...input.data })
 
     return (
-        <div className="m-4">
+        <div className="w-full space-y-4 p-6">
             <Modal open={open} setOpen={setOpen}>
                 <EventForm
                     event={optimisticEvent}
@@ -51,35 +51,67 @@ export default function OptimisticEvent({
                     addOptimistic={updateEvent}
                 />
             </Modal>
-            <div className="mb-4 flex items-end justify-between">
-                <h1 className="text-2xl font-semibold">
+
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold tracking-tight">
                     {optimisticEvent.name}
                 </h1>
-                <Button className="" onClick={() => setOpen(true)}>
-                    Edit
+                <Button
+                    onClick={() => setOpen(true)}
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                >
+                    <PencilIcon className="h-4 w-4" />
+                    Edit Event
                 </Button>
             </div>
-            <pre
-                className={cn(
-                    "text-wrap break-all rounded-lg bg-secondary p-4",
-                    optimisticEvent.id === "optimistic" ? "animate-pulse" : "",
-                )}
-            >
-                {JSON.stringify(optimisticEvent, null, 2)}
-            </pre>
-            <div className="mt-6">
-                <h3 className="mb-4 text-xl font-semibold">Invite Users</h3>
-                <EventInviteForm
-                    event={event}
-                    hub={event.hub!}
-                    hubUsers={hubUsers}
-                />
+
+            <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-1">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Event Details</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <pre
+                            className={cn(
+                                "text-wrap break-all rounded-lg bg-secondary p-4 text-sm",
+                                optimisticEvent.id === "optimistic"
+                                    ? "animate-pulse"
+                                    : "",
+                            )}
+                        >
+                            {JSON.stringify(optimisticEvent, null, 2)}
+                        </pre>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Event Location</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <MarkerForm
+                            marker={optimisticMarker}
+                            event={event}
+                            addOptimistic={updateMarker}
+                        />
+                    </CardContent>
+                </Card>
             </div>
-            <MarkerForm
-                marker={optimisticMarker}
-                event={event}
-                addOptimistic={updateMarker}
-            />
+
+            <Card className="mt-6">
+                <CardHeader>
+                    <CardTitle>Invite Participants</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <EventInviteForm
+                        event={event}
+                        hub={event.hub!}
+                        hubUsers={hubUsers}
+                    />
+                </CardContent>
+            </Card>
         </div>
     )
 }

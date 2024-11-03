@@ -17,4 +17,6 @@ export const protectedPaths = [
     "/settings",
     "/states",
     "/onboarding",
+    "/analytics",
+    "/admin",
 ]

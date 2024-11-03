@@ -123,6 +123,7 @@ const config = {
                 "accordion-up": "accordion-up 0.2s ease-out",
                 progressBar: "progressBar 1.5s ease-in-out infinite",
                 move: "move 5s linear infinite",
+                "bounce-slow": "bounce-slow 2s infinite",
             },
         },
     },

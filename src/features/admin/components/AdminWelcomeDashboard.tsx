@@ -14,6 +14,11 @@ const dashboardItems = [
         description: "Manage chat settings and knowledge base",
         link: "/admin/chat",
     },
+    {
+        title: "Demo: Seed Data",
+        description: "Seed data for demo purposes",
+        link: "/admin/seed",
+    },
 ]
 
 const titleWords = "Admin Management".split(" ")

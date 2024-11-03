@@ -42,19 +42,22 @@ export function MapComponent({
     onMarkerClick,
 }: MapComponentProps) {
     const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!
+    const { theme } = useTheme()
+    const { open } = useSidebar()
+
     const mapboxLightStyle =
         "mapbox://styles/matthewloh/cm1w37guu00tb01pl1an725qt"
     const mapboxDarkStyle =
         "mapbox://styles/matthewloh/cm1w34g4z01db01qp4sgz027i"
+
     const [viewState, setViewState] = useState({
         longitude: 100.3327,
         latitude: 5.4164,
         zoom: 16,
     })
-    const { theme } = useTheme()
+
     const [mapLoaded, setMapLoaded] = useState(false)
     const { current: map } = useMap()
-    const { open } = useSidebar()
     const onResult = useCallback((e: any) => {
         const { result } = e
         if (result.center) {

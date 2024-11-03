@@ -273,7 +273,7 @@ CREATE TABLE IF NOT EXISTS "reviews" (
 	"rating" integer NOT NULL,
 	"photo_url" varchar(256),
 	"hub_id" varchar(256) NOT NULL,
-	"user_id" varchar(256) NOT NULL,
+	"user_id" uuid NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -287,8 +287,8 @@ CREATE TABLE IF NOT EXISTS "resources" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "event_markers" (
 	"id" varchar(191) PRIMARY KEY NOT NULL,
-	"latitude" numeric(10, 8) NOT NULL,
-	"longitude" numeric(11, 8) NOT NULL,
+	"latitude" numeric(8, 6) NOT NULL,
+	"longitude" numeric(9, 6) NOT NULL,
 	"address" text NOT NULL,
 	"venue" varchar(256),
 	"user_id" uuid NOT NULL,
@@ -518,6 +518,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "reviews" ADD CONSTRAINT "reviews_hub_id_hubs_id_fk" FOREIGN KEY ("hub_id") REFERENCES "public"."hubs"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "reviews" ADD CONSTRAINT "reviews_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

@@ -1,11 +1,19 @@
 import { sql } from "drizzle-orm"
-import { varchar, text, integer, timestamp, pgTable } from "drizzle-orm/pg-core"
+import {
+    varchar,
+    text,
+    integer,
+    timestamp,
+    pgTable,
+    uuid,
+} from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
 import { hubs } from "./hubs"
 import { type getReviews } from "@/lib/api/reviews/queries"
 
 import { nanoid, timestamps } from "@/lib/utils"
+import { users } from "./users"
 
 export const reviews = pgTable("reviews", {
     id: varchar("id", { length: 191 })
@@ -18,8 +26,9 @@ export const reviews = pgTable("reviews", {
     hubId: varchar("hub_id", { length: 256 })
         .references(() => hubs.id, { onDelete: "cascade" })
         .notNull(),
-    userId: varchar("user_id", { length: 256 }).notNull(),
-
+    userId: uuid("user_id")
+        .references(() => users.id, { onDelete: "cascade" })
+        .notNull(),
     createdAt: timestamp("created_at")
         .notNull()
         .default(sql`now()`),

@@ -1,16 +1,13 @@
 import { getUserAuth } from "@/lib/auth/utils"
 import { db } from "@/lib/db"
 import {
-    EventMarker,
     EventMarkerId,
     eventMarkers,
-    insertEventMarkerParams,
     insertEventMarkerSchema,
     NewEventMarkerParams,
     updateEventMarkerParams,
-    UpdateEventMarkerParams,
+    UpdateEventMarkerParams
 } from "@/lib/db/schema/mapMarkers"
-import { nanoid } from "@/lib/utils"
 import { and, eq } from "drizzle-orm"
 
 export const createEventMarker = async (data: NewEventMarkerParams) => {

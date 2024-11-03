@@ -1,5 +1,5 @@
 {
-  "id": "e092a1d8-21bd-493f-8846-1b5ab24ad720",
+  "id": "3ff4b7f5-e7f6-4e57-b667-0047793c38c6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -2006,7 +2006,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "varchar(256)",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -2033,6 +2033,19 @@
           "tableTo": "hubs",
           "columnsFrom": [
             "hub_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "reviews_user_id_users_id_fk": {
+          "name": "reviews_user_id_users_id_fk",
+          "tableFrom": "reviews",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -2092,13 +2105,13 @@
         },
         "latitude": {
           "name": "latitude",
-          "type": "numeric(10, 8)",
+          "type": "numeric(8, 6)",
           "primaryKey": false,
           "notNull": true
         },
         "longitude": {
           "name": "longitude",
-          "type": "numeric(11, 8)",
+          "type": "numeric(9, 6)",
           "primaryKey": false,
           "notNull": true
         },

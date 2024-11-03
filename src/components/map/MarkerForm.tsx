@@ -33,6 +33,7 @@ import {
     updateEventMarkerAction,
     deleteEventMarkerAction,
 } from "@/features/onboarding/map/hub/actions"
+import CoordinatesSelector from "@/app/(onboarding)/onboarding/map/components/CoordinatesSelector"
 
 const EVENT_TYPES = [
     "networking",
@@ -168,11 +169,31 @@ export default function MarkerForm({
         }
     }
 
+    // Add state for coordinates
+    const [coordinates, setCoordinates] = useState({
+        latitude: marker?.latitude ? parseFloat(marker.latitude) : 5.4164,
+        longitude: marker?.longitude ? parseFloat(marker.longitude) : 100.3327,
+    })
+
+    // Handle coordinate updates from the map
+    const handleCoordinatesChange = (lat: number, lng: number) => {
+        setCoordinates({ latitude: lat, longitude: lng })
+
+        // Update the form inputs
+        const latInput = document.querySelector(
+            'input[name="latitude"]',
+        ) as HTMLInputElement
+        const lngInput = document.querySelector(
+            'input[name="longitude"]',
+        ) as HTMLInputElement
+        if (latInput) latInput.value = lat.toString()
+        if (lngInput) lngInput.value = lng.toString()
+    }
+
     return (
         <form action={handleSubmit} onChange={handleChange}>
             <Card className="p-6">
-                <div className="grid gap-8 md:grid-cols-2">
-                    {/* Left Column */}
+                <div className="grid gap-8 md:grid-cols-1">
                     <div className="space-y-6">
                         <div>
                             <Label
@@ -276,6 +297,11 @@ export default function MarkerForm({
 
                     {/* Right Column */}
                     <div className="space-y-6">
+                        <CoordinatesSelector
+                            defaultLatitude={coordinates.latitude}
+                            defaultLongitude={coordinates.longitude}
+                            onCoordinatesChange={handleCoordinatesChange}
+                        />
                         <div className="grid gap-6 sm:grid-cols-2">
                             <div>
                                 <Label
@@ -299,7 +325,7 @@ export default function MarkerForm({
                                             ? "ring ring-destructive"
                                             : "",
                                     )}
-                                    defaultValue={marker?.latitude ?? ""}
+                                    defaultValue={coordinates.latitude}
                                     placeholder="Enter latitude (-90 to 90)"
                                     onChange={(e) =>
                                         handleCoordinateChange(e, "latitude")
@@ -334,7 +360,7 @@ export default function MarkerForm({
                                             ? "ring ring-destructive"
                                             : "",
                                     )}
-                                    defaultValue={marker?.longitude ?? ""}
+                                    defaultValue={coordinates.longitude}
                                     placeholder="Enter longitude (-180 to 180)"
                                     onChange={(e) =>
                                         handleCoordinateChange(e, "longitude")
@@ -440,7 +466,16 @@ export default function MarkerForm({
                                         action: "delete",
                                         data: marker,
                                     })
-                                    // TODO: Add delete action
+                                    const error = await deleteEventMarkerAction(
+                                        marker.id,
+                                    )
+                                    if (error) {
+                                        toast.error("Failed to delete marker", {
+                                            description: error,
+                                        })
+                                    } else {
+                                        toast.success("Marker deleted!")
+                                    }
                                     setIsDeleting(false)
                                 })
                             }}
