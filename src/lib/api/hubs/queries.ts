@@ -12,6 +12,8 @@ import { states } from "@/lib/db/schema/states"
 import { hubEvents, type CompleteEvent } from "@/lib/db/schema/events"
 import { reviews, type CompleteReview } from "@/lib/db/schema/reviews"
 import { users } from "@/lib/db/schema/users"
+import { UsersWithInviteStatus } from "@/lib/db/schema/users"
+import { hubOwnerProfiles } from "@/lib/db/schema"
 
 export const getHubs = async () => {
     const { session } = await getUserAuth()
@@ -51,35 +53,90 @@ export const getHubById = async (id: HubId) => {
     return { hub: h }
 }
 
+export const getHubByIdWithOwnerProfile = async (id: HubId) => {
+    const { session } = await getUserAuth()
+    if (!session) throw new Error("Unauthorized")
+    const { id: hubId } = hubIdSchema.parse({ id })
+    const [row] = await db
+        .select({ hub: hubs, user: users, hubOwnerProfile: hubOwnerProfiles })
+        .from(hubs)
+        .where(and(eq(hubs.id, hubId)))
+        .leftJoin(users, eq(hubs.userId, users.id))
+        .leftJoin(hubOwnerProfiles, eq(hubs.userId, hubOwnerProfiles.userId))
+    if (row === undefined) return {}
+    const h = {
+        ...row.hub,
+        user: row.user,
+        hubOwnerProfile: row.hubOwnerProfile,
+    }
+    return { hub: h }
+}
+
 export const getHubByIdWithEventsAndReviewsAndInvites = async (id: HubId) => {
     const { session } = await getUserAuth()
     if (!session) throw new Error("Unauthorized")
     const { roles } = session
     const { id: hubId } = hubIdSchema.parse({ id })
+
+    // First get the hub and its related data
     const rows = await db
         .select({
             hub: hubs,
             event: hubEvents,
             review: reviews,
             invite: usersToHubs,
+            user: users,
+            hub_owner: {
+                id: users.id,
+                display_name: users.display_name,
+                email: users.email,
+                image_url: users.image_url,
+                createdAt: users.createdAt,
+            },
         })
         .from(hubs)
         .where(and(eq(hubs.id, hubId)))
         .leftJoin(hubEvents, eq(hubs.id, hubEvents.hubId))
         .leftJoin(reviews, eq(hubs.id, reviews.hubId))
         .leftJoin(usersToHubs, eq(hubs.id, usersToHubs.hub_id))
+        .leftJoin(users, eq(usersToHubs.user_id, users.id))
+
     if (rows.length === 0) return {}
+
     const h = rows[0].hub
+    const hubOwner = rows[0].hub_owner
+
+    // Process events, reviews, and get unique users with their invite status
     const he = rows
         .filter((r) => r.event !== null)
         .map((e) => e.event) as CompleteEvent[]
+
     const hr = rows
         .filter((r) => r.review !== null)
         .map((r) => r.review) as CompleteReview[]
-    const hi = rows
-        .filter((r) => r.invite !== null)
-        .map((r) => r.invite) as UsersToHub[]
-    return { hub: h, events: he, reviews: hr, invites: hi }
+
+    // Get unique users with their invite status
+    const hubUsers = rows
+        .filter((r) => r.user !== null && r.invite !== null)
+        .map((r) => ({
+            ...r.user,
+            invite_status: r.invite?.invite_status,
+            invite_role_type: r.invite?.invite_role_type,
+            hub_id: r.invite?.hub_id,
+        }))
+        // Remove duplicates based on user ID
+        .filter(
+            (user, index, self) =>
+                index === self.findIndex((u) => u.id === user.id),
+        ) as UsersWithInviteStatus[]
+
+    return {
+        hub: h,
+        events: he,
+        reviews: hr,
+        users: hubUsers,
+        hub_owner: hubOwner,
+    }
 }
 
 export const getHubUsers = async (hubId: string) => {
@@ -179,29 +236,31 @@ export const getHubByIdWithEvents = async (hubId: string) => {
     return { hub, events }
 }
 
-export type HubUser = {
-    id: string
-    createdAt: Date | null
-    email: string
-    display_name: string | null
-    image_url: string | null
-    role: string[]
+/* 
+type UsersToHub = {
+    createdAt: Date;
+    user_id: string;
+    hub_id: string;
+    updatedAt: Date;
+    invite_status: "pending" | "accepted" | "rejected" | null;
+    invite_role_type: "admin" | "member" | null
 }
+*/
 
-export const getHubUsersById = async (hubId: string) => {
+export const getAcceptedHubUsersByHubId = async (hubId: string) => {
     const { session } = await getUserAuth()
     if (!session) throw new Error("Unauthorized")
 
     const rows = await db
         .select({
-            user: {
-                id: users.id,
-                createdAt: users.createdAt,
-                email: users.email,
-                display_name: users.display_name,
-                image_url: users.image_url,
-            },
+            id: users.id,
+            createdAt: users.createdAt,
+            email: users.email,
+            display_name: users.display_name,
+            image_url: users.image_url,
+            invite_status: usersToHubs.invite_status,
             invite_role_type: usersToHubs.invite_role_type,
+            hub_id: usersToHubs.hub_id,
         })
         .from(usersToHubs)
         .innerJoin(users, eq(usersToHubs.user_id, users.id))
@@ -212,10 +271,31 @@ export const getHubUsersById = async (hubId: string) => {
             ),
         )
 
-    const formattedUsers = rows.map((row) => ({
-        ...row.user,
-        role: [row.invite_role_type || "member"],
-    })) satisfies HubUser[]
+    return {
+        users: rows.map((row) => row as UsersWithInviteStatus),
+    }
+}
 
-    return { users: formattedUsers }
+export const getAllHubUsersById = async (hubId: string) => {
+    const { session } = await getUserAuth()
+    if (!session) throw new Error("Unauthorized")
+
+    const rows = await db
+        .select({
+            id: users.id,
+            createdAt: users.createdAt,
+            email: users.email,
+            display_name: users.display_name,
+            image_url: users.image_url,
+            invite_status: usersToHubs.invite_status,
+            invite_role_type: usersToHubs.invite_role_type,
+            hub_id: usersToHubs.hub_id,
+        })
+        .from(usersToHubs)
+        .innerJoin(users, eq(usersToHubs.user_id, users.id))
+        .where(eq(usersToHubs.hub_id, hubId))
+
+    return {
+        users: rows.map((row) => row as UsersWithInviteStatus),
+    }
 }

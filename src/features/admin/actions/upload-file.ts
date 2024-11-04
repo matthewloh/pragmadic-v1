@@ -18,6 +18,7 @@ import { extractText, getDocumentProxy } from "unpdf"
 export async function generateEmbeddingsForPdfAction(
     fullPath: string,
     folder: string,
+    objectId: string,
 ) {
     const supabase = await createClient()
     const {
@@ -44,6 +45,7 @@ export async function generateEmbeddingsForPdfAction(
                 path: generatePath(folder, fileName),
                 pathTokens: getPathTokens(folder),
                 parentId: folder,
+                objectId: objectId,
                 metadata: {
                     originalName: fileName,
                     folder: folder,

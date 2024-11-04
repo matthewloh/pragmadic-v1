@@ -46,11 +46,13 @@ export const ragMiddleware: Experimental_LanguageModelV1Middleware = {
         const { object: classification } = await generateObject({
             model: openai("gpt-4o-mini", { structuredOutputs: true }),
             output: "enum",
-            enum: ["question", "statement", "tool-call", "other"],
-            system: "classify the user message as a question, statement, tool-call, or other",
+            enum: ["question", "statement", "other"],
+            system: "classify the user message as a question, statement, or other",
             prompt: lastUserMessageContent,
         })
+
         console.log("classification", classification)
+
         // only use RAG for questions
         if (classification !== "question") {
             messages.push(recentMessage)

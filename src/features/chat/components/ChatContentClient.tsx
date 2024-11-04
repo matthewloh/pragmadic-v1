@@ -3,14 +3,14 @@
 import { Button } from "@/components/ui/button"
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { cn } from "@/lib/utils"
+import { ReferencedDocument } from "@/types/documents"
 import { Message } from "ai"
 import { Maximize2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { ChatComponent } from "./ChatComponent"
 import { ChatSettingsSidebar } from "./ChatSettingsSidebar"
-import { ReferencedDocumentsPanel } from "./ReferencedDocumentsPanel"
 import { ModelOption, options } from "./ModelSelector"
-import { ReferencedDocument } from "@/types/documents"
+import { ReferencedDocumentsPanel } from "./ReferencedDocumentsPanel"
 
 type ChatContentProps = {
     chatId: string
@@ -57,6 +57,7 @@ export default function ChatContentClient({
                     className="h-full flex-1"
                 >
                     <ChatSettingsSidebar
+                        chatId={chatId}
                         isExpanded={isSidebarExpanded}
                         selectedModel={selectedModel}
                         onModelSelect={setSelectedModel}

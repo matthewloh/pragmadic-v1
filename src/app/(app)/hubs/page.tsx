@@ -25,7 +25,7 @@ const Hubs = async () => {
     const { user } = await getUser()
     return (
         <Suspense fallback={<Loading />}>
-            <span className="text-2xl font-bold">Pragmadic</span>
+            <span className="mb-2 text-2xl font-bold">Pragmadic Hubs</span>
             <HubList hubs={hubs} states={states} user={user ?? null} />
         </Suspense>
     )

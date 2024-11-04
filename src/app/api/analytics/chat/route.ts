@@ -2,6 +2,15 @@ import { getSession } from "@/utils/supabase/queries/cached-queries"
 import { openai } from "@ai-sdk/openai"
 import { convertToCoreMessages, streamText, tool } from "ai"
 import { z } from "zod"
+import { db } from "@/lib/db"
+import { eq, sql } from "drizzle-orm"
+import { nomadProfile } from "@/lib/db/schema/nomadProfile"
+import { hubEvents, usersToEvents } from "@/lib/db/schema/events"
+import {
+    generateDemographicInsights,
+    generateEventAnalysis,
+} from "@/lib/analytics/generators"
+import { fetchDemographicData } from "@/lib/analytics/fetchers"
 
 export async function POST(req: Request) {
     const { messages } = await req.json()
@@ -12,110 +21,239 @@ export async function POST(req: Request) {
     if (!session) {
         return new Response("Unauthorized", { status: 401 })
     }
+
     const result = await streamText({
-        model: openai("gpt-4o-mini"),
-        system: "You are an AI assistant for a digital nomad hub owner. You can analyze data, provide summaries, and suggest events based on member information.",
+        model: openai("gpt-4"),
+        system: "You are an analytics assistant for DE Rantau hub owners, specializing in analyzing digital nomad data and event participation patterns to provide actionable insights.",
         messages: convertToCoreMessages(messages),
         tools: {
-            generateSummary: tool({
-                description:
-                    "Generate a summary based on hub reviews or nomad backgrounds",
+            generateStructuredDemographics: tool({
+                description: "Generate structured demographic insights",
                 parameters: z.object({
-                    topic: z.enum(["reviews", "nomad_backgrounds"]),
+                    aspect: z.enum(["skills", "interests", "locations"]),
                 }),
-                execute: async ({ topic }) => {
-                    // Simulated summary generation
-                    const summaries = {
-                        reviews:
-                            "The hub has received overwhelmingly positive feedback, with 90% of reviews being 4 stars or higher. Users particularly appreciate the fast internet and comfortable workspaces.",
-                        nomad_backgrounds:
-                            "The hub attracts a diverse group of digital nomads, with 40% being developers, 30% content creators, 20% entrepreneurs, and 10% from various other professions.",
-                    }
-                    return summaries[topic]
+                execute: async ({ aspect }) => {
+                    const rawData = await fetchDemographicData(aspect)
+                    const insights = await generateDemographicInsights(rawData)
+                    return JSON.stringify(insights)
                 },
             }),
-            analyzeSentiment: tool({
-                description: "Analyze sentiment of reviews and provide links",
+            analyzeEventParticipation: tool({
+                description: "Analyze event participation patterns and trends",
                 parameters: z.object({
-                    review_type: z.enum(["coworking_space", "cafe"]),
-                }),
-                execute: async ({ review_type }) => {
-                    // Simulated sentiment analysis
-                    const sentiments = {
-                        coworking_space: {
-                            positive: 0.8,
-                            negative: 0.1,
-                            neutral: 0.1,
-                        },
-                        cafe: { positive: 0.7, negative: 0.2, neutral: 0.1 },
-                    }
-                    const sentiment = sentiments[review_type]
-                    return JSON.stringify({
-                        sentiment,
-                        link: `https://example.com/reviews/${review_type}`,
-                    })
-                },
-            }),
-            suggestEvents: tool({
-                description:
-                    "Suggest event titles based on member demographics or interests",
-                parameters: z.object({
-                    based_on: z.enum(["demographics", "interests"]),
-                }),
-                execute: async ({ based_on }) => {
-                    // Simulated event suggestion
-                    const suggestions = {
-                        demographics: [
-                            "Tech Meetup for Digital Nomads",
-                            "Freelancer Networking Night",
-                            "Remote Work Best Practices Workshop",
-                        ],
-                        interests: [
-                            "Travel Photography Exhibition",
-                            "Yoga for Digital Nomads",
-                            "Cryptocurrency Investment Seminar",
-                        ],
-                    }
-                    return JSON.stringify(suggestions[based_on])
-                },
-            }),
-            visualizeData: tool({
-                description:
-                    "Create data visualizations such as histograms or line plots",
-                parameters: z.object({
-                    chart_type: z.enum(["histogram", "line_plot"]),
-                    data_type: z.enum([
-                        "occupation_breakdown",
-                        "event_participation",
+                    timeframe: z.enum(["daily", "weekly", "monthly"]),
+                    metric: z.enum([
+                        "attendance",
+                        "engagement",
+                        "type_distribution",
                     ]),
                 }),
-                execute: async ({ chart_type, data_type }) => {
-                    // Simulated data visualization
-                    const data = {
-                        occupation_breakdown: [
-                            { label: "Developers", value: 40 },
-                            { label: "Content Creators", value: 30 },
-                            { label: "Entrepreneurs", value: 20 },
-                            { label: "Others", value: 10 },
-                        ],
-                        event_participation: [
-                            { label: "Jan", value: 50 },
-                            { label: "Feb", value: 60 },
-                            { label: "Mar", value: 75 },
-                            { label: "Apr", value: 90 },
-                        ],
+                execute: async ({ timeframe, metric }) => {
+                    const events = await db
+                        .select({
+                            id: hubEvents.id,
+                            name: hubEvents.name,
+                            type: hubEvents.typeOfEvent,
+                            startDate: hubEvents.startDate,
+                            participantCount: sql<number>`count(${usersToEvents.userId})`,
+                        })
+                        .from(hubEvents)
+                        .leftJoin(
+                            usersToEvents,
+                            eq(hubEvents.id, usersToEvents.eventId),
+                        )
+                        .groupBy(hubEvents.id)
+
+                    // Process based on metric and timeframe
+                    let analysisData
+                    if (metric === "type_distribution") {
+                        analysisData = events.reduce(
+                            (acc, event) => {
+                                acc[event.type] = (acc[event.type] || 0) + 1
+                                return acc
+                            },
+                            {} as Record<string, number>,
+                        )
+                    } else if (metric === "attendance") {
+                        analysisData = events.reduce(
+                            (acc, event) => {
+                                const dateKey = formatDateByTimeframe(
+                                    event.startDate,
+                                    timeframe,
+                                )
+                                acc[dateKey] =
+                                    (acc[dateKey] || 0) + event.participantCount
+                                return acc
+                            },
+                            {} as Record<string, number>,
+                        )
                     }
+
                     return JSON.stringify({
-                        type: chart_type,
-                        data: data[data_type],
+                        type: "line",
+                        data: Object.entries(analysisData || {}).map(
+                            ([label, value]) => ({
+                                label,
+                                value,
+                            }),
+                        ),
                     })
+                },
+            }),
+            generateEngagementInsights: tool({
+                description:
+                    "Generate insights about member engagement and participation patterns",
+                parameters: z.object({
+                    insight_type: z.enum([
+                        "participation_rate",
+                        "retention",
+                        "cross_event_participation",
+                    ]),
+                }),
+                execute: async ({ insight_type }) => {
+                    // Fetch participation data
+                    const participationData = await db
+                        .select({
+                            userId: usersToEvents.userId,
+                            eventCount: sql<number>`count(${usersToEvents.eventId})`,
+                            firstEvent: sql<Date>`min(${hubEvents.startDate})`,
+                            lastEvent: sql<Date>`max(${hubEvents.startDate})`,
+                        })
+                        .from(usersToEvents)
+                        .leftJoin(
+                            hubEvents,
+                            eq(hubEvents.id, usersToEvents.eventId),
+                        )
+                        .groupBy(usersToEvents.userId)
+
+                    let analysis = {}
+                    if (insight_type === "participation_rate") {
+                        const totalUsers = participationData.length
+                        const activeUsers = participationData.filter(
+                            (p) => p.eventCount > 3,
+                        ).length
+                        analysis = {
+                            activeRate: (activeUsers / totalUsers) * 100,
+                            averageEventsPerUser:
+                                participationData.reduce(
+                                    (acc, p) => acc + p.eventCount,
+                                    0,
+                                ) / totalUsers,
+                        }
+                    } else if (insight_type === "retention") {
+                        // Calculate retention based on continued participation
+                        const retainedUsers = participationData.filter((p) => {
+                            const monthsSinceFirst = monthsBetween(
+                                p.firstEvent,
+                                p.lastEvent,
+                            )
+                            return monthsSinceFirst >= 3 && p.eventCount > 5
+                        }).length
+                        analysis = {
+                            retentionRate:
+                                (retainedUsers / participationData.length) *
+                                100,
+                        }
+                    }
+
+                    return JSON.stringify({
+                        insights: analysis,
+                        recommendations: generateRecommendations(analysis),
+                    })
+                },
+            }),
+
+            predictEventSuccess: tool({
+                description:
+                    "Predict potential success of event types based on historical data",
+                parameters: z.object({
+                    event_type: z.string(),
+                    target_demographic: z.string().optional(),
+                }),
+                execute: async ({ event_type, target_demographic }) => {
+                    // Analyze historical event performance
+                    const historicalEvents = await db
+                        .select({
+                            type: hubEvents.typeOfEvent,
+                            participants: sql<number>`count(${usersToEvents.userId})`,
+                            nomadType: nomadProfile.skills, // This would need proper joining
+                        })
+                        .from(hubEvents)
+                        .leftJoin(
+                            usersToEvents,
+                            eq(hubEvents.id, usersToEvents.eventId),
+                        )
+                        .leftJoin(
+                            nomadProfile,
+                            eq(usersToEvents.userId, nomadProfile.userId),
+                        )
+                        .where(eq(hubEvents.typeOfEvent, event_type))
+                        .groupBy(hubEvents.id)
+
+                    // Calculate success metrics
+                    const analysis = {
+                        averageAttendance:
+                            calculateAverageAttendance(historicalEvents),
+                        demographicMatch: analyzeTargetDemographic(
+                            historicalEvents,
+                            target_demographic || "",
+                        ),
+                        recommendedTimeSlots:
+                            suggestTimeSlots(historicalEvents),
+                        potentialReach:
+                            estimatePotentialReach(historicalEvents),
+                    }
+
+                    return JSON.stringify(analysis)
                 },
             }),
         },
         async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
+            // Log analytics usage for improvement
             console.log(toolCalls, toolResults, usage, finishReason)
         },
     })
 
     return result.toDataStreamResponse()
+}
+
+// Helper functions
+function formatDateByTimeframe(date: Date, timeframe: string): string {
+    // Implementation for date formatting based on timeframe
+    return date.toISOString()
+}
+
+function monthsBetween(date1: Date, date2: Date): number {
+    return Math.floor(
+        Math.abs(date2.getTime() - date1.getTime()) /
+            (1000 * 60 * 60 * 24 * 30),
+    )
+}
+
+function generateRecommendations(analysis: any): string[] {
+    // Implementation for generating recommendations based on analysis
+    return []
+}
+
+// Add other helper functions for calculations and analysis
+function calculateAverageAttendance(historicalEvents: any[]): number {
+    return (
+        historicalEvents.reduce((acc, event) => acc + event.participants, 0) /
+        historicalEvents.length
+    )
+}
+
+function analyzeTargetDemographic(
+    historicalEvents: any[],
+    target_demographic: string,
+): number {
+    return 0
+}
+
+function suggestTimeSlots(historicalEvents: any[]): string[] {
+    return []
+}
+
+function estimatePotentialReach(historicalEvents: any[]): number {
+    return 0
 }

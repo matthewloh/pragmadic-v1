@@ -6,14 +6,31 @@ import {
     gpt4oModel,
 } from "@/lib/ai/custom-model"
 import { createMessage } from "@/lib/api/chats/mutations"
+import { kv } from "@vercel/kv"
+import { Ratelimit } from "@upstash/ratelimit"
 import { createClient } from "@/utils/supabase/server"
 import { convertToCoreMessages, streamText } from "ai"
 import { getSession } from "../../../utils/supabase/queries/cached-queries"
+import { NextRequest } from "next/server"
 
 // Allow streaming responses up to 60 seconds
 export const maxDuration = 60
 
-export async function POST(req: Request) {
+const ratelimit = new Ratelimit({
+    redis: kv,
+    limiter: Ratelimit.fixedWindow(5, "30s"),
+})
+
+export async function POST(req: NextRequest) {
+    // call ratelimit with request ip
+    const ip = req.headers.get("x-forwarded-for") ?? "ip"
+    console.log("ip", ip)
+    const { success, remaining } = await ratelimit.limit(ip)
+    console.log("remaining", remaining)
+    // block the request if unsuccessfull
+    if (!success) {
+        return new Response("Ratelimited!", { status: 429 })
+    }
     const { chatId, messages, model, selectedDocumentIds } = await req.json()
     console.log("model", model)
     console.log("selectedDocumentIds", selectedDocumentIds)

@@ -24,7 +24,7 @@ import {
 import { inviteUserToEvent } from "@/lib/actions/events"
 import { type Hub } from "@/lib/db/schema/hubs"
 import { type Event } from "@/lib/db/schema/events"
-import { SelectUser } from "@/lib/db/schema"
+import { UsersWithInviteStatus } from "@/lib/db/schema"
 
 const inviteFormSchema = z.object({
     userId: z.string().uuid(),
@@ -36,13 +36,13 @@ type InviteFormValues = z.infer<typeof inviteFormSchema>
 interface EventInviteFormProps {
     event: Event
     hub: Hub
-    hubUsers: SelectUser[]
+    usersToHub: UsersWithInviteStatus[]
 }
 
 export function EventInviteForm({
     event,
     hub,
-    hubUsers,
+    usersToHub,
 }: EventInviteFormProps) {
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -93,12 +93,12 @@ export function EventInviteForm({
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    {hubUsers.map((user) => (
+                                    {usersToHub.map((userToHub) => (
                                         <SelectItem
-                                            key={user.id}
-                                            value={user.id}
+                                            key={userToHub.id}
+                                            value={userToHub.id}
                                         >
-                                            {user.display_name}
+                                            {userToHub.display_name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

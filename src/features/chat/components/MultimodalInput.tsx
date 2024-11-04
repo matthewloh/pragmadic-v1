@@ -32,22 +32,22 @@ const suggestedActions = [
 
 type ChatTextAreaProps = {
     input: string
-    setInput: (value: string) => void
+    setInput(value: string): void
     isLoading: boolean
-    stop: () => void
+    stop(): void
     attachments: Array<Attachment>
     setAttachments: React.Dispatch<React.SetStateAction<Array<Attachment>>>
     messages: Array<Message>
-    append: (
+    append(
         message: Message | CreateMessage,
         chatRequestOptions?: ChatRequestOptions,
-    ) => Promise<string | null | undefined>
-    handleSubmit: (
+    ): Promise<string | null | undefined>
+    handleSubmit(
         event?: {
             preventDefault?: () => void
         },
         chatRequestOptions?: ChatRequestOptions,
-    ) => void
+    ): void
     selectedModel: ModelOption
     selectedDocumentIds: string[]
     selectedDocuments?: DocumentRow[] | null
@@ -158,25 +158,6 @@ export default function MultimodalInput({
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-            <div className="mb-2 flex flex-wrap items-center gap-2 px-2">
-                <Badge variant="secondary" className="text-xs">
-                    {selectedModel.provider} - {selectedModel.name}
-                </Badge>
-                {selectedDocuments && selectedDocuments.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                        {selectedDocuments.map((doc) => (
-                            <Badge
-                                key={doc.id}
-                                variant="outline"
-                                className="text-xs"
-                            >
-                                {doc.metadata?.fullPath || doc.name}
-                            </Badge>
-                        ))}
-                    </div>
-                )}
-            </div>
-
             {messages.length === 0 &&
                 attachments.length === 0 &&
                 uploadQueue.length === 0 && (
@@ -210,7 +191,24 @@ export default function MultimodalInput({
                         ))}
                     </div>
                 )}
-
+            <div className="mb-2 flex flex-wrap items-center gap-2 px-2">
+                <Badge variant="secondary" className="text-xs">
+                    {selectedModel.provider} - {selectedModel.name}
+                </Badge>
+                {selectedDocuments && selectedDocuments.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {selectedDocuments.map((doc) => (
+                            <Badge
+                                key={doc.id}
+                                variant="outline"
+                                className="text-xs"
+                            >
+                                {doc.metadata?.originalName || doc.name}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
+            </div>
             <Input
                 type="file"
                 className="pointer-events-none fixed -left-4 -top-4 size-0.5 opacity-0"

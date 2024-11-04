@@ -18,3 +18,5 @@ export type UserRole = Enums<"user_role">
 export type UserRow = Database["public"]["Tables"]["users"]["Row"]
 
 export * from "../types/db"
+
+export type ChatRow = Tables<"chats">

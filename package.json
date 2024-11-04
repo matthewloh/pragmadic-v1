@@ -65,6 +65,8 @@
     "@uppy/file-input": "^4.0.1",
     "@uppy/progress-bar": "^4.0.0",
     "@uppy/status-bar": "^4.0.3",
+    "@upstash/ratelimit": "^2.0.4",
+    "@vercel/kv": "^3.0.0",
     "ai": "^3.4.31",
     "class-variance-authority": "^0.7.0",
     "client-only": "^0.0.1",

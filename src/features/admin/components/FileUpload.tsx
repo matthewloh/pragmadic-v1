@@ -57,7 +57,7 @@ export function FileUpload({ folder }: FileUploadProps) {
 
             // Upload to Supabase
             const uploadResult = await upload({ files: [file] })
-            const result = uploadResult[0] // Get first result
+            const result = uploadResult[0]
 
             if (result.error) {
                 throw new Error(`Upload failed: ${result.error.message}`)
@@ -67,8 +67,12 @@ export function FileUpload({ folder }: FileUploadProps) {
                 throw new Error("Upload failed: No data returned")
             }
 
-            // Process the uploaded file using the fullPath
-            await generateEmbeddingsForPdfAction(result.data.fullPath, folder)
+            // Pass the object ID from the upload result
+            await generateEmbeddingsForPdfAction(
+                result.data.fullPath,
+                folder,
+                result.data.id,
+            )
             toast.success("File processed successfully")
             resetUpload()
         } catch (error) {

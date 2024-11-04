@@ -19,6 +19,7 @@ export default async function ChatById(props: {
         ...chatFromDb,
         messages: chatFromDb.messages as Message[],
     }
+
     return (
         <div className="flex h-screen w-full flex-col">
             <ChatContentClient

@@ -4,21 +4,20 @@ import { FileInfo } from "@/components/aceternity/file-upload"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { nanoid } from "@/lib/utils"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
 import { Attachment, Message } from "ai"
 import { useChat } from "ai/react"
 import { AnimatePresence, motion } from "framer-motion"
 import { ChevronDown, FileIcon, MessageSquare } from "lucide-react"
 import Image from "next/image"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useScrollAnchor } from "../hooks/use-scroll-anchor"
 import { ChatMessage } from "./ChatMessage"
-import MultimodalInput from "./MultimodalInput"
-import { Badge } from "@/components/ui/badge"
-import { options, ModelOption } from "./ModelSelector"
-import useSupabaseBrowser from "@/utils/supabase/client"
-import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
 import { DocumentRow } from "./DocumentSelector"
+import { ModelOption } from "./ModelSelector"
+import MultimodalInput from "./MultimodalInput"
 
 type ReferencedDocument = {
     id: string
@@ -30,7 +29,7 @@ type ReferencedDocument = {
 interface ChatComponentProps {
     chatId: string
     initialMessages: Array<Message>
-    onDocumentsReferenced: (docs: ReferencedDocument[]) => void
+    onDocumentsReferenced(docs: ReferencedDocument[]): void
     isDocPanelOpen: boolean
     selectedModel: ModelOption
     selectedDocumentIds: string[]
@@ -45,11 +44,6 @@ export function ChatComponent({
     selectedDocumentIds,
 }: ChatComponentProps) {
     const router = useRouter()
-    const searchParams = useSearchParams()
-
-    const [selectedFilePathnames, setSelectedFilePathnames] = useState<
-        string[]
-    >([])
 
     const [uploadedFiles, setUploadedFiles] = useState<FileInfo[]>([])
 
@@ -86,21 +80,6 @@ export function ChatComponent({
         scrollToBottom,
         isAtBottom,
     } = useScrollAnchor()
-
-    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        handleSubmit(e)
-        setTimeout(() => {
-            onDocumentsReferenced([
-                {
-                    id: nanoid(),
-                    title: "Sample Document",
-                    content: "This is a sample referenced document.",
-                    relevance: 0.95,
-                },
-            ])
-        }, 1000)
-    }
 
     useEffect(() => {
         if (isAtBottom) {

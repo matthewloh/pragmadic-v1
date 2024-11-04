@@ -26,7 +26,7 @@ export type DocumentRow = {
 
 interface DocumentSelectorProps {
     selectedDocuments: string[]
-    onSelectionChange: (documentIds: string[]) => void
+    onSelectionChange(documentIds: string[]): void
 }
 
 export function DocumentSelector({

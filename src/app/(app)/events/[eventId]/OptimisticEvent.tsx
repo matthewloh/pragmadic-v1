@@ -22,7 +22,7 @@ import Modal from "@/components/shared/Modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { EventMarker, SelectUser } from "@/lib/db/schema"
+import { EventMarker, SelectUser, UsersWithInviteStatus } from "@/lib/db/schema"
 import { type Hub } from "@/lib/db/schema/hubs"
 import { PencilIcon } from "lucide-react"
 import useSupabaseBrowser from "@/utils/supabase/client"
@@ -41,12 +41,12 @@ import { ChevronDownIcon } from "lucide-react"
 export default function OptimisticEvent({
     event,
     hubs,
-    hubUsers,
+    usersToHub,
     marker,
 }: {
     event: CompleteEvent
     hubs: Hub[]
-    hubUsers: SelectUser[]
+    usersToHub: UsersWithInviteStatus[]
     marker: EventMarker | null
 }) {
     const supabase = useSupabaseBrowser()
@@ -60,7 +60,9 @@ export default function OptimisticEvent({
     const router = useRouter()
 
     const isCreator = user?.id === event.userId
-    const isHubMember = hubUsers.some((hubUser) => hubUser.id === user?.id)
+    const isHubMember = usersToHub.some(
+        (userToHub) => userToHub.id === user?.id,
+    )
     const { data: eventParticipants } = useQuery(
         supabase.from("users_to_events").select("*").eq("event_id", event.id),
     )
@@ -363,7 +365,7 @@ export default function OptimisticEvent({
                             <EventInviteForm
                                 event={event}
                                 hub={event.hub!}
-                                hubUsers={hubUsers}
+                                usersToHub={usersToHub}
                             />
                         </CardContent>
                     </Card>

@@ -2,7 +2,7 @@ import { db } from "@/lib/db/index"
 import { eq, and } from "drizzle-orm"
 import { getUserAuth } from "@/lib/auth/utils"
 import { type ReviewId, reviewIdSchema, reviews } from "@/lib/db/schema/reviews"
-import { hubs } from "@/lib/db/schema/hubs"
+import { HubId, hubIdSchema, hubs } from "@/lib/db/schema/hubs"
 
 export const getReviews = async () => {
     const { session } = await getUserAuth()
@@ -31,4 +31,14 @@ export const getReviewById = async (id: ReviewId) => {
     if (row === undefined) return {}
     const r = { ...row.review, hub: row.hub }
     return { review: r }
+}
+
+export const getReviewsByHubId = async (hub_id: HubId) => {
+    const rows = await db
+        .select({ review: reviews, hub: hubs })
+        .from(reviews)
+        .where(eq(reviews.hubId, hub_id))
+        .leftJoin(hubs, eq(reviews.hubId, hubs.id))
+    const r = rows.map((r) => ({ ...r.review, hub: r.hub }))
+    return { reviews: r }
 }

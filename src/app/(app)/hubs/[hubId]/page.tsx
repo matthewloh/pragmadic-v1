@@ -3,12 +3,19 @@ import { Suspense } from "react"
 
 import OptimisticHub from "./OptimisticHub"
 import { HubTabs } from "@/components/hubs/HubTabs"
-import { getHubByIdWithEventsAndReviewsAndInvites } from "@/lib/api/hubs/queries"
+import {
+    getHubByIdWithEventsAndReviewsAndInvites,
+    getHubInvitesByHubId,
+    getAllHubUsersById,
+    getHubByIdWithOwnerProfile,
+} from "@/lib/api/hubs/queries"
 import { getStates } from "@/lib/api/states/queries"
 import Loading from "@/app/loading"
 import { BackButton } from "@/components/shared/BackButton"
 import { getUserRole } from "@/lib/auth/get-user-role"
 import { getUser } from "@/lib/api/users/queries"
+import { getReviews, getReviewsByHubId } from "@/lib/api/reviews/queries"
+import { getEventsByHubId } from "@/lib/api/events/queries"
 
 export const revalidate = 0
 
@@ -28,11 +35,13 @@ export default async function HubPage(props: {
 }
 
 async function Hub({ id, tab }: { id: string; tab: string }) {
-    const { hub, events, reviews, invites } =
-        await getHubByIdWithEventsAndReviewsAndInvites(id)
-    const { states } = await getStates()
-
+    const { hub } = await getHubByIdWithOwnerProfile(id)
     if (!hub) notFound()
+    const { user: ownerUserProfile, hubOwnerProfile } = hub
+    const { states } = await getStates()
+    const { events: eventsByHubId } = await getEventsByHubId(id)
+    const { reviews: reviewsByHubId } = await getReviewsByHubId(id)
+    const { users: usersToHub } = await getAllHubUsersById(id)
 
     return (
         <div className="flex flex-1 flex-col space-y-8">
@@ -44,9 +53,11 @@ async function Hub({ id, tab }: { id: string; tab: string }) {
                 />
                 <HubTabs
                     hub={hub}
-                    events={events}
-                    reviews={reviews}
-                    invites={invites}
+                    ownerUserProfile={ownerUserProfile}
+                    hubOwnerProfile={hubOwnerProfile}
+                    events={eventsByHubId}
+                    reviews={reviewsByHubId}
+                    usersToHub={usersToHub}
                     tab={tab}
                 />
             </div>

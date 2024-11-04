@@ -50,7 +50,7 @@ export default function HubList({
     const closeModal = () => setOpen(false)
 
     return (
-        <div className="flex h-full flex-1 flex-col gap-2 bg-gradient-to-br from-background to-primary/30">
+        <div className="flex h-full flex-1 flex-col gap-2 rounded-xl bg-gradient-to-br from-background/10 to-primary/10">
             <Modal
                 open={open}
                 setOpen={setOpen}
@@ -67,7 +67,7 @@ export default function HubList({
             </Modal>
 
             {optimisticHubs.length > 0 && isAdmin && (
-                <div className="mb-4 flex justify-start">
+                <div className="mt-4 flex justify-start">
                     <Button onClick={() => openModal()} className="gap-2">
                         <PlusIcon className="h-4 w-4" />
                         Add Hub
@@ -75,7 +75,7 @@ export default function HubList({
                 </div>
             )}
 
-            <div className="h-full flex-1">
+            <div className="h-full flex-1 rounded-xl p-4">
                 <AnimatePresence>
                     {isLoading ? (
                         <SkeletonLoader />

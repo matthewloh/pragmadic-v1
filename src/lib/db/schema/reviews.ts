@@ -43,7 +43,14 @@ const baseSchema = createSelectSchema(reviews).omit(timestamps)
 export const insertReviewSchema = createInsertSchema(reviews).omit(timestamps)
 export const insertReviewParams = baseSchema
     .extend({
-        rating: z.coerce.number(),
+        rating: z.coerce
+            .number()
+            .min(1)
+            .max(5)
+            .describe("Rating must be between 1 and 5")
+            .refine((n) => n >= 1 && n <= 5, {
+                message: "Rating must be between 1 and 5",
+            }),
         hubId: z.coerce.string().min(1),
     })
     .omit({

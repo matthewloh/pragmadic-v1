@@ -116,8 +116,10 @@ export default function OptimisticHub({
 
             {/* Content Section */}
             <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-4">
-                    <div className="rounded-lg border bg-card/30 p-4 shadow-sm">
+                {/* Left Column */}
+                <div className="flex flex-col gap-4">
+                    {/* Description Card */}
+                    <div className="flex-1 rounded-lg border bg-card/30 p-4 shadow-sm">
                         <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                             <Info className="h-4 w-4 text-blue-500" />
                             Description
@@ -127,8 +129,47 @@ export default function OptimisticHub({
                                 "No description provided."}
                         </p>
                     </div>
+
+                    {/* Metadata Card */}
+                    <div className="flex-1 rounded-lg border bg-card/30 p-4 shadow-sm">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                    <Building2 className="h-4 w-4 text-violet-500" />
+                                    Hub Type
+                                </div>
+                                <p className="text-sm font-medium text-foreground/90">
+                                    {optimisticHub.typeOfHub || "Not specified"}
+                                </p>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                    <Clock className="h-4 w-4 text-orange-500" />
+                                    Last Updated
+                                </div>
+                                <p className="text-sm font-medium text-foreground/90">
+                                    {format(
+                                        new Date(optimisticHub.updatedAt),
+                                        "MMM d, yyyy",
+                                    )}
+                                </p>
+                                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                    <Calendar className="h-4 w-4 text-blue-500" />
+                                    Established{" "}
+                                    {format(
+                                        new Date(optimisticHub.createdAt),
+                                        "MMM d, yyyy",
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Column - Additional Information */}
+                <div className="flex flex-col">
                     {optimisticHub.info && (
-                        <div className="rounded-lg border bg-card/30 p-4 shadow-sm">
+                        <div className="flex-1 rounded-lg border bg-card/30 p-4 shadow-sm">
                             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                                 <Hash className="h-4 w-4 text-emerald-500" />
                                 Additional Information
@@ -139,67 +180,8 @@ export default function OptimisticHub({
                         </div>
                     )}
                 </div>
-                <div className="space-y-4">
-                    <MetadataCard
-                        type={optimisticHub.typeOfHub}
-                        createdAt={optimisticHub.createdAt}
-                        updatedAt={optimisticHub.updatedAt}
-                    />
-                    <ContactCard hub={optimisticHub} />
-                </div>
             </div>
-
             <Separator className="my-2" />
-        </div>
-    )
-}
-
-function MetadataCard({
-    type,
-    createdAt,
-    updatedAt,
-}: {
-    type: string
-    createdAt: Date
-    updatedAt: Date
-}) {
-    return (
-        <div className="grid gap-4 rounded-lg border bg-card/30 p-4 shadow-sm sm:grid-cols-2">
-            <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Building2 className="h-4 w-4 text-violet-500" />
-                    Hub Type
-                </div>
-                <p className="text-sm font-medium text-foreground/90">
-                    {type || "Not specified"}
-                </p>
-            </div>
-            <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Clock className="h-4 w-4 text-orange-500" />
-                    Last Updated
-                </div>
-                <p className="text-sm font-medium text-foreground/90">
-                    {format(new Date(updatedAt), "MMM d, yyyy")}
-                </p>
-            </div>
-        </div>
-    )
-}
-
-function ContactCard({ hub }: { hub: Hub }) {
-    return (
-        <div className="rounded-lg border bg-card/30 p-4 shadow-sm">
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Users className="h-4 w-4 text-pink-500" />
-                Contact Information
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span className="text-foreground/90">
-                    {hub.userId || "No contact information available"}
-                </span>
-            </div>
         </div>
     )
 }

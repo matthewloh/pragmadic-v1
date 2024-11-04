@@ -151,9 +151,7 @@ export function NavUser() {
                     </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <SignOut />
-                </DropdownMenuItem>
+                <SignOut />
             </DropdownMenuContent>
         </DropdownMenu>
     )

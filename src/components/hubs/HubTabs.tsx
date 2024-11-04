@@ -1,39 +1,59 @@
 "use client"
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Calendar, Star, Users, Info } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import EventList from "@/components/events/EventList"
+import { UserInviteHubList } from "@/components/hubs/UserInviteHubList"
+import ReviewList from "@/components/reviews/ReviewList"
 import { Card, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import EventList from "@/components/events/EventList"
-import ReviewList from "@/components/reviews/ReviewList"
-import { UserInviteHubList } from "@/components/hubs/UserInviteHubList"
-import { CompleteHub } from "@/lib/db/schema/hubs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+    HubOwnerProfile,
+    SelectUser,
+    UsersWithInviteStatus,
+} from "@/lib/db/schema"
 import { CompleteEvent } from "@/lib/db/schema/events"
+import { CompleteHub } from "@/lib/db/schema/hubs"
 import { CompleteReview } from "@/lib/db/schema/reviews"
-import { UsersToHub } from "@/lib/db/schema"
-import { HubInfo } from "./HubInfo"
 import { cn } from "@/lib/utils"
+import { AnimatePresence, motion } from "framer-motion"
+import { Calendar, Info, Star, Users } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useState } from "react"
+import { HubInfo } from "./HubInfo"
 
 interface HubTabsProps {
     hub: CompleteHub
+    ownerUserProfile: SelectUser | null
+    hubOwnerProfile: HubOwnerProfile | null
     events: CompleteEvent[]
     reviews: CompleteReview[]
-    invites: UsersToHub[]
+    usersToHub: UsersWithInviteStatus[]
     tab: string
 }
 
-export function HubTabs({ hub, events, reviews, invites, tab }: HubTabsProps) {
+export function HubTabs({
+    hub,
+    ownerUserProfile,
+    hubOwnerProfile,
+    events,
+    reviews,
+    usersToHub,
+    tab,
+}: HubTabsProps) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [activeTab, setActiveTab] = useState(tab || "info")
     const tabContent = {
-        info: <HubInfo hub={hub} />,
+        info: (
+            <HubInfo
+                hub={hub}
+                ownerUserProfile={ownerUserProfile}
+                hubOwnerProfile={hubOwnerProfile}
+            />
+        ),
         events: <EventList hubs={[]} hubId={hub.id} events={events} />,
         reviews: <ReviewList hubs={[]} hubId={hub.id} reviews={reviews} />,
-        members: <UserInviteHubList invites={invites} />,
+        members: <UserInviteHubList invites={usersToHub} hub={hub} />,
     }
 
     const handleTabChange = (value: string) => {

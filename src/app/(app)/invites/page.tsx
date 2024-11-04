@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { UserInviteHubList } from "@/components/hubs/UserInviteHubList"
 import Loading from "@/app/loading"
 import { getUserAuth } from "@/lib/auth/utils"
+import { CompleteHub } from "@/lib/db/schema"
 
 export const revalidate = 0
 
@@ -16,7 +17,8 @@ export default async function InvitesPage() {
             <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
                 <h1 className="mb-4 text-3xl font-bold">Manage Invites</h1>
                 <Suspense fallback={<Loading />}>
-                    <UserInviteHubList invites={[]} />
+                    {/* TODO: probably rethink this */}
+                    <UserInviteHubList invites={[]} hub={{} as CompleteHub} />
                 </Suspense>
             </div>
         </main>

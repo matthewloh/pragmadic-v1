@@ -26,6 +26,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useState } from "react"
+import { deleteDocumentAction } from "../actions/delete-file"
 
 interface FileListProps {
     folder: string
@@ -47,13 +48,19 @@ export function FileList({ folder }: FileListProps) {
         supabase.storage.from("knowledge_base"),
     )
 
-    const handleDelete = async (fileName: string) => {
+    const handleDelete = async (fileName: string, fileId: string) => {
         const filePath = `${folder}/${fileName}`
         setDeletingFile(fileName)
         try {
             await remove([filePath], {
-                onSuccess: () => {
-                    toast.success("File deleted successfully")
+                onSuccess: async () => {
+                    try {
+                        await deleteDocumentAction(fileId)
+                        toast.success("File deleted successfully")
+                    } catch (error) {
+                        console.error("Error deleting document record:", error)
+                        toast.error("File deleted but failed to update records")
+                    }
                 },
                 onError: (error) => {
                     console.error("Delete error:", error)
@@ -205,7 +212,10 @@ export function FileList({ folder }: FileListProps) {
                                             </AlertDialogCancel>
                                             <AlertDialogAction
                                                 onClick={() => {
-                                                    handleDelete(file.name)
+                                                    handleDelete(
+                                                        file.name,
+                                                        file.id,
+                                                    )
                                                 }}
                                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                             >

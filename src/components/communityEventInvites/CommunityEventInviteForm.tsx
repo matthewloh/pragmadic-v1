@@ -296,8 +296,7 @@ const CommunityEventInviteForm = ({
                                     key={communityEvent.id}
                                     value={communityEvent.id.toString()}
                                 >
-                                    {communityEvent.id}
-                                    {/* TODO: Replace with a field from the communityEvent model */}
+                                    {communityEvent.title}
                                 </SelectItem>
                             ))}
                         </SelectContent>

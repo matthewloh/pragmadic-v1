@@ -1,10 +1,6 @@
 import { RoleType } from "@/lib/auth/get-user-role"
 import { nanoid } from "@/lib/utils"
-import {
-    Permission,
-    PERMISSIONS,
-    ROLES
-} from "@/utils/supabase/permissions"
+import { Permission, PERMISSIONS, ROLES } from "@/utils/supabase/permissions"
 import { sql } from "drizzle-orm"
 import {
     pgEnum,
@@ -90,3 +86,14 @@ export type UserWithRolesAndPermissions = SelectUser & {
 }
 export const userIdSchema = createSelectSchema(users).pick({ id: true })
 export type UserId = z.infer<typeof userIdSchema>["id"]
+
+export type UsersWithInviteStatus = {
+    id: string
+    createdAt: Date
+    email: string
+    display_name: string | null
+    image_url: string | null
+    invite_status: "pending" | "accepted" | "rejected" | null
+    invite_role_type: "admin" | "member" | null
+    hub_id: string
+}

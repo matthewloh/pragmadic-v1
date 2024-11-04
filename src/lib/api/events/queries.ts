@@ -8,7 +8,7 @@ import {
     UsersToEvents,
     usersToEvents,
 } from "@/lib/db/schema/events"
-import { hubs } from "@/lib/db/schema/hubs"
+import { HubId, hubs } from "@/lib/db/schema/hubs"
 import { SelectUser, users } from "@/lib/db/schema/users"
 
 export const getEvents = async () => {
@@ -56,4 +56,14 @@ export const getParticipantsByEventId = async (id: EventId) => {
         .where(eq(usersToEvents.eventId, eventId))
 
     return participants
+}
+
+export const getEventsByHubId = async (hub_id: HubId) => {
+    const rows = await db
+        .select({ event: hubEvents, hub: hubs })
+        .from(hubEvents)
+        .where(eq(hubEvents.hubId, hub_id))
+        .leftJoin(hubs, eq(hubEvents.hubId, hubs.id))
+    const e = rows.map((r) => ({ ...r.event, hub: r.hub }))
+    return { events: e }
 }

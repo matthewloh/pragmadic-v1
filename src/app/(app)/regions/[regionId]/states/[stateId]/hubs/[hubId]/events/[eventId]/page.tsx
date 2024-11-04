@@ -3,7 +3,7 @@ import { Suspense } from "react"
 
 import OptimisticEvent from "@/app/(app)/events/[eventId]/OptimisticEvent"
 import { getEventById } from "@/lib/api/events/queries"
-import { getHubs, getHubUsersById } from "@/lib/api/hubs/queries"
+import { getHubs, getAllHubUsersById } from "@/lib/api/hubs/queries"
 
 import Loading from "@/app/loading"
 import { BackButton } from "@/components/shared/BackButton"
@@ -27,7 +27,7 @@ const Event = async ({ id }: { id: string }) => {
     if (!event) notFound()
 
     const { hubs } = await getHubs()
-    const { users: hubUsers } = await getHubUsersById(event.hubId)
+    const { users: usersToHub } = await getAllHubUsersById(event.hubId)
     // Just enforcing one event can have one marker for now
     const marker = await getEventMarkerByEventId(id)
     return (
@@ -37,7 +37,7 @@ const Event = async ({ id }: { id: string }) => {
                 <OptimisticEvent
                     event={event}
                     hubs={hubs}
-                    hubUsers={hubUsers}
+                    usersToHub={usersToHub}
                     marker={marker}
                 />
             </div>

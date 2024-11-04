@@ -1,15 +1,40 @@
 "use client"
 
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { deleteChatAction } from "@/features/chat/actions" // Import the delete action
 import ChatHistoryPopover from "@/features/chat/components/ChatHistoryPopover"
-import ModelSelector, { ModelOption } from "./ModelSelector"
 import { cn } from "@/lib/utils"
 import { AnimatePresence, motion } from "framer-motion"
-import { Home, LucideIcon, MessageSquarePlus, Pin } from "lucide-react"
+import {
+    Home,
+    Info,
+    LucideIcon,
+    MessageSquarePlus,
+    Pin,
+    Settings,
+    Trash2,
+} from "lucide-react"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { IconType } from "react-icons/lib"
+import ModelSelector, { ModelOption } from "./ModelSelector"
+import { toast } from "sonner"
+import { redirect, useRouter } from "next/navigation"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
+import { ChatRow } from "@/utils/supabase/types"
 
 type ChatSettingsSidebarIconComponentProps = {
     icon: LucideIcon | IconType
@@ -22,8 +47,9 @@ type ChatSettingsSidebarIconComponentProps = {
 interface ChatSettingsSidebarProps {
     isExpanded: boolean
     selectedModel: ModelOption
-    onModelSelect: (model: ModelOption) => void
-    onExpandChange: (expanded: boolean) => void
+    onModelSelect(model: ModelOption): void
+    onExpandChange(expanded: boolean): void
+    chatId: string // Add chatId prop
 }
 
 export function ChatSettingsSidebar({
@@ -31,10 +57,17 @@ export function ChatSettingsSidebar({
     selectedModel,
     onModelSelect,
     onExpandChange,
+    chatId, // Accept chatId
 }: ChatSettingsSidebarProps) {
+    const supabase = useSupabaseBrowser()
+    const { data: chat } = useQuery<ChatRow>(
+        supabase.from("chats").select("*").eq("id", chatId).single(),
+    )
+
     const [isPinned, setIsPinned] = useState(false)
     const [isHovered, setIsHovered] = useState(false)
-
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+    const router = useRouter()
     const handleMouseEnter = () => {
         setIsHovered(true)
         if (!isPinned) {
@@ -54,6 +87,19 @@ export function ChatSettingsSidebar({
         setIsPinned(newPinned)
         if (!newPinned) {
             onExpandChange(false)
+        }
+    }
+
+    const handleDeleteChat = async () => {
+        try {
+            await deleteChatAction(chatId)
+            router.push("/chat")
+            toast.success("Chat deleted successfully")
+        } catch (error) {
+            console.error("Error deleting chat:", error)
+            toast.error("Error deleting chat")
+        } finally {
+            setIsDeleteDialogOpen(false)
         }
     }
 
@@ -88,12 +134,6 @@ export function ChatSettingsSidebar({
                     href="/chat"
                     isExpanded={isExpanded}
                 />
-                <ChatSettingsSidebarIconComponent
-                    icon={Home}
-                    label="Home"
-                    href="/dashboard"
-                    isExpanded={isExpanded}
-                />
                 <ModelSelector
                     isExpanded={isExpanded}
                     selectedModel={selectedModel}
@@ -108,14 +148,72 @@ export function ChatSettingsSidebar({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="mt-auto px-4 py-4"
+                        className="mt-auto space-y-4 border-t border-border/50 p-4"
                     >
-                        <h2 className="text-lg font-semibold text-foreground">
-                            Chat Settings
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            Manage your chat preferences and history.
-                        </p>
+                        {chat?.description && (
+                            <div className="space-y-2 rounded-lg bg-primary p-4">
+                                <div className="flex items-center gap-2 rounded-lg text-primary-foreground">
+                                    <Info className="h-4 w-4" />
+                                    <p className="text-sm font-medium">
+                                        About this chat
+                                    </p>
+                                </div>
+                                <p className="text-sm text-primary-foreground/60">
+                                    {chat.description}
+                                </p>
+                            </div>
+                        )}
+                        <div className="flex flex-col items-start justify-start gap-2">
+                            <div className="flex items-center gap-2">
+                                <Settings className="h-5 w-5 text-muted-foreground" />
+                                <h2 className="text-lg font-semibold text-foreground">
+                                    Chat Settings
+                                </h2>
+                            </div>
+                            {!!chat && (
+                                <AlertDialog
+                                    open={isDeleteDialogOpen}
+                                    onOpenChange={setIsDeleteDialogOpen}
+                                >
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            variant="destructive"
+                                            className="w-full"
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Delete Chat
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>
+                                                Delete Chat
+                                            </AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Are you sure you want to delete
+                                                this chat? This action cannot be
+                                                undone.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel
+                                                onClick={() =>
+                                                    setIsDeleteDialogOpen(false)
+                                                }
+                                            >
+                                                Cancel
+                                            </AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={handleDeleteChat}
+                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            >
+                                                Delete
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            )}
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

@@ -6,7 +6,7 @@ import {
     getEventById,
     getParticipantsByEventId,
 } from "@/lib/api/events/queries"
-import { getHubs, getHubUsersById } from "@/lib/api/hubs/queries"
+import { getHubs, getAllHubUsersById } from "@/lib/api/hubs/queries"
 import { getHubUsers } from "@/lib/api/hubs/queries"
 
 import Loading from "@/app/loading"
@@ -32,7 +32,7 @@ const Event = async ({ id }: { id: string }) => {
     if (!event) notFound()
 
     // Fetch hub users
-    const { users: hubUsers } = await getHubUsersById(event.hubId)
+    const { users: usersToHub } = await getAllHubUsersById(event.hubId)
     const marker = await getEventMarkerByEventId(id)
     return (
         <Suspense fallback={<Loading />}>
@@ -41,7 +41,7 @@ const Event = async ({ id }: { id: string }) => {
                 <OptimisticEvent
                     event={event}
                     hubs={hubs}
-                    hubUsers={hubUsers}
+                    usersToHub={usersToHub}
                     marker={marker}
                 />
             </div>
