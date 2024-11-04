@@ -20,7 +20,7 @@ export function LandingHero() {
                 <ChatbotSection />
                 <DeRantauSection />
                 <NomadNetworkSection />
-                <PragmadicPromisesSection />
+                {/* <PragmadicPromisesSection /> */}
             </main>
             <LandingFooter />
         </div>

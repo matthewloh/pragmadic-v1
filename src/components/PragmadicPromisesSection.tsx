@@ -26,7 +26,7 @@ export function PragmadicPromisesSection() {
                         </CardHeader>
                         <CardContent>
                             <Image
-                                src={`/placeholder.svg?height=200&width=300`}
+                                src={`/placeholder.svg`}
                                 alt={title}
                                 width={300}
                                 height={200}

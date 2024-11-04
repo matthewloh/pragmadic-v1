@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { AnalyticsToolbar } from "./AnalyticsToolbar"
 import { AnalyticsCharts } from "./AnalyticsCharts"
 import { AnalyticsChat } from "./AnalyticsChat"
+import { BarCharts } from "../charts/bar-charts"
 
 export function AnalyticsDashboard() {
     const [selectedView, setSelectedView] = useState<
@@ -20,6 +21,8 @@ export function AnalyticsDashboard() {
                 />
                 <Card className="p-4">
                     <AnalyticsCharts view={selectedView} />
+
+                    <BarCharts />
                 </Card>
             </div>
 

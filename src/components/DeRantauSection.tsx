@@ -6,15 +6,15 @@ export function DeRantauSection() {
     const cards = [
         {
             title: "Coworking Spaces",
-            src: "/placeholder.svg",
+            src: "https://images.unsplash.com/photo-1562664369-49d50bb66658?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
             title: "Networking Events",
-            src: "/placeholder.svg",
+            src: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2612&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
             title: "Local Experiences",
-            src: "/placeholder.svg",
+            src: "https://images.unsplash.com/photo-1581028107987-990cb2ecfa5b?q=80&w=2564&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
     ]
 
@@ -36,11 +36,12 @@ export function DeRantauSection() {
                 </div>
                 <div className="md:w-1/2">
                     <Image
-                        src="/placeholder.svg"
+                        src="https://images.unsplash.com/photo-1590756568559-1e1f15180d39?q=80&w=2668&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                         alt="DE Rantau Hub"
                         width={500}
                         height={300}
-                        className="rounded-lg shadow-lg"
+                        quality={80}
+                        className="size-full rounded-lg object-cover shadow-lg"
                     />
                 </div>
             </div>

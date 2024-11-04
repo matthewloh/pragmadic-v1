@@ -18,10 +18,11 @@ export function NomadNetworkSection() {
                 </Button>
             </div>
             <Image
-                src="/placeholder.svg"
+                src="https://images.unsplash.com/photo-1654201925953-3e51b98bea95?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Nomad Network Event"
                 width={600}
                 height={400}
+                quality={80}
                 className="max-h-[800px] w-full rounded-lg object-cover shadow-lg"
             />
         </section>

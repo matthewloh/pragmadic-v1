@@ -191,7 +191,7 @@ export function LandingHeader() {
                     "duration-1s animate-header-slide-down-fade transition ease-in-out",
             )}
         >
-            <nav className="z-20 flex h-12 items-center rounded-full border border-border bg-primary bg-opacity-70 px-4 backdrop-blur-xl backdrop-filter">
+            <nav className="z-20 flex h-12 items-center rounded-tl-lg rounded-tr-lg border border-border bg-primary bg-opacity-70 px-4 backdrop-blur-xl backdrop-filter">
                 <Link href="/" className="flex items-center">
                     <div className="relative mr-2 size-8 flex-shrink-0">
                         <Image
