@@ -53,11 +53,6 @@ export default function NomadProfileList({
                     closeModal={closeModal}
                 />
             </Modal>
-            <div className="absolute right-0 top-0">
-                <Button onClick={() => openModal()} variant={"outline"}>
-                    <PlusIcon className="h-4 w-4" />
-                </Button>
-            </div>
             {!optimisticNomadProfile ? (
                 <EmptyState openModal={openModal} />
             ) : (

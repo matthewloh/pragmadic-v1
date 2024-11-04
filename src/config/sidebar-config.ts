@@ -18,8 +18,6 @@ import {
     SquareUser,
     Star,
     TentTree,
-    User,
-    UserPen,
     Users,
 } from "lucide-react"
 
@@ -40,6 +38,11 @@ export const pragmadicFeatures: NavItem[] = [
         title: "RAG Chatbot",
         url: "/chat",
         icon: MessageCircle,
+    },
+    {
+        title: "Getting Started",
+        url: "/getting-started",
+        icon: HelpCircle,
     },
 ]
 

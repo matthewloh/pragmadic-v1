@@ -27,10 +27,13 @@ export async function assignUserRoleAction(input: AssignRoleInput) {
         const { userId, role } = assignRoleSchema.parse(input)
 
         // Insert the role into user_roles table
-        await db.insert(userRoles).values({
-            userId,
-            role,
-        })
+        await db
+            .insert(userRoles)
+            .values({
+                userId,
+                role,
+            })
+            .onConflictDoNothing()
 
         revalidatePath("/getting-started")
         revalidatePath("/profile")

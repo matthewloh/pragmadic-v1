@@ -30,7 +30,7 @@ const NomadProfile = async () => {
     const { user } = await getUser()
     if (!user) notFound()
     const { nomadProfile } = await getNomadProfileByUserId(user.id)
-    console.log(nomadProfile)
+
     return (
         <Suspense fallback={<Loading />}>
             <NomadProfileList nomadProfile={nomadProfile} />

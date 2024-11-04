@@ -23,6 +23,10 @@ export const createHubOwnerProfile = async (
         const [h] = await db
             .insert(hubOwnerProfiles)
             .values(newHubOwnerProfile)
+            .onConflictDoUpdate({
+                target: [hubOwnerProfiles.userId],
+                set: { ...newHubOwnerProfile },
+            })
             .returning()
         return { hubOwnerProfile: h }
     } catch (err) {

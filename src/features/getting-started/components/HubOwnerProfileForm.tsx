@@ -1,25 +1,53 @@
 "use client"
 
-import { useTransition } from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { motion } from "framer-motion"
+import {
+    Building2,
+    Mail,
+    MapPin,
+    Globe,
+    Phone,
+    FileText,
+    Link2,
+} from "lucide-react"
+import { ProfileFormLayout } from "./shared/ProfileFormLayout"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { assignUserRoleAction } from "@/features/auth/actions/roles"
 import { createHubOwnerProfileAction } from "@/lib/actions/hubOwnerProfiles"
 import { insertHubOwnerProfileParams } from "@/lib/db/schema/hubOwnerProfiles"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useRouter } from "next/navigation"
+import { useTransition } from "react"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { db } from "@/lib/db"
-import { userRoles } from "@/lib/db/schema"
-import { assignUserRoleAction } from "@/features/auth/actions/roles"
+import { z } from "zod"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
+import { useEffect } from "react"
+import { HubOwnerProfileRow } from "@/utils/supabase/types"
 
-export function GettingStartedOwnerProfileForm({ userId }: { userId: string }) {
+interface GettingStartedOwnerProfileFormProps {
+    userId: string
+}
+
+export function GettingStartedOwnerProfileForm({
+    userId,
+}: GettingStartedOwnerProfileFormProps) {
     const router = useRouter()
+    const supabase = useSupabaseBrowser()
     const [isPending, startTransition] = useTransition()
+
+    // Fetch existing profile
+    const { data: existingProfile, isLoading } = useQuery<HubOwnerProfileRow>(
+        supabase
+            .from("hub_owner_profiles")
+            .select("*")
+            .eq("user_id", userId)
+            .single(),
+    )
 
     const form = useForm({
         resolver: zodResolver(insertHubOwnerProfileParams),
@@ -36,10 +64,27 @@ export function GettingStartedOwnerProfileForm({ userId }: { userId: string }) {
         },
     })
 
+    // Update form when existing profile is loaded
+    useEffect(() => {
+        if (existingProfile) {
+            form.reset({
+                companyName: existingProfile.company_name || "",
+                businessRegistrationNumber:
+                    existingProfile.business_registration_number || "",
+                bio: existingProfile.bio || "",
+                businessContactNo: existingProfile.business_contact_no || "",
+                businessEmail: existingProfile.business_email || "",
+                businessLocation: existingProfile.business_location || "",
+                residingLocation: existingProfile.residing_location || "",
+                socialMediaHandles: existingProfile.social_media_handles || "",
+                websiteUrl: existingProfile.website_url || "",
+            })
+        }
+    }, [existingProfile, form])
+
     async function onSubmit(data: z.infer<typeof insertHubOwnerProfileParams>) {
         startTransition(async () => {
             try {
-                // Create hub owner profile
                 const profileError = await createHubOwnerProfileAction({
                     ...data,
                 })
@@ -49,18 +94,24 @@ export function GettingStartedOwnerProfileForm({ userId }: { userId: string }) {
                     return
                 }
 
-                // Assign owner role
-                const roleError = await assignUserRoleAction({
-                    userId,
-                    role: "owner",
-                })
+                // Only assign role if it's a new profile
+                if (!existingProfile) {
+                    const roleError = await assignUserRoleAction({
+                        userId,
+                        role: "owner",
+                    })
 
-                if (roleError) {
-                    toast.error(roleError)
-                    return
+                    if (roleError) {
+                        toast.error(roleError)
+                        return
+                    }
                 }
 
-                toast.success("Profile created successfully!")
+                toast.success(
+                    existingProfile
+                        ? "Profile updated successfully!"
+                        : "Profile created successfully!",
+                )
                 router.push("/dashboard")
             } catch (error) {
                 toast.error("Something went wrong")
@@ -69,188 +120,271 @@ export function GettingStartedOwnerProfileForm({ userId }: { userId: string }) {
         })
     }
 
+    if (isLoading) {
+        return (
+            <ProfileFormLayout
+                title="Loading Profile"
+                subtitle="Please wait while we load your profile..."
+            >
+                <div className="flex items-center justify-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                </div>
+            </ProfileFormLayout>
+        )
+    }
+
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-2xl font-bold">
-                    Complete Your Hub Owner Profile
-                </CardTitle>
-                <p className="text-muted-foreground">
-                    Tell us about your business to get started with DE Rantau
-                </p>
-            </CardHeader>
-            <CardContent>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-6"
-                >
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="companyName">Company Name</Label>
-                            <Input
-                                {...form.register("companyName")}
-                                placeholder="Your business name"
-                            />
-                            {form.formState.errors.companyName && (
-                                <p className="text-sm text-destructive">
-                                    {form.formState.errors.companyName.message}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="businessRegistrationNumber">
-                                Business Registration Number
+        <ProfileFormLayout
+            title={
+                existingProfile
+                    ? "Update Your Hub Owner Profile"
+                    : "Complete Your Hub Owner Profile"
+            }
+            subtitle={
+                existingProfile
+                    ? "Review and update your business information"
+                    : "Tell us about your business to get started with DE Rantau"
+            }
+        >
+            <motion.form
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+            >
+                {/* Business Identity */}
+                <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <Building2 className="h-5 w-5 text-primary" />
+                            <Label
+                                htmlFor="companyName"
+                                className="text-lg font-medium"
+                            >
+                                Company Name
                             </Label>
-                            <Input
-                                {...form.register("businessRegistrationNumber")}
-                                placeholder="e.g., SSM number"
-                            />
-                            {form.formState.errors
-                                .businessRegistrationNumber && (
-                                <p className="text-sm text-destructive">
-                                    {
-                                        form.formState.errors
-                                            .businessRegistrationNumber.message
-                                    }
-                                </p>
-                            )}
                         </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="bio">Business Description</Label>
-                        <Textarea
-                            {...form.register("bio")}
-                            placeholder="Tell us about your business, facilities, and what makes it perfect for digital nomads..."
-                            className="min-h-[100px]"
+                        <Input
+                            {...form.register("companyName")}
+                            placeholder="Your business name"
                         />
-                        {form.formState.errors.bio && (
+                        {form.formState.errors.companyName && (
                             <p className="text-sm text-destructive">
-                                {form.formState.errors.bio.message}
+                                {form.formState.errors.companyName.message}
                             </p>
                         )}
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="businessContactNo">
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <FileText className="h-5 w-5 text-primary" />
+                            <Label
+                                htmlFor="businessRegistrationNumber"
+                                className="text-lg font-medium"
+                            >
+                                Registration Number
+                            </Label>
+                        </div>
+                        <Input
+                            {...form.register("businessRegistrationNumber")}
+                            placeholder="e.g., SSM number"
+                        />
+                        {form.formState.errors.businessRegistrationNumber && (
+                            <p className="text-sm text-destructive">
+                                {
+                                    form.formState.errors
+                                        .businessRegistrationNumber.message
+                                }
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {/* Business Description */}
+                <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                        <Globe className="h-5 w-5 text-primary" />
+                        <Label htmlFor="bio" className="text-lg font-medium">
+                            Business Description
+                        </Label>
+                    </div>
+                    <Textarea
+                        {...form.register("bio")}
+                        placeholder="Tell us about your business, facilities, and what makes it perfect for digital nomads..."
+                        className="min-h-[120px] resize-none"
+                    />
+                    {form.formState.errors.bio && (
+                        <p className="text-sm text-destructive">
+                            {form.formState.errors.bio.message}
+                        </p>
+                    )}
+                </div>
+
+                {/* Contact Information */}
+                <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <Phone className="h-5 w-5 text-primary" />
+                            <Label
+                                htmlFor="businessContactNo"
+                                className="text-lg font-medium"
+                            >
                                 Business Contact
                             </Label>
-                            <Input
-                                {...form.register("businessContactNo")}
-                                placeholder="Business phone number"
-                            />
-                            {form.formState.errors.businessContactNo && (
-                                <p className="text-sm text-destructive">
-                                    {
-                                        form.formState.errors.businessContactNo
-                                            .message
-                                    }
-                                </p>
-                            )}
                         </div>
+                        <Input
+                            {...form.register("businessContactNo")}
+                            placeholder="Business phone number"
+                        />
+                        {form.formState.errors.businessContactNo && (
+                            <p className="text-sm text-destructive">
+                                {
+                                    form.formState.errors.businessContactNo
+                                        .message
+                                }
+                            </p>
+                        )}
+                    </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="businessEmail">
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <Mail className="h-5 w-5 text-primary" />
+                            <Label
+                                htmlFor="businessEmail"
+                                className="text-lg font-medium"
+                            >
                                 Business Email
                             </Label>
-                            <Input
-                                {...form.register("businessEmail")}
-                                type="email"
-                                placeholder="business@example.com"
-                            />
-                            {form.formState.errors.businessEmail && (
-                                <p className="text-sm text-destructive">
-                                    {
-                                        form.formState.errors.businessEmail
-                                            .message
-                                    }
-                                </p>
-                            )}
                         </div>
+                        <Input
+                            {...form.register("businessEmail")}
+                            type="email"
+                            placeholder="business@example.com"
+                        />
+                        {form.formState.errors.businessEmail && (
+                            <p className="text-sm text-destructive">
+                                {form.formState.errors.businessEmail.message}
+                            </p>
+                        )}
                     </div>
+                </div>
 
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="businessLocation">
+                {/* Locations */}
+                <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <MapPin className="h-5 w-5 text-primary" />
+                            <Label
+                                htmlFor="businessLocation"
+                                className="text-lg font-medium"
+                            >
                                 Business Location
                             </Label>
-                            <Input
-                                {...form.register("businessLocation")}
-                                placeholder="Full address of your business"
-                            />
-                            {form.formState.errors.businessLocation && (
-                                <p className="text-sm text-destructive">
-                                    {
-                                        form.formState.errors.businessLocation
-                                            .message
-                                    }
-                                </p>
-                            )}
                         </div>
+                        <Input
+                            {...form.register("businessLocation")}
+                            placeholder="Full address of your business"
+                        />
+                        {form.formState.errors.businessLocation && (
+                            <p className="text-sm text-destructive">
+                                {form.formState.errors.businessLocation.message}
+                            </p>
+                        )}
+                    </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="residingLocation">
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <MapPin className="h-5 w-5 text-primary" />
+                            <Label
+                                htmlFor="residingLocation"
+                                className="text-lg font-medium"
+                            >
                                 Residing Location
                             </Label>
-                            <Input
-                                {...form.register("residingLocation")}
-                                placeholder="Your current residence address"
-                            />
-                            {form.formState.errors.residingLocation && (
-                                <p className="text-sm text-destructive">
-                                    {
-                                        form.formState.errors.residingLocation
-                                            .message
-                                    }
-                                </p>
-                            )}
                         </div>
+                        <Input
+                            {...form.register("residingLocation")}
+                            placeholder="Your current residence address"
+                        />
+                        {form.formState.errors.residingLocation && (
+                            <p className="text-sm text-destructive">
+                                {form.formState.errors.residingLocation.message}
+                            </p>
+                        )}
                     </div>
+                </div>
 
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="socialMediaHandles">
+                {/* Online Presence */}
+                <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <Globe className="h-5 w-5 text-primary" />
+                            <Label
+                                htmlFor="socialMediaHandles"
+                                className="text-lg font-medium"
+                            >
                                 Social Media
                             </Label>
-                            <Input
-                                {...form.register("socialMediaHandles")}
-                                placeholder="Your business social media handles"
-                            />
-                            {form.formState.errors.socialMediaHandles && (
-                                <p className="text-sm text-destructive">
-                                    {
-                                        form.formState.errors.socialMediaHandles
-                                            .message
-                                    }
-                                </p>
-                            )}
                         </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="websiteUrl">Website</Label>
-                            <Input
-                                {...form.register("websiteUrl")}
-                                placeholder="https://your-business.com"
-                            />
-                            {form.formState.errors.websiteUrl && (
-                                <p className="text-sm text-destructive">
-                                    {form.formState.errors.websiteUrl.message}
-                                </p>
-                            )}
-                        </div>
+                        <Input
+                            {...form.register("socialMediaHandles")}
+                            placeholder="Your business social media handles"
+                        />
+                        {form.formState.errors.socialMediaHandles && (
+                            <p className="text-sm text-destructive">
+                                {
+                                    form.formState.errors.socialMediaHandles
+                                        .message
+                                }
+                            </p>
+                        )}
                     </div>
 
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <Link2 className="h-5 w-5 text-primary" />
+                            <Label
+                                htmlFor="websiteUrl"
+                                className="text-lg font-medium"
+                            >
+                                Website
+                            </Label>
+                        </div>
+                        <Input
+                            {...form.register("websiteUrl")}
+                            placeholder="https://your-business.com"
+                        />
+                        {form.formState.errors.websiteUrl && (
+                            <p className="text-sm text-destructive">
+                                {form.formState.errors.websiteUrl.message}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {/* Update Submit Button */}
+                <div className="pt-6">
                     <Button
                         type="submit"
                         className="w-full"
+                        size="lg"
                         disabled={isPending}
                     >
-                        {isPending ? "Creating Profile..." : "Complete Setup"}
+                        {isPending ? (
+                            <span className="animate-pulse">
+                                {existingProfile
+                                    ? "Updating Profile..."
+                                    : "Creating Profile..."}
+                            </span>
+                        ) : existingProfile ? (
+                            "Update Profile"
+                        ) : (
+                            "Complete Setup"
+                        )}
                     </Button>
-                </form>
-            </CardContent>
-        </Card>
+                </div>
+            </motion.form>
+        </ProfileFormLayout>
     )
 }

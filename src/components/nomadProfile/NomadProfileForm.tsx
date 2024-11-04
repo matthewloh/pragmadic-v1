@@ -46,7 +46,6 @@ const NomadProfileForm = ({
     const [pending, startMutation] = useTransition()
 
     const router = useRouter()
-    const backpath = useBackPath("nomad-profile")
 
     const onSuccess = (
         action: Action,
@@ -62,7 +61,7 @@ const NomadProfileForm = ({
             router.refresh()
             postSuccess && postSuccess()
             toast.success(`NomadProfile ${action}d!`)
-            if (action === "delete") router.push(backpath)
+            if (action === "delete") router.push(`/nomad-profile`)
         }
     }
 

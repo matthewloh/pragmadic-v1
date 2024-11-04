@@ -20,3 +20,7 @@ export type UserRow = Database["public"]["Tables"]["users"]["Row"]
 export * from "../types/db"
 
 export type ChatRow = Tables<"chats">
+
+export type HubOwnerProfileRow = Tables<"hub_owner_profiles">
+
+export type NomadProfileRow = Tables<"nomad_profile">
