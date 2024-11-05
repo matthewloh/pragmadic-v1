@@ -584,7 +584,7 @@ function EmptyState({ isOwner, hubId }: { isOwner: boolean; hubId: string }) {
                 <Users className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="mt-2 text-lg font-semibold">No Members Yet</h3>
                 <p className="text-sm text-muted-foreground">
-                    Start by inviting members to join this hub.
+                    Members and requests will appear here.
                 </p>
             </CardContent>
         </Card>

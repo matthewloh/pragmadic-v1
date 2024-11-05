@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { usePathname } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
-import { Eye, Users, Edit2Icon, PlusIcon } from "lucide-react"
+import { Eye, Users, Edit2Icon, PlusIcon, Crown } from "lucide-react"
 import { useOptimisticHubs } from "@/app/(app)/hubs/useOptimisticHubs"
 import { useUserRole } from "@/features/auth/hooks/use-user-role"
 import { type Hub, CompleteHub } from "@/lib/db/schema/hubs"
@@ -21,6 +21,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import Modal from "@/components/shared/Modal"
 import HubForm from "./HubForm"
+import { Badge } from "@/components/ui/badge"
 
 type TOpenModal = (hub?: Hub) => void
 
@@ -66,7 +67,7 @@ export default function HubList({
                 />
             </Modal>
 
-            {optimisticHubs.length > 0 && isAdmin && (
+            {optimisticHubs.length > 0 && (isAdmin || isOwner) && (
                 <div className="mt-4 flex justify-start">
                     <Button onClick={() => openModal()} className="gap-2">
                         <PlusIcon className="h-4 w-4" />
@@ -80,7 +81,11 @@ export default function HubList({
                     {isLoading ? (
                         <SkeletonLoader />
                     ) : optimisticHubs.length === 0 ? (
-                        <EmptyState openModal={openModal} isAdmin={isAdmin} />
+                        <EmptyState
+                            openModal={openModal}
+                            isAdmin={isAdmin}
+                            isOwner={isOwner}
+                        />
                     ) : (
                         <motion.div
                             className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
@@ -110,9 +115,11 @@ export default function HubList({
 const EmptyState = ({
     openModal,
     isAdmin,
+    isOwner,
 }: {
     openModal: TOpenModal
     isAdmin: boolean
+    isOwner: boolean
 }) => {
     return (
         <motion.div
@@ -127,11 +134,12 @@ const EmptyState = ({
                     ? "Get started by creating your first hub."
                     : "No hubs are currently available."}
             </p>
-            {isAdmin && (
-                <Button onClick={() => openModal()} className="mt-4">
-                    <PlusIcon className="mr-2 h-4 w-4" /> Create Hub
-                </Button>
-            )}
+            {isAdmin ||
+                (isOwner && (
+                    <Button onClick={() => openModal()} className="mt-4">
+                        <PlusIcon className="mr-2 h-4 w-4" /> Create Hub
+                    </Button>
+                ))}
         </motion.div>
     )
 }
@@ -154,6 +162,7 @@ const HubCard = ({
     const pathname = usePathname()
     const basePath = pathname.includes("hubs") ? pathname : pathname + "/hubs/"
     const canEdit = isAdmin || (isOwner && hub.userId === user?.id)
+    const isOwnerOfHub = hub.userId === user?.id
 
     const cardColors = [
         "from-blue-500/20 to-purple-600/20",
@@ -173,17 +182,35 @@ const HubCard = ({
             >
                 <Card className="overflow-hidden bg-card">
                     <CardHeader>
-                        <CardTitle className="text-xl font-bold">
-                            {hub.name}
-                        </CardTitle>
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-xl font-bold">
+                                {hub.name}
+                            </CardTitle>
+                            {isOwnerOfHub && (
+                                <Badge
+                                    variant="secondary"
+                                    className="flex items-center gap-1"
+                                >
+                                    <Crown className="h-3 w-3 text-yellow-500" />
+                                    <span className="text-xs">Owner</span>
+                                </Badge>
+                            )}
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <p className="mb-4 text-sm text-muted-foreground">
                             {hub.description || "No description available."}
                         </p>
-                        <span className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">
-                            {hub.typeOfHub || "Not specified"}
-                        </span>
+                        <div className="flex flex-wrap gap-2">
+                            <span className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">
+                                {hub.typeOfHub || "Not specified"}
+                            </span>
+                            {isOwnerOfHub && (
+                                <span className="rounded-full bg-yellow-500/10 px-3 py-1 text-xs text-yellow-600 dark:text-yellow-400">
+                                    Your Hub
+                                </span>
+                            )}
+                        </div>
                     </CardContent>
                     <CardFooter className="flex justify-between">
                         {canEdit && (

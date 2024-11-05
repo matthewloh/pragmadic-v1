@@ -51,14 +51,17 @@ export function SignInForm() {
             duration: 3000,
             icon: provider === "google" ? <FcGoogle /> : <FaGithub />,
         })
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const { error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
                 redirectTo: getURL() + "auth/callback?next=" + next,
-                // redirectTo: "/auth/callback",
-                // ?next=" + next, // equal to localhost:3000 in dev or your domain in prod
             },
         })
+        if (error) {
+            toast.error("Error signing in with " + provider, {
+                description: error.message,
+            })
+        }
     }
 
     const form = useForm<LoginValues>({

@@ -23,10 +23,10 @@ import { useUserRole } from "@/features/auth/hooks/use-user-role"
 import { ThemeSwitch } from "./mode-toggle"
 import { Skeleton } from "./ui/skeleton"
 import { SidebarMenuButton } from "./ui/sidebar"
+import { useUser } from "@/features/auth/hooks/use-current-user"
 
 export function NavUser() {
-    const { isPending, data: { user, user_roles = [] } = {} } = useUserRole()
-
+    const { data: user, isPending } = useUser()
     if (isPending || !user) {
         return (
             <div className="flex w-full items-center gap-2 px-2 py-1.5">
@@ -39,8 +39,8 @@ export function NavUser() {
             </div>
         )
     }
-
-    const fullName = user.user_metadata.full_name || "DE Rantau User"
+    console.log(user)
+    const fullName = user.display_name || "DE Rantau User"
     const initials = fullName
         .split(" ")
         .map((n: string) => n[0])
@@ -56,7 +56,7 @@ export function NavUser() {
                 >
                     <Avatar className="h-8 w-8 rounded-full">
                         <AvatarImage
-                            src={user.user_metadata.avatar_url}
+                            src={user.image_url || ""}
                             alt={fullName}
                         />
                         <AvatarFallback className="rounded-full">
@@ -82,7 +82,7 @@ export function NavUser() {
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                         <Avatar className="h-8 w-8 rounded-full">
                             <AvatarImage
-                                src={user.user_metadata.avatar_url}
+                                src={user.image_url || ""}
                                 alt={fullName}
                             />
                             <AvatarFallback className="rounded-full">
@@ -119,17 +119,7 @@ export function NavUser() {
                             Settings
                         </Link>
                     </DropdownMenuItem>
-                    {user_roles.includes("admin") && (
-                        <DropdownMenuItem asChild>
-                            <Link
-                                href="/admin"
-                                className="flex cursor-pointer items-center"
-                            >
-                                <CreditCard className="mr-2 h-4 w-4" />
-                                Admin Panel
-                            </Link>
-                        </DropdownMenuItem>
-                    )}
+
                     <DropdownMenuItem asChild>
                         <Link
                             href="/help"

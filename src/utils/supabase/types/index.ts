@@ -21,6 +21,14 @@ export * from "../types/db"
 
 export type ChatRow = Tables<"chats">
 
+export type ProfileRow = Tables<"profile">
+
 export type HubOwnerProfileRow = Tables<"hub_owner_profiles">
 
 export type NomadProfileRow = Tables<"nomad_profile">
+
+export type User = Tables<"users">
+
+export type UsersToHubRow = Tables<"users_to_hubs">
+
+export type UsersToCommunityRow = Tables<"users_to_communities">

@@ -62,6 +62,7 @@ const HubForm = ({
     const { data } = useUserRole()
     const user_roles = data?.user_roles ?? []
     const isAdmin = user_roles.includes("admin")
+    const isOwner = user_roles.includes("owner")
 
     const onSuccess = (
         action: Action,
@@ -82,7 +83,7 @@ const HubForm = ({
     }
 
     const handleSubmit = async (data: FormData) => {
-        if (!isAdmin) {
+        if (!isAdmin && !isOwner) {
             toast.error("You don't have permission to perform this action.")
             return
         }
@@ -306,10 +307,12 @@ const HubForm = ({
             {/* Schema fields end */}
 
             {/* Save Button */}
-            {isAdmin && <SaveButton errors={hasErrors} editing={editing} />}
+            {(isAdmin || isOwner) && (
+                <SaveButton errors={hasErrors} editing={editing} />
+            )}
 
             {/* Delete Button */}
-            {editing && isAdmin ? (
+            {editing && (isAdmin || isOwner) && (
                 <Button
                     type="button"
                     disabled={isDeleting || pending || hasErrors}
@@ -336,7 +339,7 @@ const HubForm = ({
                 >
                     Delet{isDeleting ? "ing..." : "e"}
                 </Button>
-            ) : null}
+            )}
         </form>
     )
 }

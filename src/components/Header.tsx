@@ -50,7 +50,7 @@ export function LandingHeader() {
     const [isOpen, setOpen] = useState(false)
     const [showBlur, setShowBlur] = useState(false)
     const [hidden, setHidden] = useState(false)
-    const { data: { user } = {} } = useUserRole()
+    const { data: { user } = {}, isPending } = useUserRole()
 
     const lastPath = `/${pathname.split("/").pop()}`
 
@@ -254,7 +254,7 @@ export function LandingHeader() {
                     </button>
 
                     {user ? (
-                        <UserButton user={user} />
+                        <UserButton />
                     ) : (
                         <Link
                             className="text-sm font-medium text-foreground transition-colors hover:text-foreground/70"

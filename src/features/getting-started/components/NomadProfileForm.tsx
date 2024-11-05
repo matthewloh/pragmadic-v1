@@ -28,11 +28,14 @@ export function GettingStartedNomadProfileForm({
 }: GettingStartedNomadProfileFormProps) {
     const router = useRouter()
     const supabase = useSupabaseBrowser()
-    const [isPending, startTransition] = useTransition()
+    const [isActionPending, startTransition] = useTransition()
 
     // Fetch existing profile
-    // @ts-expect-error - Some incompatibilities with supabase version
-    const { data: existingProfile } = useQuery<NomadProfileRow>(
+    const {
+        data: existingProfile,
+        isPending,
+        refetch,
+    } = useQuery<NomadProfileRow>(
         supabase
             .from("nomad_profile")
             .select("*")
@@ -43,8 +46,6 @@ export function GettingStartedNomadProfileForm({
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
             refetchOnMount: false,
-            staleTime: 5 * 60 * 1000, // 5 minutes
-            cacheTime: 5 * 60 * 1000, // 5 minutes
         },
     )
 
@@ -102,7 +103,7 @@ export function GettingStartedNomadProfileForm({
                         ? "Profile updated successfully!"
                         : "Profile created successfully!",
                 )
-                router.push("/dashboard")
+                refetch()
             } catch (error) {
                 toast.error("Something went wrong")
                 console.error(error)
@@ -259,9 +260,9 @@ export function GettingStartedNomadProfileForm({
                         type="submit"
                         className="w-full"
                         size="lg"
-                        disabled={isPending}
+                        disabled={isActionPending}
                     >
-                        {isPending ? (
+                        {isActionPending ? (
                             <span className="animate-pulse">
                                 {existingProfile
                                     ? "Updating Profile..."

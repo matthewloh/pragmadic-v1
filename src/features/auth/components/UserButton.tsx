@@ -1,3 +1,4 @@
+import { ThemeSwitch } from "@/components/mode-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     DropdownMenu,
@@ -7,31 +8,45 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Home, Loader, Sun, UserRound } from "lucide-react"
-import Link from "next/link"
-import { useUser } from "../hooks/use-current-user"
-import { SignOut } from "./SignOutButton"
 import { type User } from "@supabase/supabase-js"
-import { ThemeSwitch } from "@/components/mode-toggle"
+import { Home, Sun, UserRound } from "lucide-react"
+import Link from "next/link"
+import { SignOut } from "./SignOutButton"
+import { useUser } from "../hooks/use-current-user"
+import { Skeleton } from "@/components/ui/skeleton"
 
-export default function UserButton({ user }: { user: User }) {
-    if (!user) {
+function UserButtonSkeleton() {
+    return (
+        <DropdownMenu modal={false}>
+            <DropdownMenuTrigger className="relative outline-none">
+                <Skeleton className="size-10" />
+            </DropdownMenuTrigger>
+        </DropdownMenu>
+    )
+}
+
+export default function UserButton() {
+    const { data, isPending } = useUser()
+    if (!data) {
         return null
     }
-    const { user_metadata } = user
-    const { full_name, avatar_url } = user_metadata
-    if (!full_name) {
+    if (isPending) {
+        return <UserButtonSkeleton />
+    }
+    const { display_name, image_url, email } = data
+    if (!display_name) {
         return null
     }
-    if (!avatar_url) {
-        return null
-    }
-    const avatarFallback = full_name!.charAt(0).toUpperCase()
+    const avatarFallback = display_name.charAt(0).toUpperCase()
     return (
         <DropdownMenu modal={false}>
             <DropdownMenuTrigger className="relative outline-none">
                 <Avatar className="size-10 transition hover:opacity-75">
-                    <AvatarImage alt={full_name} src={avatar_url} />
+                    <AvatarImage
+                        alt={display_name}
+                        src={image_url || ""}
+                        className="aspect-square"
+                    />
                     <AvatarFallback>
                         <span className="text-primary">{avatarFallback}</span>
                     </AvatarFallback>
@@ -41,9 +56,9 @@ export default function UserButton({ user }: { user: User }) {
                 <DropdownMenuLabel>
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="truncate">{full_name}</span>
+                            <span className="truncate">{display_name}</span>
                             <span className="truncate text-xs font-normal text-[#606060]">
-                                {user.email}
+                                {email}
                             </span>
                         </div>
                     </div>

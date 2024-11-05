@@ -2,7 +2,6 @@ import sign_in_penang_bg from "@/assets/sign-in-penang-bg.jpg"
 import Image from "next/image"
 import Link from "next/link"
 
-import SignUpForm from "@/features/auth/components/SignUpForm"
 import {
     Card,
     CardContent,

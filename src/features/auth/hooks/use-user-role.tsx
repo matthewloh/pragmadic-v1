@@ -32,9 +32,10 @@ export function useUserRole() {
             const decodedJwt = jwtDecode<SupabaseJwtPayload>(
                 session.access_token,
             )
+            const { data: user } = await supabase.auth.getUser()
             return {
                 session,
-                user: session.user,
+                user: user.user,
                 user_roles: decodedJwt.app_metadata.user_roles,
             }
         }

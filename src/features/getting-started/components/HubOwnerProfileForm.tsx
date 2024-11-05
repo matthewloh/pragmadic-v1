@@ -1,16 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
-import {
-    Building2,
-    Mail,
-    MapPin,
-    Globe,
-    Phone,
-    FileText,
-    Link2,
-} from "lucide-react"
-import { ProfileFormLayout } from "./shared/ProfileFormLayout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,16 +7,25 @@ import { Textarea } from "@/components/ui/textarea"
 import { assignUserRoleAction } from "@/features/auth/actions/roles"
 import { createHubOwnerProfileAction } from "@/lib/actions/hubOwnerProfiles"
 import { insertHubOwnerProfileParams } from "@/lib/db/schema/hubOwnerProfiles"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { HubOwnerProfileRow } from "@/utils/supabase/types"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
-import { useTransition } from "react"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
+import { motion } from "framer-motion"
+import {
+    Building2,
+    FileText,
+    Globe,
+    Link2,
+    Mail,
+    MapPin,
+    Phone,
+} from "lucide-react"
+import { useEffect, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
-import useSupabaseBrowser from "@/utils/supabase/client"
-import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
-import { useEffect } from "react"
-import { HubOwnerProfileRow } from "@/utils/supabase/types"
+import { ProfileFormLayout } from "./shared/ProfileFormLayout"
 
 interface GettingStartedOwnerProfileFormProps {
     userId: string
@@ -36,12 +34,14 @@ interface GettingStartedOwnerProfileFormProps {
 export function GettingStartedOwnerProfileForm({
     userId,
 }: GettingStartedOwnerProfileFormProps) {
-    const router = useRouter()
     const supabase = useSupabaseBrowser()
     const [isPending, startTransition] = useTransition()
-
     // Fetch existing profile
-    const { data: existingProfile, isLoading } = useQuery<HubOwnerProfileRow>(
+    const {
+        data: existingProfile,
+        isLoading,
+        refetch,
+    } = useQuery<HubOwnerProfileRow>(
         supabase
             .from("hub_owner_profiles")
             .select("*")
@@ -112,7 +112,7 @@ export function GettingStartedOwnerProfileForm({
                         ? "Profile updated successfully!"
                         : "Profile created successfully!",
                 )
-                router.push("/dashboard")
+                refetch()
             } catch (error) {
                 toast.error("Something went wrong")
                 console.error(error)

@@ -120,7 +120,7 @@ export default function CoordinatesSelector({
                         onDragEnd={onMarkerDragEnd}
                         anchor="bottom"
                     >
-                        <div className="animate-bounce-slow relative z-10">
+                        <div className="relative z-10 animate-bounce-slow">
                             <Button
                                 variant="secondary"
                                 size="icon"

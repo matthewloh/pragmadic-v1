@@ -11,6 +11,10 @@ export default async function InvitesPage() {
     if (!session) {
         return <div>Please log in to view your invites.</div>
     }
+    const { roles } = session
+    if (!roles.includes("owner")) {
+        return <div>You are not an owner.</div>
+    }
 
     return (
         <main className="overflow-auto">

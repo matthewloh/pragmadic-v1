@@ -26,36 +26,30 @@ function FooterLogo() {
 export function LandingFooter() {
     const footerLinks = {
         pages: [
-            { label: "All Products", href: "/products" },
-            { label: "Studio", href: "/studio" },
-            { label: "Clients", href: "/clients" },
-            { label: "Pricing", href: "/pricing" },
-            { label: "Blog", href: "/blog" },
+            { label: "Dashboard", href: "/dashboard" },
+            { label: "Chat", href: "/chat" },
+            { label: "Profile", href: "/profile" },
+            { label: "Map", href: "/onboarding/map" },
         ],
         socials: [
             {
-                label: "Facebook",
-                href: "#",
-                icon: <Facebook className="h-4 w-4" />,
-            },
-            {
                 label: "Twitter",
-                href: "#",
+                href: "https://x.com/MatthewLoh1",
                 icon: <Twitter className="h-4 w-4" />,
             },
             {
                 label: "Instagram",
-                href: "#",
+                href: "https://www.instagram.com/mewatth",
                 icon: <Instagram className="h-4 w-4" />,
             },
             {
                 label: "LinkedIn",
-                href: "#",
+                href: "https://www.linkedin.com/in/matthew-loh-85957632a/",
                 icon: <Linkedin className="h-4 w-4" />,
             },
             {
                 label: "Github",
-                href: "#",
+                href: "https://github.com/matthewloh/",
                 icon: <Github className="h-4 w-4" />,
             },
         ],

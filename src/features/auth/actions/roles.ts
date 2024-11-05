@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
-import { userRoles } from "@/lib/db/schema/users"
+import { userRoles, users } from "@/lib/db/schema/users"
 import { z } from "zod"
+import { eq } from "drizzle-orm"
 
 const assignRoleSchema = z.object({
     userId: z.string(),
-    role: z.enum(["owner", "nomad"]),
+    role: z.enum(["admin", "owner", "regular", "nomad"]),
 })
 
 type AssignRoleInput = z.infer<typeof assignRoleSchema>
@@ -26,14 +27,38 @@ export async function assignUserRoleAction(input: AssignRoleInput) {
     try {
         const { userId, role } = assignRoleSchema.parse(input)
 
-        // Insert the role into user_roles table
-        await db
-            .insert(userRoles)
-            .values({
-                userId,
-                role,
-            })
-            .onConflictDoNothing()
+        await db.transaction(async (tx) => {
+            // Get current user and their roles
+            const currentUser = await tx
+                .select({ role: users.role })
+                .from(users)
+                .where(eq(users.id, userId))
+            // Initialize roles array with "regular" if no roles exist
+            console.log(currentUser)
+            const existingRoles = currentUser[0]?.role
+            console.log(existingRoles)
+            // Add new role if it doesn't exist
+            const updatedRoles = existingRoles.includes(role)
+                ? existingRoles
+                : [...existingRoles, role]
+            console.log(updatedRoles)
+            // Insert the new role into user_roles table
+            await tx
+                .insert(userRoles)
+                .values({
+                    userId,
+                    role,
+                })
+                .onConflictDoNothing()
+
+            // Update the users table with the appended roles
+            await tx
+                .update(users)
+                .set({
+                    role: updatedRoles,
+                })
+                .where(eq(users.id, userId))
+        })
 
         revalidatePath("/getting-started")
         revalidatePath("/profile")

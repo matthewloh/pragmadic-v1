@@ -44,8 +44,10 @@ export function MapComponent({
     const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!
     const { theme } = useTheme()
 
-    const mapboxLightStyle = "mapbox://styles/matthewloh/cm1w37guu00tb01pl1an725qt"
-    const mapboxDarkStyle = "mapbox://styles/matthewloh/cm1w34g4z01db01qp4sgz027i"
+    const mapboxLightStyle =
+        "mapbox://styles/matthewloh/cm1w37guu00tb01pl1an725qt"
+    const mapboxDarkStyle =
+        "mapbox://styles/matthewloh/cm1w34g4z01db01qp4sgz027i"
 
     const [viewState, setViewState] = useState({
         longitude: 100.3327,
@@ -93,31 +95,49 @@ export function MapComponent({
                                         size="icon"
                                         className="rounded-full bg-purple-500 hover:bg-purple-600"
                                     >
-                                        <MarkerIcon type="event" className="h-4 w-4 text-white" />
+                                        <MarkerIcon
+                                            type="event"
+                                            className="h-4 w-4 animate-bounce-slow text-white"
+                                        />
                                     </Button>
                                 </motion.div>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80 p-0" align="center" side="top">
+                            <PopoverContent
+                                className="w-80 p-0"
+                                align="center"
+                                side="top"
+                            >
                                 <Card className="border-0">
-                                    <CardHeader className="text-white bg-purple-500">
+                                    <CardHeader className="bg-purple-500 text-white">
                                         <CardTitle className="flex items-center">
-                                            <MarkerIcon type="event" className="mr-2 h-5 w-5" />
+                                            <MarkerIcon
+                                                type="event"
+                                                className="mr-2 h-5 w-5"
+                                            />
                                             {marker.venue || "Event Location"}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="pt-4">
                                         <p>{marker.address}</p>
                                         <p className="mt-2 text-sm text-muted-foreground">
-                                            Start: {formatDate(marker.startTime.toISOString())}
+                                            Start:{" "}
+                                            {formatDate(
+                                                marker.startTime.toISOString(),
+                                            )}
                                             <br />
-                                            End: {formatDate(marker.endTime.toISOString())}
+                                            End:{" "}
+                                            {formatDate(
+                                                marker.endTime.toISOString(),
+                                            )}
                                         </p>
                                     </CardContent>
                                     <CardFooter>
                                         <Button
                                             variant="secondary"
                                             className="w-full"
-                                            onClick={() => onMarkerClick(marker.id)}
+                                            onClick={() =>
+                                                onMarkerClick(marker.id)
+                                            }
                                         >
                                             View Details
                                         </Button>
