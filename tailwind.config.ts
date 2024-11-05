@@ -117,6 +117,14 @@ const config = {
                         "100%": '{ transform: "translateX(200px)" }.toString()',
                     },
                 },
+                "typing-dot-bounce": {
+                    "0%,40%": {
+                        transform: "translateY(0)",
+                    },
+                    "20%": {
+                        transform: "translateY(-0.25rem)",
+                    },
+                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
@@ -124,6 +132,8 @@ const config = {
                 progressBar: "progressBar 1.5s ease-in-out infinite",
                 move: "move 5s linear infinite",
                 "bounce-slow": "bounce-slow 2s infinite",
+                "typing-dot-bounce":
+                    "typing-dot-bounce 1.25s ease-out infinite",
             },
         },
     },

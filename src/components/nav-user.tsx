@@ -39,7 +39,6 @@ export function NavUser() {
             </div>
         )
     }
-    console.log(user)
     const fullName = user.display_name || "DE Rantau User"
     const initials = fullName
         .split(" ")

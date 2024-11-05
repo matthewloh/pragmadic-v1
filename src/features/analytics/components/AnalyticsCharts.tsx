@@ -113,9 +113,5 @@ export function AnalyticsCharts({ view }: AnalyticsChartsProps) {
         }
     }
 
-    return (
-        <div className="h-[400px] w-full">
-            {renderChart()}
-        </div>
-    )
+    return <div className="h-[400px] w-full">{renderChart()}</div>
 }
