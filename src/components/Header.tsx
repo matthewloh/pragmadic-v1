@@ -93,36 +93,22 @@ export function LandingHeader() {
                 {
                     path: "/about",
                     title: "About",
-                    icon: (
-                        <Info size={20} className="text-primary-foreground" />
-                    ),
+                    icon: <Info size={20} className="text-primary" />,
                 },
                 {
                     path: "/contact",
                     title: "Contact",
-                    icon: (
-                        <Contact
-                            size={20}
-                            className="text-primary-foreground"
-                        />
-                    ),
+                    icon: <Contact size={20} className="text-primary" />,
                 },
                 {
                     path: "/services",
                     title: "Services",
-                    icon: (
-                        <Wrench size={20} className="text-primary-foreground" />
-                    ),
+                    icon: <Wrench size={20} className="text-primary" />,
                 },
                 {
                     path: "/portfolio",
                     title: "Portfolio",
-                    icon: (
-                        <ImageIcon
-                            size={20}
-                            className="text-primary-foreground"
-                        />
-                    ),
+                    icon: <ImageIcon size={20} className="text-primary" />,
                 },
             ],
         },
@@ -152,32 +138,17 @@ export function LandingHeader() {
                 {
                     path: "https://mdec.my/derantau",
                     title: "DE Rantau",
-                    icon: (
-                        <CheckCircle2
-                            size={20}
-                            className="text-primary-foreground"
-                        />
-                    ),
+                    icon: <CheckCircle2 size={20} className="text-primary" />,
                 },
                 {
                     path: "https://mdec.my/derantau/foreign",
                     title: "Foreign Applicants",
-                    icon: (
-                        <CheckCircle2
-                            size={20}
-                            className="text-primary-foreground"
-                        />
-                    ),
+                    icon: <CheckCircle2 size={20} className="text-primary" />,
                 },
                 {
                     path: "https://mdec.my/derantau/hub",
                     title: "DE Rantau Hubs",
-                    icon: (
-                        <Building2
-                            size={20}
-                            className="text-primary-foreground"
-                        />
-                    ),
+                    icon: <Building2 size={20} className="text-primary" />,
                 },
             ],
         },
@@ -186,149 +157,157 @@ export function LandingHeader() {
     return (
         <header
             className={cn(
-                "fixed left-0 right-0 top-0 z-50 my-4 justify-center bg-transparent px-2 md:flex md:px-4",
+                "fixed left-0 right-0 top-0 z-50 my-2 justify-center bg-transparent px-2 md:my-4 md:flex md:px-4",
                 pathname === "/" &&
                     "duration-1s animate-header-slide-down-fade transition ease-in-out",
             )}
         >
-            <nav className="z-20 flex h-12 items-center rounded-tl-lg rounded-tr-lg border border-border bg-primary bg-opacity-70 px-4 backdrop-blur-xl backdrop-filter">
-                <Link href="/" className="flex items-center">
-                    <div className="relative mr-2 size-8 flex-shrink-0">
-                        <Image
-                            src="/pragmadic.svg"
-                            fill
-                            sizes="32px"
-                            alt="PRAGmadic Logo"
-                            className="rounded-full object-contain object-center"
-                            priority
-                        />
-                    </div>
-                </Link>
-                <ul className="mx-3 hidden space-x-2 text-sm font-medium md:flex">
-                    {links.map(({ path, title, children, cover }) => {
-                        if (path) {
+            <nav className="z-20 flex h-12 items-center justify-between rounded-lg border border-border bg-background/70 px-3 backdrop-blur-xl backdrop-filter dark:bg-background/70 md:rounded-tl-lg md:rounded-tr-lg md:px-4">
+                <div className="flex items-center">
+                    <Link href="/" className="flex items-center">
+                        <div className="relative mr-2 size-6 flex-shrink-0 md:size-8">
+                            <Image
+                                src="/pragmadic.svg"
+                                fill
+                                sizes="(max-width: 768px) 24px, 32px"
+                                alt="PRAGmadic Logo"
+                                className="rounded-full object-contain object-center"
+                                priority
+                            />
+                        </div>
+                    </Link>
+
+                    <ul className="mx-3 hidden space-x-2 text-sm font-medium md:flex">
+                        {links.map(({ path, title, children, cover }) => {
+                            if (path) {
+                                return (
+                                    <li key={path}>
+                                        <Link
+                                            onClick={handleOnClick}
+                                            href={path}
+                                            className="inline-flex h-8 items-center justify-center px-3 py-2 text-sm font-medium text-foreground transition-colors hover:text-foreground/70"
+                                        >
+                                            {title}
+                                        </Link>
+                                    </li>
+                                )
+                            }
+
                             return (
-                                <li key={path}>
-                                    <Link
-                                        onClick={handleOnClick}
-                                        href={path}
-                                        className="inline-flex h-8 items-center justify-center px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity duration-200 hover:opacity-70"
-                                    >
+                                <li
+                                    key={title}
+                                    className="group"
+                                    onMouseEnter={() => setShowBlur(true)}
+                                    onMouseLeave={() => setShowBlur(false)}
+                                >
+                                    <span className="inline-flex h-8 cursor-pointer items-center justify-center px-3 py-2 text-sm font-medium text-foreground transition-colors hover:text-foreground/70">
                                         {title}
-                                    </Link>
-                                </li>
-                            )
-                        }
+                                    </span>
 
-                        return (
-                            <li
-                                key={title}
-                                className="group"
-                                onMouseEnter={() => setShowBlur(true)}
-                                onMouseLeave={() => setShowBlur(false)}
-                            >
-                                <span className="inline-flex h-8 cursor-pointer items-center justify-center px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity duration-200 hover:opacity-70">
-                                    {title}
-                                </span>
-
-                                {children && (
-                                    <div
-                                        className={cn(
-                                            "absolute -left-[1px] top-[48px] flex h-0 w-[556px] overflow-hidden border-l-[1px] border-r-[1px] bg-primary transition-all duration-300 ease-in-out group-hover:h-[250px]",
-                                            hidden && "hidden",
-                                        )}
-                                    >
-                                        <ul className="flex-0 mt-2 w-[200px] space-y-5 p-4">
-                                            {children.map((child) => {
-                                                return (
+                                    {children && (
+                                        <div
+                                            className={cn(
+                                                "absolute -left-[1px] top-[48px] flex h-0 w-[556px] overflow-hidden border-l border-r border-border bg-background transition-all duration-300 ease-in-out group-hover:h-[250px]",
+                                                hidden && "hidden",
+                                            )}
+                                        >
+                                            <ul className="flex-0 mt-2 w-[200px] space-y-5 p-4">
+                                                {children.map((child) => (
                                                     <li key={child.title}>
                                                         <Link
                                                             onClick={
                                                                 handleOnClick
                                                             }
                                                             href={child.path}
-                                                            className="flex items-center space-x-2 text-primary-foreground transition-opacity duration-200 hover:opacity-70"
+                                                            className="flex items-center space-x-2 text-foreground transition-colors hover:text-foreground/70"
                                                         >
-                                                            <span>
+                                                            <span className="text-foreground">
                                                                 {child.icon}
                                                             </span>
-                                                            <span className="text-sm font-medium text-primary-foreground">
+                                                            <span className="text-sm font-medium">
                                                                 {child.title}
                                                             </span>
                                                         </Link>
                                                     </li>
-                                                )
-                                            })}
-                                        </ul>
+                                                ))}
+                                            </ul>
 
-                                        <div className="flex-1">{cover}</div>
-                                        <div className="absolute bottom-0 w-full border-b-[1px]" />
-                                    </div>
-                                )}
-                            </li>
-                        )
-                    })}
-                </ul>
-                <button
-                    type="button"
-                    className="ml-auto bg-primary-foreground p-2 md:hidden"
-                    onClick={() => handleToggleMenu()}
-                >
-                    <Menu className="text-primary" size={18} />
-                </button>
-                {user ? (
-                    <UserButton user={user} />
-                ) : (
-                    <Link
-                        className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
-                        href="/login"
+                                            <div className="flex-1">
+                                                {cover}
+                                            </div>
+                                            <div className="absolute bottom-0 w-full border-b border-border" />
+                                        </div>
+                                    )}
+                                </li>
+                            )
+                        })}
+                    </ul>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        className="rounded-md p-2 text-foreground hover:bg-accent md:hidden"
+                        onClick={handleToggleMenu}
                     >
-                        Sign in
-                    </Link>
-                )}
+                        <Menu size={24} />
+                    </button>
+
+                    {user ? (
+                        <UserButton user={user} />
+                    ) : (
+                        <Link
+                            className="text-sm font-medium text-foreground transition-colors hover:text-foreground/70"
+                            href="/login"
+                        >
+                            Sign in
+                        </Link>
+                    )}
+                </div>
             </nav>
+
             {isOpen && (
                 <motion.div
-                    className="fixed -top-[2px] bottom-0 left-0 right-0 z-10 h-screen bg-primary px-2"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    className="fixed inset-0 z-50 bg-background"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
                 >
-                    <div className="relative ml-[1px] mt-4 flex justify-between p-3 px-4">
-                        <button type="button" onClick={handleToggleMenu}>
-                            <span className="sr-only">Pragmadic Logo</span>
-                            <div className="relative mr-2 size-8 flex-shrink-0">
+                    <div className="flex h-12 items-center justify-between border-b border-border px-3">
+                        <Link
+                            href="/"
+                            className="flex items-center"
+                            onClick={handleToggleMenu}
+                        >
+                            <div className="relative size-6 md:size-8">
                                 <Image
                                     src="/pragmadic.svg"
                                     fill
-                                    sizes="32px"
+                                    sizes="(max-width: 768px) 24px, 32px"
                                     alt="PRAGmadic Logo"
                                     className="rounded-full object-contain object-center"
                                     priority
                                 />
                             </div>
-                        </button>
+                        </Link>
 
-                        <Button
+                        <button
                             type="button"
-                            className="absolute right-[10px] top-2 ml-auto p-2 md:hidden"
+                            className="rounded-md p-2 text-foreground hover:bg-accent"
                             onClick={handleToggleMenu}
                         >
-                            <X className="text-primary-foreground" size={24} />
-                        </Button>
+                            <X size={24} />
+                        </button>
                     </div>
 
-                    <div className="h-screen overflow-auto bg-primary pb-[150px]">
+                    <div className="pb-safe-area-inset-bottom h-[calc(100vh-48px)] overflow-y-auto px-4">
                         <motion.ul
                             initial="hidden"
                             animate="show"
-                            className="mb-8 space-y-8 overflow-auto bg-primary px-3 pt-8 text-xl text-primary-foreground"
+                            className="space-y-6 py-6"
                             variants={listVariant}
                         >
                             {links.map(({ path, title, children }) => {
-                                const isActive =
-                                    path === "/updates"
-                                        ? pathname.includes("updates")
-                                        : path === lastPath
                                 if (path) {
                                     return (
                                         <motion.li
@@ -337,10 +316,7 @@ export function LandingHeader() {
                                         >
                                             <Link
                                                 href={path}
-                                                className={cn(
-                                                    isActive &&
-                                                        "text-primary-foreground",
-                                                )}
+                                                className="block text-lg font-medium text-primary"
                                                 onClick={handleToggleMenu}
                                             >
                                                 {title}
@@ -350,113 +326,58 @@ export function LandingHeader() {
                                 }
 
                                 return (
-                                    <li key={path}>
-                                        <Accordion collapsible type="single">
+                                    <motion.li
+                                        variants={itemVariant}
+                                        key={title}
+                                    >
+                                        <Accordion type="single" collapsible>
                                             <AccordionItem
                                                 value="item-1"
                                                 className="border-none"
                                             >
-                                                <AccordionTrigger className="flex w-full items-center justify-between p-0 font-normal hover:no-underline">
-                                                    <span className="text-primary-foreground">
-                                                        {title}
-                                                    </span>
+                                                <AccordionTrigger className="p-0 text-lg font-medium">
+                                                    {title}
                                                 </AccordionTrigger>
-
-                                                {children && (
-                                                    <AccordionContent className="text-xl">
-                                                        <ul
-                                                            className="ml-4 mt-6 space-y-8"
-                                                            key={path}
-                                                        >
-                                                            {children.map(
-                                                                (child) => {
-                                                                    return (
-                                                                        <li
-                                                                            key={
-                                                                                child.path
+                                                <AccordionContent>
+                                                    <ul className="mt-2 space-y-4 pl-4">
+                                                        {children?.map(
+                                                            (child) => (
+                                                                <li
+                                                                    key={
+                                                                        child.path
+                                                                    }
+                                                                >
+                                                                    <Link
+                                                                        href={
+                                                                            child.path
+                                                                        }
+                                                                        className="flex items-center gap-2 text-primary/80"
+                                                                        onClick={
+                                                                            handleToggleMenu
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            child.icon
+                                                                        }
+                                                                        <span>
+                                                                            {
+                                                                                child.title
                                                                             }
-                                                                        >
-                                                                            <Link
-                                                                                onClick={
-                                                                                    handleToggleMenu
-                                                                                }
-                                                                                href={
-                                                                                    child.path
-                                                                                }
-                                                                                className="text-primary-foreground"
-                                                                            >
-                                                                                {
-                                                                                    child.title
-                                                                                }
-                                                                            </Link>
-                                                                        </li>
-                                                                    )
-                                                                },
-                                                            )}
-                                                        </ul>
-                                                    </AccordionContent>
-                                                )}
+                                                                        </span>
+                                                                    </Link>
+                                                                </li>
+                                                            ),
+                                                        )}
+                                                    </ul>
+                                                </AccordionContent>
                                             </AccordionItem>
                                         </Accordion>
-                                    </li>
+                                    </motion.li>
                                 )
                             })}
-
-                            <motion.li
-                                className="mt-auto border-t-[1px] pt-8"
-                                variants={itemVariant}
-                            >
-                                {user ? (
-                                    <UserButton user={user} />
-                                ) : (
-                                    <Link
-                                        className="hidden border-l-[1px] border-border pl-4 pr-2 text-sm font-medium text-primary-foreground md:block"
-                                        href="/login"
-                                    >
-                                        Sign in
-                                    </Link>
-                                )}
-                            </motion.li>
                         </motion.ul>
                     </div>
                 </motion.div>
-            )}
-
-            <div
-                className={cn(
-                    "invisible fixed left-0 top-0 z-10 h-screen w-screen opacity-0 backdrop-blur-md transition-all duration-300",
-                    showBlur && "opacity-100 md:visible",
-                )}
-            />
-            {links.map(
-                ({ title, children, cover }) =>
-                    children && (
-                        <div
-                            key={title}
-                            className={cn(
-                                "absolute left-0 top-[48px] flex h-0 w-full max-w-[676px] overflow-hidden border-x border-border bg-primary transition-all duration-300 ease-in-out group-hover:h-[250px]",
-                                hidden && "hidden",
-                            )}
-                        >
-                            <ul className="flex-0 mt-2 w-[200px] space-y-5 p-4">
-                                {children.map((child) => (
-                                    <li key={child.title}>
-                                        <Link
-                                            onClick={handleOnClick}
-                                            href={child.path}
-                                            className="flex items-center space-x-2 text-primary-foreground transition-opacity duration-200 hover:opacity-70"
-                                        >
-                                            <span>{child.icon}</span>
-                                            <span className="text-sm font-medium text-primary-foreground">
-                                                {child.title}
-                                            </span>
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="h-full flex-1">{cover}</div>
-                        </div>
-                    ),
             )}
         </header>
     )

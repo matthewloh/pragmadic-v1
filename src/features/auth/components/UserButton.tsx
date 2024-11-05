@@ -7,11 +7,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Home, Loader, UserRound } from "lucide-react"
+import { Home, Loader, Sun, UserRound } from "lucide-react"
 import Link from "next/link"
 import { useUser } from "../hooks/use-current-user"
 import { SignOut } from "./SignOutButton"
 import { type User } from "@supabase/supabase-js"
+import { ThemeSwitch } from "@/components/mode-toggle"
 
 export default function UserButton({ user }: { user: User }) {
     if (!user) {
@@ -58,6 +59,15 @@ export default function UserButton({ user }: { user: User }) {
                         <Home className="mr-2 size-4" />
                         Dashboard
                     </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <div className="flex flex-row items-center justify-between gap-2">
+                        <div className="flex flex-row items-center gap-2">
+                            <Sun className="size-4" />
+                            <p className="text-sm">Theme</p>
+                        </div>
+                        <ThemeSwitch />
+                    </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <SignOut />

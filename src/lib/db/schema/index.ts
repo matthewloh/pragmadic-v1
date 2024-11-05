@@ -1,11 +1,9 @@
 // Base schemas
-export * from "./embeddings"
 export * from "./users"
 export * from "./profile"
 export * from "./regions"
 export * from "./states"
 export * from "./reviews"
-export * from "./resources"
 export * from "./mapMarkers"
 export * from "./chats"
 export * from "./documents"

@@ -1,74 +1,182 @@
+import Image from "next/image"
 import Link from "next/link"
+import { Facebook, Twitter, Instagram, Linkedin, Github } from "lucide-react"
+import { Separator } from "./ui/separator"
+import { cn } from "@/lib/utils"
+
+function FooterLogo() {
+    return (
+        <div className="flex items-center gap-2">
+            <div className="relative size-8 flex-shrink-0 rounded-full bg-gradient-to-r from-slate-50 to-amber-100 p-1.5">
+                <Image
+                    src="/pragmadic.svg"
+                    fill
+                    alt="PRAGmadic Logo"
+                    className="rounded-full object-contain object-center"
+                    priority
+                />
+            </div>
+            <span className="font-solway text-lg font-semibold tracking-tight text-foreground">
+                pragmadic
+            </span>
+        </div>
+    )
+}
 
 export function LandingFooter() {
-    const footerSections = [
-        { title: "About Us", links: ["Our Story", "Team", "Careers"] },
-        { title: "Support", links: ["Help Center", "Contact Us", "FAQs"] },
-        { title: "Community", links: ["Events", "Blog", "Forum"] },
-        {
-            title: "Legal",
-            links: ["Terms of Service", "Privacy Policy", "Cookie Policy"],
-        },
-    ]
-
-    const socialIcons = ["facebook", "twitter", "instagram", "linkedin"]
+    const footerLinks = {
+        pages: [
+            { label: "All Products", href: "/products" },
+            { label: "Studio", href: "/studio" },
+            { label: "Clients", href: "/clients" },
+            { label: "Pricing", href: "/pricing" },
+            { label: "Blog", href: "/blog" },
+        ],
+        socials: [
+            {
+                label: "Facebook",
+                href: "#",
+                icon: <Facebook className="h-4 w-4" />,
+            },
+            {
+                label: "Twitter",
+                href: "#",
+                icon: <Twitter className="h-4 w-4" />,
+            },
+            {
+                label: "Instagram",
+                href: "#",
+                icon: <Instagram className="h-4 w-4" />,
+            },
+            {
+                label: "LinkedIn",
+                href: "#",
+                icon: <Linkedin className="h-4 w-4" />,
+            },
+            {
+                label: "Github",
+                href: "#",
+                icon: <Github className="h-4 w-4" />,
+            },
+        ],
+        legal: [
+            { label: "Privacy Policy", href: "/privacy" },
+            { label: "Terms of Service", href: "/terms" },
+            { label: "Cookie Policy", href: "/cookies" },
+        ],
+        register: [
+            { label: "Sign Up", href: "/signup" },
+            { label: "Login", href: "/login" },
+            { label: "Forgot Password", href: "/forgot-password" },
+        ],
+    }
 
     return (
-        <footer className="bg-muted py-12">
-            <div className="container mx-auto px-4">
-                <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
-                    {footerSections.map((section, index) => (
-                        <div key={index}>
-                            <h3 className="mb-4 font-bold text-foreground">
-                                {section.title}
+        <footer className="border-t border-border bg-background">
+            <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6 lg:px-8">
+                {/* Mobile View */}
+                <div className="block space-y-8 md:hidden">
+                    <div className="space-y-4">
+                        <Link href="/">
+                            <FooterLogo />
+                        </Link>
+                        <p className="text-sm text-muted-foreground">
+                            Empowering digital nomads with AI-driven solutions
+                            for seamless integration into Penang&apos;s vibrant
+                            community.
+                        </p>
+                    </div>
+
+                    {/* Accordion-style sections for mobile */}
+                    {Object.entries(footerLinks).map(([key, links]) => (
+                        <div key={key} className="space-y-3">
+                            <h3 className="text-sm font-semibold capitalize text-foreground">
+                                {key}
                             </h3>
-                            <ul className="space-y-2">
-                                {section.links.map((link, linkIndex) => (
-                                    <li key={linkIndex}>
+                            <ul className="grid grid-cols-2 gap-2">
+                                {links.map((link) => (
+                                    <li key={link.label}>
                                         <Link
-                                            href="#"
-                                            className="text-muted-foreground transition-colors hover:text-foreground"
+                                            href={link.href}
+                                            className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                                         >
-                                            {link}
+                                            {"icon" in link && link.icon}
+                                            {link.label}
                                         </Link>
                                     </li>
                                 ))}
                             </ul>
                         </div>
                     ))}
-                    <div>
-                        <h3 className="mb-4 font-bold text-foreground">
-                            Follow Us
-                        </h3>
-                        <div className="flex space-x-4">
-                            {socialIcons.map((social) => (
-                                <Link
-                                    key={social}
-                                    href="#"
-                                    className="text-muted-foreground transition-colors hover:text-foreground"
-                                >
-                                    <span className="sr-only">{social}</span>
-                                    <svg
-                                        className="h-6 w-6"
-                                        fill="currentColor"
-                                        viewBox="0 0 24 24"
-                                        aria-hidden="true"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
                 </div>
-                <div className="mt-8 border-t border-border pt-8 text-center">
-                    <p className="text-muted-foreground">
-                        &copy; 2024 Pragmadic. All rights reserved.
-                    </p>
+
+                {/* Desktop View */}
+                <div className="hidden md:flex md:flex-row md:justify-between md:gap-8">
+                    <div className="max-w-xs space-y-4">
+                        <Link href="/">
+                            <FooterLogo />
+                        </Link>
+                        <p className="text-sm text-muted-foreground">
+                            Empowering digital nomads with AI-driven solutions
+                            for seamless integration into Penang&apos;s vibrant
+                            community.
+                        </p>
+                    </div>
+
+                    {Object.entries(footerLinks).map(([key, links]) => (
+                        <div key={key} className="space-y-3">
+                            <h3 className="text-sm font-semibold capitalize text-foreground">
+                                {key}
+                            </h3>
+                            <ul className="space-y-2">
+                                {links.map((link) => (
+                                    <li key={link.label}>
+                                        <Link
+                                            href={link.href}
+                                            className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                        >
+                                            {"icon" in link && link.icon}
+                                            {link.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
+
+                <Separator className="my-8" />
+
+                {/* Copyright and Social Icons */}
+                <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+                    <div className="flex items-center gap-2">
+                        <div className="relative size-5 flex-shrink-0">
+                            <Image
+                                src="/pragmadic.svg"
+                                fill
+                                alt="PRAGmadic Logo"
+                                className="rounded-full object-contain object-center"
+                                priority
+                            />
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            &copy; {new Date().getFullYear()} Pragmadic. All
+                            rights reserved.
+                        </p>
+                    </div>
+
+                    <div className="flex space-x-4">
+                        {footerLinks.socials.map((social) => (
+                            <Link
+                                key={social.label}
+                                href={social.href}
+                                className="text-muted-foreground transition-colors hover:text-foreground"
+                                aria-label={social.label}
+                            >
+                                {social.icon}
+                            </Link>
+                        ))}
+                    </div>
                 </div>
             </div>
         </footer>

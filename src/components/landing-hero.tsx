@@ -12,11 +12,11 @@ import { LandingHeader } from "./Header"
 export function LandingHero() {
     return (
         <div
-            className={`flex min-h-screen flex-col bg-background font-sans ${outfit.className}`}
+            className={`relative flex min-h-screen flex-col bg-background font-sans ${outfit.className}`}
         >
-            <main className="flex-grow">
+            <LandingHeader />
+            <main className="flex w-full flex-1 flex-col overflow-x-hidden">
                 <HeroSection />
-                <LandingHeader />
                 <ChatbotSection />
                 <DeRantauSection />
                 <NomadNetworkSection />

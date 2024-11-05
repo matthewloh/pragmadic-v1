@@ -7,6 +7,7 @@ import { Button } from "./ui/button"
 import { useTheme } from "next-themes"
 import { ChevronDown } from "lucide-react"
 import { FlipWords } from "./aceternity/flip-words"
+import Link from "next/link"
 
 const HERO_IMAGE_URL =
     "https://images.unsplash.com/photo-1654201935898-a096c66db700?q=100&w=2725&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -49,8 +50,8 @@ export function HeroSection() {
                 priority
                 className={`object-cover ${
                     theme === "dark"
-                        ? "brightness-[0.4] contrast-[1.1]"
-                        : "brightness-[0.85] contrast-[1.05]"
+                        ? "brightness-[0.75] contrast-[1.2]"
+                        : "brightness-[0.85] contrast-[1.4]"
                 }`}
             />
 
@@ -60,7 +61,7 @@ export function HeroSection() {
             {/* Semi-transparent backdrop for text */}
             <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-full max-w-6xl px-4">
-                    <div className="rounded-xl bg-background/20 p-8 text-center backdrop-blur-sm">
+                    <div className="rounded-xl bg-background/30 p-8 text-center backdrop-blur-sm">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -74,7 +75,7 @@ export function HeroSection() {
                                 <span className="inline-block">
                                     <FlipWords
                                         words={words.map((w) => w.text)}
-                                        duration={3000}
+                                        duration={2000}
                                         className={(text: string) =>
                                             words.find((w) => w.text === text)
                                                 ?.className || ""
@@ -115,8 +116,9 @@ export function HeroSection() {
                             <Button
                                 size="lg"
                                 className="transform bg-primary/90 text-lg font-semibold tracking-wide text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary"
+                                asChild
                             >
-                                Get Started
+                                <Link href="/login">Get Started</Link>
                             </Button>
                         </motion.div>
                     </div>
