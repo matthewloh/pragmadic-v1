@@ -1,3 +1,22 @@
+CREATE EXTENSION IF NOT EXISTS vector;
+DO $$ BEGIN
+ CREATE TYPE "public"."event_type" AS ENUM('networking', 'workshop', 'social', 'coworking', 'cultural', 'tech_talk', 'community_meetup', 'skill_sharing', 'local_experience', 'business_showcase', 'other');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."invite_role_type" AS ENUM('admin', 'member');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."invite_status" AS ENUM('pending', 'accepted', 'rejected');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
 DO $$ BEGIN
  CREATE TYPE "public"."user_app_permissions" AS ENUM('hubs.create', 'hubs.view', 'hubs.update', 'hubs.delete', 'hubs.approve', 'hubs.posts.create', 'hubs.posts.view', 'hubs.posts.update', 'hubs.posts.delete', 'communities.create', 'communities.view', 'communities.update', 'communities.delete', 'communities.moderate', 'communities.posts.create', 'communities.posts.view', 'communities.posts.update', 'communities.posts.delete', 'regions.create', 'regions.view', 'regions.update', 'regions.delete', 'users.view', 'users.update', 'users.delete', 'users.roles.manage', 'reviews.create', 'reviews.view', 'reviews.update', 'reviews.delete', 'reviews.moderate');
 EXCEPTION
@@ -128,13 +147,6 @@ CREATE TABLE IF NOT EXISTS "documents" (
 	"chunk_count" integer DEFAULT 0,
 	"processed_at" timestamp with time zone,
 	"status" varchar(20) DEFAULT 'pending'
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "embeddings" (
-	"id" varchar(191) PRIMARY KEY NOT NULL,
-	"resource_id" varchar(191),
-	"content" text NOT NULL,
-	"embedding" vector(1536) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "hub_events" (
@@ -274,13 +286,6 @@ CREATE TABLE IF NOT EXISTS "reviews" (
 	"photo_url" varchar(256),
 	"hub_id" varchar(256) NOT NULL,
 	"user_id" uuid NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "resources" (
-	"id" varchar(191) PRIMARY KEY NOT NULL,
-	"content" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -427,12 +432,6 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "embeddings" ADD CONSTRAINT "embeddings_resource_id_resources_id_fk" FOREIGN KEY ("resource_id") REFERENCES "public"."resources"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "hub_events" ADD CONSTRAINT "hub_events_hub_id_hubs_id_fk" FOREIGN KEY ("hub_id") REFERENCES "public"."hubs"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -566,5 +565,4 @@ CREATE INDEX IF NOT EXISTS "documents_search_idx" ON "documents" USING gin ((
             ));--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "documents_path_tokens_idx" ON "documents" USING btree ("path_tokens");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "documents_parent_idx" ON "documents" USING btree ("parent_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "documents_status_idx" ON "documents" USING btree ("status");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "embeddingIndex" ON "embeddings" USING hnsw ("embedding" vector_cosine_ops);
+CREATE INDEX IF NOT EXISTS "documents_status_idx" ON "documents" USING btree ("status");

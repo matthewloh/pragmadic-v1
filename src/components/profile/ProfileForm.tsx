@@ -70,12 +70,9 @@ export const ProfileForm = ({
         setErrors(null)
 
         const payload = Object.fromEntries(data.entries())
-        const profileParsed = editing
-            ? await updateProfileSchema.safeParseAsync({
-                  ...payload,
-                  id: profile.id,
-              })
-            : await insertProfileParams.safeParseAsync(payload)
+        const profileParsed = await insertProfileParams.safeParseAsync({
+            ...payload,
+        })
 
         if (!profileParsed.success) {
             setErrors(profileParsed?.error.flatten().fieldErrors)

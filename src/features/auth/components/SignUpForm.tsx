@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { FcGoogle } from "react-icons/fc"
 import { FaGithub } from "react-icons/fa"
 import { Separator } from "@/components/ui/separator"
+import { SignInMagicLink } from "./SignInMagicLink"
 
 export default function SignUpForm() {
     const [error, setError] = useState<string>()
@@ -194,6 +195,8 @@ export default function SignUpForm() {
                     <FaGithub className="absolute left-2.5 top-3 size-5" />
                     Continue with GitHub
                 </Button>
+                <Separator />
+                <SignInMagicLink />
             </div>
         </Form>
     )

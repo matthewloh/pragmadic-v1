@@ -32,3 +32,5 @@ export { usersRelations as profileUsersRelations } from "./profile"
 
 // Enums
 export { userRoleEnum, userAppPermissions } from "./users"
+export { inviteStatusEnum, inviteRoleType } from "../shared-enums/invites"
+export { eventTypeEnum } from "../shared-enums/events"

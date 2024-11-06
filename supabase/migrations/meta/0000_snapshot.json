@@ -1,5 +1,5 @@
 {
-  "id": "3ff4b7f5-e7f6-4e57-b667-0047793c38c6",
+  "id": "cf6b3a66-8684-484b-aa4e-0945605134a5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -972,71 +972,6 @@
           "tableTo": "users",
           "columnsFrom": [
             "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.embeddings": {
-      "name": "embeddings",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(191)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "resource_id": {
-          "name": "resource_id",
-          "type": "varchar(191)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "embedding": {
-          "name": "embedding",
-          "type": "vector(1536)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "embeddingIndex": {
-          "name": "embeddingIndex",
-          "columns": [
-            {
-              "expression": "embedding",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "vector_cosine_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "hnsw",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "embeddings_resource_id_resources_id_fk": {
-          "name": "embeddings_resource_id_resources_id_fk",
-          "tableFrom": "embeddings",
-          "tableTo": "resources",
-          "columnsFrom": [
-            "resource_id"
           ],
           "columnsTo": [
             "id"
@@ -2057,42 +1992,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.resources": {
-      "name": "resources",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(191)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.event_markers": {
       "name": "event_markers",
       "schema": "",
@@ -2420,6 +2319,40 @@
     }
   },
   "enums": {
+    "public.event_type": {
+      "name": "event_type",
+      "schema": "public",
+      "values": [
+        "networking",
+        "workshop",
+        "social",
+        "coworking",
+        "cultural",
+        "tech_talk",
+        "community_meetup",
+        "skill_sharing",
+        "local_experience",
+        "business_showcase",
+        "other"
+      ]
+    },
+    "public.invite_role_type": {
+      "name": "invite_role_type",
+      "schema": "public",
+      "values": [
+        "admin",
+        "member"
+      ]
+    },
+    "public.invite_status": {
+      "name": "invite_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "accepted",
+        "rejected"
+      ]
+    },
     "public.user_app_permissions": {
       "name": "user_app_permissions",
       "schema": "public",
