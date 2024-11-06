@@ -24,11 +24,7 @@ export default async function DashboardPage() {
         >
             <AutumnFireGradient />
             <div className="relative z-10">
-                <DashboardSwitcher
-                    user={user}
-                    userRoles={userRoles}
-                    defaultRole={userRoles[0]}
-                />
+                <DashboardSwitcher user={user} />
             </div>
         </div>
     )

@@ -19,6 +19,8 @@ import DashboardAdmin from "./admin/DashboardAdmin"
 import DashboardOwner from "./owner/DashboardOwner"
 import DashboardNomad from "./nomad/DashboardNomad"
 import DashboardRegular from "./regular/DashboardRegular"
+import { useUserRole } from "@/features/auth/hooks/use-user-role"
+import { DashboardSwitcherSkeleton } from "./DashboardSwitcherSkeleton"
 
 // Constants
 const DASHBOARD_COMPONENTS = {
@@ -44,40 +46,46 @@ const dashboardTransition = {
 // Types
 interface DashboardSwitcherProps {
     user: SelectUser
-    userRoles: UserRole[]
-    defaultRole?: UserRole
 }
 
 // Utility functions
-const capitalizeFirstLetter = (string: string) => {
+const capitalizeFirstLetter = (string: string | undefined) => {
+    if (!string) return ""
     return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
-export default function DashboardSwitcher({
-    user,
-    userRoles,
-    defaultRole,
-}: DashboardSwitcherProps) {
+// First, create the skeleton component
+
+export default function DashboardSwitcher({ user }: DashboardSwitcherProps) {
+    const { data: userRoleData, isPending } = useUserRole()
+
     // State
-    const [currentRoleIndex, setCurrentRoleIndex] = useState(
-        defaultRole ? userRoles.indexOf(defaultRole) : 0,
-    )
+    const [currentRoleIndex, setCurrentRoleIndex] = useState(0)
     const [containerWidth, setContainerWidth] = useState(0)
 
     // Refs
     const containerRef = useRef<HTMLDivElement>(null)
 
-    // Derived values
-    const currentRole = userRoles[currentRoleIndex]
-    const CurrentDashboard = DASHBOARD_COMPONENTS[currentRole]
+    // Get roles from userRoleData with type safety
+    const userRoles = userRoleData?.user_roles || []
+
+    // Derived values with null checks
+    const currentRole = userRoles[
+        currentRoleIndex
+    ] as keyof typeof DASHBOARD_COMPONENTS
+    const CurrentDashboard = currentRole
+        ? DASHBOARD_COMPONENTS[currentRole]
+        : DashboardRegular
     const isFirstRole = currentRoleIndex === 0
     const isLastRole = currentRoleIndex === userRoles.length - 1
-    const previousRole = !isFirstRole
-        ? capitalizeFirstLetter(userRoles[currentRoleIndex - 1])
-        : null
-    const nextRole = !isLastRole
-        ? capitalizeFirstLetter(userRoles[currentRoleIndex + 1])
-        : null
+    const previousRole =
+        !isFirstRole && userRoles[currentRoleIndex - 1]
+            ? capitalizeFirstLetter(userRoles[currentRoleIndex - 1])
+            : null
+    const nextRole =
+        !isLastRole && userRoles[currentRoleIndex + 1]
+            ? capitalizeFirstLetter(userRoles[currentRoleIndex + 1])
+            : null
 
     // Effects
     useEffect(() => {
@@ -92,9 +100,20 @@ export default function DashboardSwitcher({
         return () => window.removeEventListener("resize", updateContainerWidth)
     }, [])
 
+    // Set initial role when data loads
+    useEffect(() => {
+        if (userRoleData?.user_roles.length) {
+            // Default to first role in the list
+            setCurrentRoleIndex(0)
+        }
+    }, [userRoleData])
+
     // Handlers
     const handleRoleChange = (value: string) => {
-        setCurrentRoleIndex(userRoles.indexOf(value as UserRole))
+        const newIndex = userRoles.indexOf(value as UserRole)
+        if (newIndex !== -1) {
+            setCurrentRoleIndex(newIndex)
+        }
     }
 
     const handleDragEnd = (
@@ -106,6 +125,10 @@ export default function DashboardSwitcher({
         } else if (info.offset.x < -100 && !isLastRole) {
             setCurrentRoleIndex(currentRoleIndex + 1)
         }
+    }
+    // Return skeleton while loading or if no roles
+    if (isPending || !userRoles.length) {
+        return <DashboardSwitcherSkeleton />
     }
 
     return (
@@ -135,21 +158,24 @@ export default function DashboardSwitcher({
                         <h2 className="mt-2 text-4xl font-bold text-primary">
                             Hello, {user?.display_name || "Nomad"} 👋
                         </h2>
-                        <Select
-                            value={currentRole}
-                            onValueChange={handleRoleChange}
-                        >
-                            <SelectTrigger className="mx-auto mt-4 w-[180px]">
-                                <SelectValue placeholder="Switch Dashboard" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {userRoles.map((role) => (
-                                    <SelectItem key={role} value={role}>
-                                        {capitalizeFirstLetter(role)} Dashboard
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        {currentRole && (
+                            <Select
+                                value={currentRole}
+                                onValueChange={handleRoleChange}
+                            >
+                                <SelectTrigger className="mx-auto mt-4 w-[180px]">
+                                    <SelectValue placeholder="Switch Dashboard" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {userRoles.map((role) => (
+                                        <SelectItem key={role} value={role}>
+                                            {capitalizeFirstLetter(role)}{" "}
+                                            Dashboard
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
                     </div>
 
                     {/* Next Button */}
