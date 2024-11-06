@@ -21,4 +21,4 @@ export type Document = {
     created_at: string
     updated_at: string
     metadata?: Record<string, any>
-} 
+}

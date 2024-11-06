@@ -25,9 +25,9 @@ export default function MapClientComponent({
 
     return (
         <MapProvider>
-            <MapComponent 
-                eventMarkers={eventMarkers} 
-                onMarkerClick={handleMarkerClick} 
+            <MapComponent
+                eventMarkers={eventMarkers}
+                onMarkerClick={handleMarkerClick}
             />
             <MapSidebar onBackToMap={() => router.replace("/onboarding/map")} />
         </MapProvider>

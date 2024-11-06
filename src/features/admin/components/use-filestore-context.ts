@@ -1,6 +1,9 @@
 import { useContext } from "react"
 import { useStore } from "zustand"
-import { FileStoreContext, type FileStoreState } from "@/features/admin/storage/filestore"
+import {
+    FileStoreContext,
+    type FileStoreState,
+} from "@/features/admin/storage/filestore"
 
 export function useVaultContext<T>(selector: (state: FileStoreState) => T): T {
     const store = useContext(FileStoreContext)

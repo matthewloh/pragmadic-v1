@@ -6,7 +6,7 @@ import {
     insertEventMarkerSchema,
     NewEventMarkerParams,
     updateEventMarkerParams,
-    UpdateEventMarkerParams
+    UpdateEventMarkerParams,
 } from "@/lib/db/schema/mapMarkers"
 import { and, eq } from "drizzle-orm"
 

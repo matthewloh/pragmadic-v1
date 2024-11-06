@@ -1,8 +1,18 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts"
-import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart"
+import {
+    ChartConfig,
+    ChartContainer,
+    ChartTooltip,
+} from "@/components/ui/chart"
 
 interface HubMetric {
     aspect: string
@@ -33,7 +43,7 @@ const aspectLabels: Record<string, string> = {
 export function HubMetricsRadar({ metrics, timeframe }: HubMetricsRadarProps) {
     if (!metrics || metrics.length === 0) return null
 
-    const chartData = metrics.map(metric => ({
+    const chartData = metrics.map((metric) => ({
         aspect: aspectLabels[metric.aspect] || metric.aspect,
         value: metric.value,
     }))
@@ -47,12 +57,18 @@ export function HubMetricsRadar({ metrics, timeframe }: HubMetricsRadarProps) {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[350px]">
+                <ChartContainer
+                    config={chartConfig}
+                    className="mx-auto aspect-square h-[350px]"
+                >
                     <RadarChart data={chartData}>
                         <PolarGrid />
                         <PolarAngleAxis
                             dataKey="aspect"
-                            tick={{ fill: "hsl(var(--foreground))", fontSize: 12 }}
+                            tick={{
+                                fill: "hsl(var(--foreground))",
+                                fontSize: 12,
+                            }}
                         />
                         <Radar
                             name="Metrics"
@@ -72,4 +88,4 @@ export function HubMetricsRadar({ metrics, timeframe }: HubMetricsRadarProps) {
             </CardContent>
         </Card>
     )
-} 
+}
