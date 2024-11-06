@@ -65,7 +65,7 @@ const validateCoordinates = (
     return null
 }
 
-export default function MarkerForm({
+export default function EventMarkerForm({
     marker,
     event,
     closeModal,

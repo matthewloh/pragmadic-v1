@@ -20,7 +20,7 @@ export default async function CommunityPage(props: {
 }) {
     const params = await props.params
     return (
-        <main className="container mx-auto h-full w-full overflow-auto">
+        <main className="h-full w-full overflow-auto">
             <Community id={params.communityId} />
         </main>
     )

@@ -94,6 +94,7 @@ export const getCommunityByIdWithCommunityPostsAndCommunityEvents = async (
 export const getCommunityByIdWithCommunityPostsAndCommunityEventsAndMembers =
     async (id: CommunityId) => {
         const { session } = await getUserAuth()
+        if (!session) throw new Error("Unauthorized")
         const { id: communityId } = communityIdSchema.parse({ id })
 
         const rows = await db

@@ -9,7 +9,7 @@ import { z } from "zod"
 const updateUserSchema = z.object({
     id: z.string().uuid(),
     display_name: z.string().min(2).max(256),
-    image_url: z.string().url().optional().nullable(),
+    image_url: z.string().url(),
 })
 
 export async function updateUserProfileAction(
@@ -18,7 +18,7 @@ export async function updateUserProfileAction(
     try {
         // Validate input
         const validated = updateUserSchema.parse(data)
-
+        console.log("data", data)
         // Update user
         await db.transaction(async (tx) => {
             await tx

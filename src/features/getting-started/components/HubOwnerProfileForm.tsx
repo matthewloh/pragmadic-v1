@@ -26,6 +26,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 import { ProfileFormLayout } from "./shared/ProfileFormLayout"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface GettingStartedOwnerProfileFormProps {
     userId: string
@@ -36,6 +37,7 @@ export function GettingStartedOwnerProfileForm({
 }: GettingStartedOwnerProfileFormProps) {
     const supabase = useSupabaseBrowser()
     const [isPending, startTransition] = useTransition()
+    const queryClient = useQueryClient()
     // Fetch existing profile
     const {
         data: existingProfile,
@@ -95,16 +97,15 @@ export function GettingStartedOwnerProfileForm({
                 }
 
                 // Only assign role if it's a new profile
-                if (!existingProfile) {
-                    const roleError = await assignUserRoleAction({
-                        userId,
-                        role: "owner",
-                    })
+                const roleError = await assignUserRoleAction({
+                    userId,
+                    role: "owner",
+                })
+                queryClient.invalidateQueries({ queryKey: ["user-role"] })
 
-                    if (roleError) {
-                        toast.error(roleError)
-                        return
-                    }
+                if (roleError) {
+                    toast.error(roleError)
+                    return
                 }
 
                 toast.success(

@@ -33,6 +33,8 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import CommunityForm from "./CommunityForm"
 import { cn } from "@/lib/utils"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
+import useSupabaseBrowser from "@/utils/supabase/client"
 
 type TOpenModal = (community?: Community) => void
 
@@ -134,6 +136,11 @@ export default function CommunityList({
     )
 }
 
+type CommunityCreator = {
+    display_name: string
+    email: string
+}
+
 function CommunityCard({
     community,
     index,
@@ -151,6 +158,34 @@ function CommunityCard({
         "from-orange-500/30 to-amber-500/30 dark:from-orange-500/20 dark:to-amber-500/20",
         "from-blue-500/30 to-cyan-500/30 dark:from-blue-500/20 dark:to-cyan-500/20",
     ]
+    const supabase = useSupabaseBrowser()
+    const { data, error } = useQuery<CommunityCreator>(
+        supabase
+            .from("users")
+            .select("display_name, email")
+            .eq("id", community.userId)
+            .single(),
+    )
+    const { count: totalMembers } = useQuery(
+        supabase
+            .from("users_to_communities")
+            .select("*", { count: "exact", head: true })
+            .eq("community_id", community.id),
+    )
+
+    const { count: totalPosts } = useQuery(
+        supabase
+            .from("community_posts")
+            .select("*", { count: "exact", head: true })
+            .eq("community_id", community.id),
+    )
+
+    const { count: totalEvents } = useQuery(
+        supabase
+            .from("community_events")
+            .select("*", { count: "exact", head: true })
+            .eq("community_id", community.id),
+    )
 
     const canEdit = session?.user?.id === community.userId
 
@@ -206,7 +241,7 @@ function CommunityCard({
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                     <Users className="h-3 w-3" />
-                                    <span>Created by {community.userId}</span>
+                                    <span>Created by {data?.display_name}</span>
                                     <span>•</span>
                                     <span>
                                         {format(
@@ -243,14 +278,21 @@ function CommunityCard({
                                     className="flex items-center gap-1"
                                 >
                                     <MessageCircle className="h-3 w-3" />
-                                    24 posts
+                                    {totalPosts} posts
                                 </Badge>
                                 <Badge
                                     variant="secondary"
                                     className="flex items-center gap-1"
                                 >
                                     <Calendar className="h-3 w-3" />
-                                    12 events
+                                    {totalEvents} events
+                                </Badge>
+                                <Badge
+                                    variant="secondary"
+                                    className="flex items-center gap-1"
+                                >
+                                    <Users className="h-3 w-3" />
+                                    {totalMembers} members
                                 </Badge>
                             </div>
                             {canEdit && (

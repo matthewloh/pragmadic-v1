@@ -18,7 +18,7 @@ import {
     Users,
 } from "lucide-react"
 import { format } from "date-fns"
-
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import HubForm from "@/components/hubs/HubForm"
 import Modal from "@/components/shared/Modal"
 import { Button } from "@/components/ui/button"
@@ -50,7 +50,7 @@ export default function OptimisticHub({
     return (
         <div
             className={cn(
-                "relative flex flex-col gap-6 rounded-xl bg-gradient-to-b from-background via-background to-accent/10 p-6",
+                "relative flex flex-col gap-6 rounded-xl bg-gradient-to-b from-background via-background to-accent/10",
                 optimisticHub.id === "optimistic" ? "animate-pulse" : "",
             )}
         >
@@ -179,7 +179,28 @@ export default function OptimisticHub({
                             </p>
                         </div>
                     )}
+                    <div className="flex flex-col gap-4">
+                        <div className="flex-1 rounded-lg border bg-card/30 p-4 shadow-sm">
+                            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                <Users className="h-4 w-4 text-blue-500" />
+                                Members
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Hub Location</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {/* TODO: */}
+                        {/* <HubMarkerForm
+                            marker={optimisticMarker}
+                            event={event}
+                            addOptimistic={updateMarker}
+                        /> */}
+                    </CardContent>
+                </Card>
             </div>
             <Separator className="my-2" />
         </div>

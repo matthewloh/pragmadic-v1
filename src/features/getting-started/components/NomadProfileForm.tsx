@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 import { ProfileFormLayout } from "./shared/ProfileFormLayout"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface GettingStartedNomadProfileFormProps {
     userId: string
@@ -27,6 +28,7 @@ export function GettingStartedNomadProfileForm({
     userId,
 }: GettingStartedNomadProfileFormProps) {
     const router = useRouter()
+    const queryClient = useQueryClient()
     const supabase = useSupabaseBrowser()
     const [isActionPending, startTransition] = useTransition()
 
@@ -85,17 +87,14 @@ export function GettingStartedNomadProfileForm({
                     return
                 }
 
-                // Only assign role if it's a new profile
-                if (!existingProfile) {
-                    const roleError = await assignUserRoleAction({
-                        userId,
-                        role: "nomad",
-                    })
+                const roleError = await assignUserRoleAction({
+                    userId,
+                    role: "nomad",
+                })
 
-                    if (roleError) {
-                        toast.error(roleError)
-                        return
-                    }
+                if (roleError) {
+                    toast.error(roleError)
+                    return
                 }
 
                 toast.success(
@@ -104,6 +103,7 @@ export function GettingStartedNomadProfileForm({
                         : "Profile created successfully!",
                 )
                 refetch()
+                queryClient.invalidateQueries({ queryKey: ["user-role"] })
             } catch (error) {
                 toast.error("Something went wrong")
                 console.error(error)

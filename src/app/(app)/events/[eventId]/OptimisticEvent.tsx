@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation"
 
 import EventForm from "@/components/events/EventForm"
 import { EventInviteForm } from "@/components/events/EventInviteForm"
-import MarkerForm from "@/components/map/MarkerForm"
+import EventMarkerForm from "@/components/map/MarkerForm"
 import Modal from "@/components/shared/Modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -279,7 +279,7 @@ export default function OptimisticEvent({
                         <CardTitle>Event Location</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <MarkerForm
+                        <EventMarkerForm
                             marker={optimisticMarker}
                             event={event}
                             addOptimistic={updateMarker}

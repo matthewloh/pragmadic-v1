@@ -8,7 +8,12 @@ interface EventMarkerProps {
     title: string
 }
 
-export function EventMarker({ longitude, latitude, onClick, title }: EventMarkerProps) {
+export function EventMarker({
+    longitude,
+    latitude,
+    onClick,
+    title,
+}: EventMarkerProps) {
     return (
         <Marker longitude={longitude} latitude={latitude} anchor="bottom">
             <div onClick={onClick} className="cursor-pointer">

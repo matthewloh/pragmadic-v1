@@ -23,6 +23,10 @@ export const createNomadProfile = async (
         const [n] = await db
             .insert(nomadProfileSchema)
             .values(newNomadProfile)
+            .onConflictDoUpdate({
+                target: [nomadProfileSchema.userId],
+                set: { ...newNomadProfile },
+            })
             .returning()
         return { nomadProfile: n }
     } catch (err) {

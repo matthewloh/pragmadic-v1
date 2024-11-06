@@ -20,7 +20,7 @@ export default async function GettingStartedPage(props: {
     searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
     const searchParams = await props.searchParams
-    const { session, user_roles } = await getUserRole()
+    const { session } = await getUserRole()
     if (!session) {
         return redirect("/auth")
     }
@@ -61,14 +61,14 @@ export default async function GettingStartedPage(props: {
     // Combined status for each role
     const nomadStatus = {
         hasRole: hasNomadRole,
-        hasProfile: hasBaseProfile && hasNomadProfile,
-        needsProfile: hasNomadRole && (!hasBaseProfile || !hasNomadProfile),
+        hasProfile: hasNomadProfile,
+        needsProfile: hasNomadRole && !hasNomadProfile,
     }
 
     const ownerStatus = {
         hasRole: hasOwnerRole,
-        hasProfile: hasBaseProfile && hasOwnerProfile,
-        needsProfile: hasOwnerRole && (!hasBaseProfile || !hasOwnerProfile),
+        hasProfile: hasOwnerProfile,
+        needsProfile: hasOwnerRole && !hasOwnerProfile,
     }
 
     // Helper functions to determine step states
@@ -119,7 +119,10 @@ export default async function GettingStartedPage(props: {
                     <div className="container mx-auto px-4 py-8">
                         {isBasicInfoIncomplete || isReset ? (
                             <div className="mx-auto max-w-3xl">
-                                <GetStartedForm user={userProfile} />
+                                <GetStartedForm
+                                    user={userProfile}
+                                    profile={baseProfile}
+                                />
                             </div>
                         ) : !hasSelectedRole ? (
                             <div className="mx-auto max-w-4xl space-y-6">

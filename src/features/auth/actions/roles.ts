@@ -38,6 +38,7 @@ export async function assignUserRoleAction(input: AssignRoleInput) {
             const existingRoles = currentUser[0]?.role
             console.log(existingRoles)
             // Add new role if it doesn't exist
+            console.log(existingRoles.includes(role))
             const updatedRoles = existingRoles.includes(role)
                 ? existingRoles
                 : [...existingRoles, role]
