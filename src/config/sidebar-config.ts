@@ -83,12 +83,13 @@ export const adminOnlyItems = [
         url: "/admin/chat",
         icon: Files,
     },
-    { title: "Hub Management", url: "/admin/hubs", icon: Building },
-    {
-        title: "Communities Management",
-        url: "/admin/communities",
-        icon: Calendar,
-    },
+    // TODO If I have time
+    // { title: "Hub Management", url: "/admin/hubs", icon: Building },
+    // {
+    //     title: "Communities Management",
+    //     url: "/admin/communities",
+    //     icon: Calendar,
+    // },
 ]
 
 export const ownerOnlyItems = [

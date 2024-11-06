@@ -11,22 +11,22 @@ const items = [
         description: "Discover hubs and events on an interactive 3D map",
         icon: Globe,
         href: "/onboarding/map",
-        className: "col-span-4 row-span-3",
+        className: "col-span-6 row-span-3",
     },
-    {
-        title: "Networking",
-        description: "Connect with other digital nomads",
-        icon: Users,
-        href: "/onboarding/networking",
-        className: "col-span-2 row-span-2",
-    },
-    {
-        title: "DE Rantau Services",
-        description: "Explore services tailored for digital nomads",
-        icon: Search,
-        href: "/onboarding/browse",
-        className: "col-span-2 row-span-1",
-    },
+    // {
+    //     title: "Networking",
+    //     description: "Connect with other digital nomads",
+    //     icon: Users,
+    //     href: "/onboarding/networking",
+    //     className: "col-span-2 row-span-2",
+    // },
+    // {
+    //     title: "DE Rantau Services",
+    //     description: "Explore services tailored for digital nomads",
+    //     icon: Search,
+    //     href: "/onboarding/browse",
+    //     className: "col-span-2 row-span-1",
+    // },
 ]
 
 export function OnboardingBentoGrid() {
