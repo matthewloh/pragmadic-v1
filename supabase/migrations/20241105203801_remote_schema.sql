@@ -1,11 +1,19 @@
-create type "public"."user_community_permissions" as enum ('admin.invite', 'admin.remove', 'admin.ban', 'admin.edit', 'member.invite', 'member.remove', 'member.ban', 'member.edit');
+create type "public"."user_community_permissions" as enum(
+  'admin.invite',
+  'admin.remove',
+  'admin.ban',
+  'admin.edit',
+  'member.invite',
+  'member.remove',
+  'member.ban',
+  'member.edit'
+);
 
-set check_function_bodies = off;
+set
+  check_function_bodies = off;
 
-CREATE OR REPLACE FUNCTION public.handle_empty_folder_placeholder()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
+CREATE
+OR REPLACE FUNCTION public.handle_empty_folder_placeholder () RETURNS trigger LANGUAGE plpgsql AS $function$
 BEGIN
     -- Check if the name does not end with '.folderPlaceholder'
     IF NEW.bucket_id = 'vault' AND NEW.name NOT LIKE '%/.folderPlaceholder' THEN
@@ -47,15 +55,12 @@ BEGIN
     -- Allow the original row to be inserted without modifying NEW.name
     RETURN NEW;
 END;
-$function$
-;
+$function$;
 
-CREATE OR REPLACE FUNCTION public.handle_updated_user()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
+CREATE
+OR REPLACE FUNCTION public.handle_updated_user () RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
+SET
+  search_path TO 'public' AS $function$
 BEGIN
   -- Check if email_confirmed_at is updated from NULL to NOT NULL
   IF NEW.email_confirmed_at IS NOT NULL AND OLD.email_confirmed_at IS NULL THEN
@@ -113,13 +118,10 @@ BEGIN
 
   RETURN NEW;
 END;
-$function$
-;
+$function$;
 
-CREATE OR REPLACE FUNCTION public.insert_into_documents()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$DECLARE
+CREATE
+OR REPLACE FUNCTION public.insert_into_documents () RETURNS trigger LANGUAGE plpgsql AS $function$DECLARE
     modified_name TEXT;
     parent_id TEXT;
 BEGIN
@@ -195,27 +197,21 @@ BEGIN
     END;
 
     RETURN NEW;
-END;$function$
-;
+END;$function$;
 
-CREATE OR REPLACE FUNCTION public.delete_from_documents()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
+CREATE
+OR REPLACE FUNCTION public.delete_from_documents () RETURNS trigger LANGUAGE plpgsql AS $function$
 BEGIN
     DELETE FROM public.documents
     WHERE object_id = OLD.id;
     RETURN OLD;
 END;
-$function$
-;
+$function$;
 
-CREATE OR REPLACE FUNCTION public.handle_new_user()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
+CREATE
+OR REPLACE FUNCTION public.handle_new_user () RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
+SET
+  search_path TO 'public' AS $function$
 BEGIN
   INSERT INTO public.users (id, email, display_name, image_url, roles)
   VALUES (
@@ -268,7 +264,4 @@ BEGIN
 
   RETURN new;
 END;
-$function$
-;
-
-
+$function$;

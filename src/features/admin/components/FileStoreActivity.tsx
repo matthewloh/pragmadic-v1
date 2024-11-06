@@ -89,7 +89,7 @@ export async function FileStoreActivity() {
                         <div className="w-[80px]" key={folder.id}>
                             <Link href={`/admin/chat/${folder.id}`} prefetch>
                                 <div className="flex flex-col items-center text-center">
-                                    <Folder className="mb-0 size-16 text-[#878787] dark:text-[#2C2C2C]" />
+                                    <Folder className="mb-0 size-16 text-foreground" />
                                     <span className="w-[70px] text-sm">
                                         {folder.name}
                                     </span>

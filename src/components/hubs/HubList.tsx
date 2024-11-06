@@ -22,6 +22,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import Modal from "@/components/shared/Modal"
 import HubForm from "./HubForm"
 import { Badge } from "@/components/ui/badge"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
 
 type TOpenModal = (hub?: Hub) => void
 
@@ -43,7 +45,6 @@ export default function HubList({
     const user_roles = data?.user_roles ?? []
     const isAdmin = user_roles.includes("admin")
     const isOwner = user_roles.includes("owner")
-
     const openModal = (hub?: Hub) => {
         setOpen(true)
         hub ? setActiveHub(hub) : setActiveHub(null)
@@ -163,7 +164,13 @@ const HubCard = ({
     const basePath = pathname.includes("hubs") ? pathname : pathname + "/hubs/"
     const canEdit = isAdmin || (isOwner && hub.userId === user?.id)
     const isOwnerOfHub = hub.userId === user?.id
-
+    const supabase = useSupabaseBrowser()
+    const { data: usersToHub, isPending: isLoadingUsersToHub } = useQuery(
+        supabase.from("users_to_hubs").select("*").eq("hub_id", hub.id),
+    )
+    const isMember = usersToHub?.some(
+        (userToHub) => userToHub.user_id === user?.id,
+    )
     const cardColors = [
         "from-blue-500/20 to-purple-600/20",
         "from-green-500/20 to-teal-600/20",
@@ -186,15 +193,26 @@ const HubCard = ({
                             <CardTitle className="text-xl font-bold">
                                 {hub.name}
                             </CardTitle>
-                            {isOwnerOfHub && (
-                                <Badge
-                                    variant="secondary"
-                                    className="flex items-center gap-1"
-                                >
-                                    <Crown className="h-3 w-3 text-yellow-500" />
-                                    <span className="text-xs">Owner</span>
-                                </Badge>
-                            )}
+                            <div className="flex items-center gap-2">
+                                {isMember && !isOwnerOfHub && (
+                                    <Badge
+                                        variant="outline"
+                                        className="flex items-center gap-1 border-green-500/20 text-green-500"
+                                    >
+                                        <Users className="h-3 w-3" />
+                                        <span className="text-xs">Member</span>
+                                    </Badge>
+                                )}
+                                {isOwnerOfHub && (
+                                    <Badge
+                                        variant="secondary"
+                                        className="flex items-center gap-1"
+                                    >
+                                        <Crown className="h-3 w-3 text-yellow-500" />
+                                        <span className="text-xs">Owner</span>
+                                    </Badge>
+                                )}
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -205,9 +223,13 @@ const HubCard = ({
                             <span className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">
                                 {hub.typeOfHub || "Not specified"}
                             </span>
-                            {isOwnerOfHub && (
-                                <span className="rounded-full bg-yellow-500/10 px-3 py-1 text-xs text-yellow-600 dark:text-yellow-400">
-                                    Your Hub
+                            {usersToHub && (
+                                <span className="rounded-full bg-secondary/50 px-3 py-1 text-xs text-secondary-foreground">
+                                    <Users className="mr-1 inline-block h-3 w-3" />
+                                    {usersToHub.length}{" "}
+                                    {usersToHub.length === 1
+                                        ? "member"
+                                        : "members"}
                                 </span>
                             )}
                         </div>

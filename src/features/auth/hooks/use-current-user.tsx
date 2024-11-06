@@ -7,17 +7,22 @@ import { useEffect, useState } from "react"
 
 export function useUser() {
     const supabase = useSupabaseBrowser()
-    const [user, setUser] = useState<User | null>(null)
+    const [user, setUser] = useState<UserRow | null>(null)
 
     useEffect(() => {
         const getUser = async () => {
             const {
                 data: { user },
             } = await supabase.auth.getUser()
-            setUser(user)
+            const { data: userData } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", user?.id ?? "")
+                .maybeSingle()
+            setUser(userData)
         }
         getUser()
-    }, [supabase.auth])
+    }, [supabase, supabase.auth])
 
     return useQuery<UserRow>(
         supabase

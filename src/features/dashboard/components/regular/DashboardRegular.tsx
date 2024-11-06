@@ -309,7 +309,7 @@ export default function DashboardRegular() {
                     <Card className="transition-all hover:bg-accent hover:text-accent-foreground">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">
-                                Welcome Events
+                                Events
                             </CardTitle>
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
@@ -318,7 +318,7 @@ export default function DashboardRegular() {
                                 {upcomingEvents}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                Upcoming newcomer meetups
+                                Upcoming events
                             </p>
                         </CardContent>
                     </Card>

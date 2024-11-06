@@ -31,4 +31,9 @@ export type User = Tables<"users">
 
 export type UsersToHubRow = Tables<"users_to_hubs">
 
+export type UsersToEventRow = Tables<"users_to_events">
 export type UsersToCommunityRow = Tables<"users_to_communities">
+
+export type HubRow = Tables<"hubs">
+
+export type HubEventRow = Tables<"hub_events">

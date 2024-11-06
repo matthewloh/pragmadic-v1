@@ -1,209 +1,145 @@
 "use client"
 
 import * as React from "react"
-import { Label, Pie, PieChart, Sector } from "recharts"
-import { PieSectorDataItem } from "recharts/types/polar/Pie"
+import { PieChart, Pie, Cell, Legend } from "recharts"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import {
-    ChartConfig,
     ChartContainer,
-    ChartStyle,
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 
-const memberData = [
-    { category: "active", count: 186, fill: "var(--color-active)" },
-    { category: "new_joiners", count: 85, fill: "var(--color-new-joiners)" },
-    { category: "regular", count: 237, fill: "var(--color-regular)" },
-    { category: "inactive", count: 43, fill: "var(--color-inactive)" },
-    { category: "premium", count: 129, fill: "var(--color-premium)" },
-]
+interface MemberDistributionChartProps {
+    data: {
+        invite_role_type: string
+        invite_status: string
+    }[]
+}
 
-const chartConfig = {
-    members: {
-        label: "Members",
-    },
-    active: {
-        label: "Active Members",
-        color: "hsl(var(--chart-1))",
-    },
-    new_joiners: {
-        label: "New Joiners",
-        color: "hsl(var(--chart-2))",
-    },
-    regular: {
-        label: "Regular Members",
-        color: "hsl(var(--chart-3))",
-    },
-    inactive: {
-        label: "Inactive Members",
-        color: "hsl(var(--chart-4))",
-    },
-    premium: {
-        label: "Premium Members",
-        color: "hsl(var(--chart-5))",
-    },
-} satisfies ChartConfig
+export function MemberDistributionChart({
+    data,
+}: MemberDistributionChartProps) {
+    if (!data || data.length === 0) {
+        return (
+            <Card className="h-full w-full">
+                <CardHeader>
+                    <CardTitle>Member Role Distribution</CardTitle>
+                </CardHeader>
+                <CardContent className="flex h-[350px] items-center justify-center">
+                    <p className="text-sm text-muted-foreground">
+                        No member data available
+                    </p>
+                </CardContent>
+            </Card>
+        )
+    }
 
-export function MemberDistributionChart() {
-    const id = "member-distribution"
-    const [activeCategory, setActiveCategory] = React.useState(
-        memberData[0].category,
+    const distribution = data.reduce(
+        (acc, member) => {
+            const role = member.invite_role_type
+            acc[role] = (acc[role] || 0) + 1
+            return acc
+        },
+        {} as Record<string, number>,
     )
 
-    const activeIndex = React.useMemo(
-        () => memberData.findIndex((item) => item.category === activeCategory),
-        [activeCategory],
-    )
-    const categories = React.useMemo(
-        () => memberData.map((item) => item.category),
-        [],
-    )
+    const total = Object.values(distribution).reduce((a, b) => a + b, 0)
+    const chartData = Object.entries(distribution).map(([role, count]) => ({
+        name: role.charAt(0).toUpperCase() + role.slice(1),
+        value: count,
+        percentage: Math.round((count / total) * 100),
+    }))
 
-    const totalMembers = memberData.reduce((sum, item) => sum + item.count, 0)
+    const COLORS = {
+        Admin: "hsl(var(--chart-1))",
+        Member: "hsl(var(--chart-2))",
+        Owner: "hsl(var(--chart-3))",
+    }
+
+    const RADIAN = Math.PI / 180
+    const renderCustomizedLabel = ({
+        cx,
+        cy,
+        midAngle,
+        innerRadius,
+        outerRadius,
+        percent,
+        name,
+    }: any) => {
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.6
+        const x = cx + radius * Math.cos(-midAngle * RADIAN)
+        const y = cy + radius * Math.sin(-midAngle * RADIAN)
+
+        return percent > 0.05 ? (
+            <text
+                x={x}
+                y={y}
+                fill="white"
+                textAnchor={x > cx ? "start" : "end"}
+                dominantBaseline="central"
+                className="text-xs font-medium"
+            >
+                {`${(percent * 100).toFixed(0)}%`}
+            </text>
+        ) : null
+    }
 
     return (
-        <Card data-chart={id}>
-            <ChartStyle id={id} config={chartConfig} />
-            <CardHeader className="flex-row items-start space-y-0 pb-0">
-                <div className="grid gap-1">
-                    <CardTitle>Member Distribution</CardTitle>
-                    <CardDescription>
-                        Total Members: {totalMembers}
-                    </CardDescription>
-                </div>
-                <Select
-                    value={activeCategory}
-                    onValueChange={setActiveCategory}
-                >
-                    <SelectTrigger
-                        className="ml-auto h-7 w-[180px] rounded-lg pl-2.5"
-                        aria-label="Select category"
-                    >
-                        <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent align="end" className="rounded-xl">
-                        {categories.map((key) => {
-                            const config =
-                                chartConfig[key as keyof typeof chartConfig]
-                            if (!config) return null
-
-                            return (
-                                <SelectItem
-                                    key={key}
-                                    value={key}
-                                    className="rounded-lg [&_span]:flex"
-                                >
-                                    <div className="flex items-center gap-2 text-xs">
-                                        <span
-                                            className="flex h-3 w-3 shrink-0 rounded-sm"
-                                            style={{
-                                                backgroundColor: `var(--color-${key})`,
-                                            }}
-                                        />
-                                        {config?.label}
-                                    </div>
-                                </SelectItem>
-                            )
-                        })}
-                    </SelectContent>
-                </Select>
+        <Card className="h-full w-full">
+            <CardHeader>
+                <CardTitle>Member Role Distribution</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                    Breakdown of member roles in the hub
+                </p>
             </CardHeader>
-            <CardContent className="flex flex-1 justify-center pb-4">
+            <CardContent>
                 <ChartContainer
-                    id={id}
-                    config={chartConfig}
-                    className="mx-auto aspect-square w-full max-w-[300px]"
+                    config={Object.fromEntries(
+                        chartData.map(({ name }) => [
+                            name.toLowerCase(),
+                            {
+                                label: `${name} Members`,
+                                color: COLORS[name as keyof typeof COLORS],
+                            },
+                        ]),
+                    )}
+                    className="h-full w-full"
                 >
                     <PieChart>
-                        <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
-                        />
                         <Pie
-                            data={memberData}
-                            dataKey="count"
-                            nameKey="category"
-                            innerRadius={60}
-                            strokeWidth={5}
-                            activeIndex={activeIndex}
-                            activeShape={({
-                                outerRadius = 0,
-                                ...props
-                            }: PieSectorDataItem) => (
-                                <g>
-                                    <Sector
-                                        {...props}
-                                        outerRadius={outerRadius + 10}
-                                    />
-                                    <Sector
-                                        {...props}
-                                        outerRadius={outerRadius + 25}
-                                        innerRadius={outerRadius + 12}
-                                    />
-                                </g>
-                            )}
+                            data={chartData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={renderCustomizedLabel}
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
                         >
-                            <Label
-                                content={({ viewBox }) => {
-                                    if (
-                                        viewBox &&
-                                        "cx" in viewBox &&
-                                        "cy" in viewBox
-                                    ) {
-                                        const percentage = (
-                                            (memberData[activeIndex].count /
-                                                totalMembers) *
-                                            100
-                                        ).toFixed(1)
-                                        return (
-                                            <text
-                                                x={viewBox.cx}
-                                                y={viewBox.cy}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                            >
-                                                <tspan
-                                                    x={viewBox.cx}
-                                                    y={viewBox.cy}
-                                                    className="fill-foreground text-3xl font-bold"
-                                                >
-                                                    {percentage}%
-                                                </tspan>
-                                                <tspan
-                                                    x={viewBox.cx}
-                                                    y={(viewBox.cy || 0) + 24}
-                                                    className="fill-muted-foreground text-sm"
-                                                >
-                                                    {
-                                                        chartConfig[
-                                                            memberData[
-                                                                activeIndex
-                                                            ]
-                                                                .category as keyof typeof chartConfig
-                                                        ]?.label
-                                                    }
-                                                </tspan>
-                                            </text>
-                                        )
+                            {chartData.map((entry, index) => (
+                                <Cell
+                                    key={`cell-${index}`}
+                                    fill={
+                                        COLORS[
+                                            entry.name as keyof typeof COLORS
+                                        ]
                                     }
-                                }}
-                            />
+                                />
+                            ))}
                         </Pie>
+                        <ChartTooltip
+                            content={
+                                <ChartTooltipContent
+                                    formatter={(value: any, name: any) =>
+                                        `${value} (${chartData.find((d) => d.name === name)?.percentage}%)`
+                                    }
+                                />
+                            }
+                        />
+                        <Legend
+                            formatter={(value: string) => `${value} Members`}
+                            className="text-xs"
+                        />
                     </PieChart>
                 </ChartContainer>
             </CardContent>

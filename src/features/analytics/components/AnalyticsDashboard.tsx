@@ -1,107 +1,326 @@
 "use client"
 
-import { Card } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     ResizableHandle,
     ResizablePanel,
     ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { EventsChart } from "../charts/events-chart"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { EventTypesChart } from "@/features/analytics/charts/event-types-chart"
+import { EventsOverviewChart } from "@/features/analytics/charts/events-overview-chart"
+import { EventsParticipationChart } from "@/features/analytics/charts/events-participation-chart"
+import { type Hub } from "@/lib/db/schema/hubs"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import {
+    HubEventRow,
+    HubRow,
+    UsersToEventRow,
+    UsersToHubRow,
+} from "@/utils/supabase/types"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
+import { useEffect, useState } from "react"
 import { MemberDistributionChart } from "../charts/member-distribution-chart"
 import { OccupationsChart } from "../charts/occupations-chart"
-import { SentimentChart } from "../charts/sentiment-chart"
+import { HubAnalytics } from "../types"
 import { AnalyticsChat } from "./AnalyticsChat"
+import { AnalyticsLoading } from "./AnalyticsLoading"
 import { AnalyticsStats } from "./AnalyticsStats"
+import { EngagementMetrics } from "./engagement-metrics"
+import { HubSelector } from "./HubSelector"
 
-export function AnalyticsDashboard() {
+type UsersToHubsWithUserInfoAndProfile = UsersToHubRow & {
+    users: {
+        display_name: string | null
+        email: string
+        image_url: string | null
+        profile: {
+            bio: string
+            occupation: string | null
+            location: string | null
+        } | null
+    }
+}
+
+type UsersToEventsWithUserInfo = UsersToEventRow & {
+    users: {
+        display_name: string | null
+        email: string
+        image_url: string | null
+    }
+}
+
+export function AnalyticsDashboard({ initialHubs }: { initialHubs: Hub[] }) {
+    const supabase = useSupabaseBrowser()
+    const [selectedHubId, setSelectedHubId] = useState<string>("")
+
+    // Set initial hub
+    useEffect(() => {
+        if (initialHubs.length > 0 && !selectedHubId) {
+            setSelectedHubId(initialHubs[0].id)
+        }
+    }, [initialHubs, selectedHubId])
+
+    // Basic hub info
+    const { data: hubInfo } = useQuery<HubRow>(
+        supabase
+            .from("hubs")
+            .select(
+                `
+                id,
+                name,
+                description,
+                type_of_hub,
+                public,
+                info,
+                created_at,
+                updated_at
+            `,
+            )
+            .eq("id", selectedHubId)
+            .single(),
+        {
+            enabled: !!selectedHubId,
+        },
+    )
+
+    // Hub members
+    const { data: hubMembers } = useQuery<UsersToHubsWithUserInfoAndProfile[]>(
+        // @ts-expect-error TODO: fix this
+        supabase
+            .from("users_to_hubs")
+            .select(
+                `
+                user_id,
+                hub_id,
+                invite_status,
+                invite_role_type,
+                created_at,
+                updated_at,
+                users (
+                    display_name,
+                    email,
+                    image_url,
+                    profile (
+                        bio,
+                        occupation,
+                        location
+                    )
+                )
+            `,
+            )
+            .eq("hub_id", selectedHubId),
+        {
+            enabled: !!selectedHubId,
+        },
+    )
+
+    // Hub events
+    const { data: hubEvents } = useQuery<HubEventRow>(
+        supabase
+            .from("hub_events")
+            .select(
+                `
+                id,
+                name,
+                description,
+                type_of_event,
+                start_date,
+                end_date,
+                is_complete,
+                info,
+                created_at,
+                updated_at,
+                hub_id,
+                user_id
+            `,
+            )
+            .eq("hub_id", selectedHubId),
+        {
+            enabled: !!selectedHubId,
+        },
+    )
+
+    // Event participants
+    const { data: eventParticipants } = useQuery<UsersToEventsWithUserInfo[]>(
+        // @ts-expect-error TODO: fix this
+        supabase
+            .from("users_to_events")
+            .select(
+                `
+                user_id,
+                event_id,
+                pending,
+                member,
+                created_at,
+                updated_at,
+                users (
+                    display_name,
+                    email,
+                    image_url
+                )
+            `,
+            )
+            .in("event_id", hubEvents?.map((event) => event.id) ?? []),
+        {
+            enabled: !!hubEvents?.length,
+        },
+    )
+
+    const isLoading =
+        !hubInfo || !hubMembers || !hubEvents || !eventParticipants
+
+    if (!selectedHubId || isLoading) {
+        return <AnalyticsLoading />
+    }
+
+    // Combine data for components that need it
+    const analyticsData: HubAnalytics = {
+        ...hubInfo,
+        hub_events:
+            hubEvents.map((event) => ({
+                ...event,
+                users_to_events:
+                    eventParticipants
+                        ?.filter((p) => p.event_id === event.id)
+                        .map((p) => ({
+                            ...p,
+                            pending: p.pending === "accepted",
+                            member: p.member === "member",
+                            users: p.users || {
+                                display_name: null,
+                                email: "",
+                                image_url: null,
+                            },
+                        })) || [],
+            })) || [],
+        users_to_hubs:
+            hubMembers?.map((member) => ({
+                ...member,
+                invite_status: member.invite_status || "pending",
+                invite_role_type: member.invite_role_type || "member",
+            })) || [],
+    }
+
     return (
         <ResizablePanelGroup
             direction="horizontal"
             className="h-full rounded-lg"
         >
-            {/* Main Analytics Panel */}
-            <ResizablePanel defaultSize={70} minSize={50} maxSize={80}>
+            <ResizablePanel defaultSize={70} maxSize={70} minSize={50}>
                 <ScrollArea className="h-full">
-                    <div className="space-y-4 p-6">
-                        <h1 className="text-2xl font-bold">
-                            Analytics Dashboard
-                        </h1>
-                        <AnalyticsStats />
+                    <div className="space-y-6 p-6">
+                        <HubSelector
+                            hubs={initialHubs}
+                            selectedHubId={selectedHubId}
+                            onHubChange={setSelectedHubId}
+                        />
 
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <MemberDistributionChart />
-                            <OccupationsChart />
-                        </div>
+                        <AnalyticsStats analytics={analyticsData} />
 
-                        <Tabs defaultValue="occupations" className="space-y-4">
-                            <TabsList>
-                                <TabsTrigger value="occupations">
-                                    Occupations
-                                </TabsTrigger>
-                                <TabsTrigger value="sentiment">
-                                    Sentiment
-                                </TabsTrigger>
-                                <TabsTrigger value="events">Events</TabsTrigger>
-                            </TabsList>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Member Analytics</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <Tabs defaultValue="distribution">
+                                    <TabsList>
+                                        <TabsTrigger value="distribution">
+                                            Distribution
+                                        </TabsTrigger>
+                                        <TabsTrigger value="occupations">
+                                            Occupations
+                                        </TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent
+                                        value="distribution"
+                                        className="h-full w-full"
+                                    >
+                                        <div className="space-y-4">
+                                            <div className="text-sm text-muted-foreground">
+                                                Breakdown of member roles in the
+                                                hub
+                                            </div>
+                                            <MemberDistributionChart
+                                                data={
+                                                    analyticsData.users_to_hubs
+                                                }
+                                            />
+                                        </div>
+                                    </TabsContent>
+                                    <TabsContent
+                                        value="occupations"
+                                        className="h-full w-full"
+                                    >
+                                        <div className="space-y-4">
+                                            <div className="text-sm text-muted-foreground">
+                                                Distribution of member
+                                                occupations
+                                            </div>
+                                            <OccupationsChart
+                                                data={
+                                                    analyticsData.users_to_hubs
+                                                }
+                                            />
+                                        </div>
+                                    </TabsContent>
+                                </Tabs>
+                            </CardContent>
+                        </Card>
 
-                            <TabsContent
-                                value="occupations"
-                                className="space-y-4"
-                            >
-                                <Card className="p-4">
-                                    <h2 className="font-semibold">
-                                        Member Occupations Distribution
-                                    </h2>
-                                    <p className="text-sm text-muted-foreground">
-                                        Breakdown of professional backgrounds in
-                                        your hub
-                                    </p>
-                                </Card>
-                                <OccupationsChart />
-                            </TabsContent>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Event Analytics</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <Tabs defaultValue="overview">
+                                    <TabsList>
+                                        <TabsTrigger value="overview">
+                                            Overview
+                                        </TabsTrigger>
+                                        <TabsTrigger value="participation">
+                                            Participation
+                                        </TabsTrigger>
+                                        <TabsTrigger value="types">
+                                            Event Types
+                                        </TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="overview">
+                                        <EventsOverviewChart
+                                            data={analyticsData.hub_events}
+                                        />
+                                    </TabsContent>
+                                    <TabsContent value="participation">
+                                        <EventsParticipationChart
+                                            data={analyticsData.hub_events}
+                                        />
+                                    </TabsContent>
+                                    <TabsContent value="types">
+                                        <EventTypesChart
+                                            data={analyticsData.hub_events}
+                                        />
+                                    </TabsContent>
+                                </Tabs>
+                            </CardContent>
+                        </Card>
 
-                            <TabsContent
-                                value="sentiment"
-                                className="space-y-4"
-                            >
-                                <Card className="p-4">
-                                    <h2 className="font-semibold">
-                                        Sentiment Analysis
-                                    </h2>
-                                    <p className="text-sm text-muted-foreground">
-                                        Member sentiment trends over time
-                                    </p>
-                                </Card>
-                                <SentimentChart />
-                            </TabsContent>
-
-                            <TabsContent value="events" className="space-y-4">
-                                <Card className="p-4">
-                                    <h2 className="font-semibold">
-                                        Event Performance
-                                    </h2>
-                                    <p className="text-sm text-muted-foreground">
-                                        Analysis of event attendance and
-                                        engagement
-                                    </p>
-                                </Card>
-                                <EventsChart />
-                            </TabsContent>
-                        </Tabs>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Engagement Metrics</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <EngagementMetrics analytics={analyticsData} />
+                            </CardContent>
+                        </Card>
                     </div>
                 </ScrollArea>
             </ResizablePanel>
 
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle />
+            <ResizableHandle />
 
-            {/* Chat Panel */}
-            <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
-                <Card className="h-full rounded-none border-0">
-                    <AnalyticsChat />
-                </Card>
+            <ResizablePanel defaultSize={30} maxSize={50} minSize={30}>
+                <AnalyticsChat />
             </ResizablePanel>
         </ResizablePanelGroup>
     )

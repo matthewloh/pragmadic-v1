@@ -4,11 +4,12 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { signout } from "@/features/auth/auth-actions"
 import { useQueryClient } from "@tanstack/react-query"
 import { LogOut, LogOutIcon } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 export function SignOut() {
+    const router = useRouter()
     const [isLoading, setLoading] = useState(false)
     const params = usePathname()
     const next = params ?? ""
@@ -22,6 +23,8 @@ export function SignOut() {
         setLoading(true)
         signout({ next })
         queryClient.clear()
+        router.push("/")
+        router.refresh()
     }
 
     return (

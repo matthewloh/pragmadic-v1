@@ -24,6 +24,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import EventForm from "./EventForm"
 import { format } from "date-fns"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
+import { useUser } from "@/features/auth/hooks/use-current-user"
+import { HubRow } from "@/utils/supabase/types"
 
 type TOpenModal = (event?: Event) => void
 
@@ -117,6 +121,17 @@ const EventCard = ({
     openModal: TOpenModal
     index: number
 }) => {
+    const supabase = useSupabaseBrowser()
+    const { data: user } = useUser()
+    const { data: usersToEvent, isPending: isLoadingUsersToEvent } = useQuery(
+        supabase.from("users_to_events").select("*").eq("event_id", event.id),
+    )
+    const { data: hub } = useQuery<HubRow>(
+        supabase.from("hubs").select("*").eq("id", event.hubId).single(),
+    )
+    const isParticipant = usersToEvent?.some(
+        (userToEvent) => userToEvent.user_id === user?.id,
+    )
     const optimistic = event.id === "optimistic"
     const deleting = event.id === "delete"
     const mutating = optimistic || deleting
@@ -124,6 +139,20 @@ const EventCard = ({
     const basePath = pathname.includes("events")
         ? pathname
         : pathname + "/events/"
+
+    const getParticipantStatus = () => {
+        const participant = usersToEvent?.find(
+            (userToEvent) => userToEvent.user_id === user?.id,
+        )
+        return participant?.pending
+    }
+
+    const participantStatus = getParticipantStatus()
+    const statusMessages = {
+        accepted: "You've joined this event",
+        pending: "Your request is pending",
+        rejected: "You've declined this event",
+    }
 
     return (
         <motion.div
@@ -136,11 +165,35 @@ const EventCard = ({
                     "group relative overflow-hidden transition-all hover:shadow-md",
                     mutating ? "animate-pulse opacity-50" : "",
                     deleting ? "bg-destructive/10" : "bg-card",
+                    participantStatus === "accepted" &&
+                        "border-l-4 border-l-green-500",
                 )}
             >
                 <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
+                            {participantStatus && (
+                                <div className="mb-2 flex items-center gap-2">
+                                    <Badge
+                                        variant={
+                                            participantStatus === "pending"
+                                                ? "secondary"
+                                                : participantStatus ===
+                                                    "accepted"
+                                                  ? "success"
+                                                  : "destructive"
+                                        }
+                                        className="inline-flex items-center gap-1"
+                                    >
+                                        <Users className="h-3 w-3" />
+                                        {
+                                            statusMessages[
+                                                participantStatus as keyof typeof statusMessages
+                                            ]
+                                        }
+                                    </Badge>
+                                </div>
+                            )}
                             <div className="flex items-center gap-2">
                                 <Badge
                                     variant="outline"
@@ -167,6 +220,16 @@ const EventCard = ({
                                 {event.description ||
                                     "No description available"}
                             </p>
+                            <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                                {usersToEvent && (
+                                    <div className="flex items-center gap-1 border-l border-border pl-2">
+                                        <Users className="h-4 w-4" />
+                                        <span>
+                                            {usersToEvent.length} participants
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         <Button
                             variant="ghost"

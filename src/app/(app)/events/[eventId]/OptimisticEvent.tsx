@@ -37,6 +37,19 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChevronDownIcon } from "lucide-react"
+import {
+    CalendarIcon,
+    MapPinIcon,
+    TagIcon,
+    UserIcon,
+    InfoIcon,
+} from "lucide-react"
+
+type UserCreatorEvent = {
+    display_name: string
+    email: string
+    image_url: string
+}
 
 export default function OptimisticEvent({
     event,
@@ -70,6 +83,15 @@ export default function OptimisticEvent({
         (participant) => participant.user_id === user?.id,
     )
 
+    const { data: eventUser, isPending: isLoadingEventUser } =
+        useQuery<UserCreatorEvent>(
+            supabase
+                .from("users")
+                .select("display_name, email, image_url")
+                .eq("id", event.userId)
+                .limit(1)
+                .single(),
+        )
     const { mutateAsync: joinEvent } = useUpsertMutation(
         supabase.from("users_to_events") as any,
         ["id"],
@@ -260,17 +282,106 @@ export default function OptimisticEvent({
                     <CardHeader>
                         <CardTitle>Event Details</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <pre
-                            className={cn(
-                                "text-wrap break-all rounded-lg bg-secondary p-4 text-sm",
-                                optimisticEvent.id === "optimistic"
-                                    ? "animate-pulse"
-                                    : "",
+                    <CardContent className="space-y-6">
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-semibold tracking-tight">
+                                    {optimisticEvent.name}
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                    {optimisticEvent.description}
+                                </p>
+                            </div>
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                                        <span>Start Time</span>
+                                    </div>
+                                    <p className="font-medium">
+                                        {new Date(
+                                            optimisticEvent.startDate,
+                                        ).toLocaleString()}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                                        <span>End Time</span>
+                                    </div>
+                                    <p className="font-medium">
+                                        {new Date(
+                                            optimisticEvent.endDate,
+                                        ).toLocaleString()}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm">
+                                    <MapPinIcon className="h-4 w-4 text-muted-foreground" />
+                                    <span>Location</span>
+                                </div>
+                                <div className="rounded-md border p-3">
+                                    <p className="font-medium">
+                                        {optimisticEvent.hub?.name}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {optimisticEvent.hub?.description}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm">
+                                    <TagIcon className="h-4 w-4 text-muted-foreground" />
+                                    <span>Event Type</span>
+                                </div>
+                                <Badge variant="secondary">
+                                    {optimisticEvent.typeOfEvent}
+                                </Badge>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm">
+                                    <UserIcon className="h-4 w-4 text-muted-foreground" />
+                                    <span>Organized by</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage
+                                            src={eventUser?.image_url}
+                                        />
+                                        <AvatarFallback>
+                                            {eventUser?.display_name?.[0] ||
+                                                "?"}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="font-medium">
+                                            {eventUser?.display_name}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {eventUser?.email}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {optimisticEvent.info && (
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                                        <span>Additional Information</span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">
+                                        {optimisticEvent.info}
+                                    </p>
+                                </div>
                             )}
-                        >
-                            {JSON.stringify(optimisticEvent, null, 2)}
-                        </pre>
+                        </div>
                     </CardContent>
                 </Card>
 

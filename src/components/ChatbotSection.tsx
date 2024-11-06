@@ -15,7 +15,7 @@ export function ChatbotSection() {
                     Retrieval-Augmented Generation powers nomadic convenience
                 </h2>
                 <p className="mb-8 text-balance text-lg text-muted-foreground sm:text-xl">
-                    Powered by OpenAI and Llama 3.2
+                    Powered by OpenAI and Gemini
                 </p>
                 <Button
                     size="lg"

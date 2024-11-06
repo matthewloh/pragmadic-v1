@@ -19,10 +19,10 @@ export default async function VerifyEmailPage(props: {
         redirect(currentPath)
     }
     return (
-        <div className="container relative flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-1 lg:px-0">
-            <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+        <div className="container flex min-h-[100vh] flex-col items-center justify-center">
+            <div className="mx-auto w-full max-w-[350px]">
                 <Card className="p-6">
-                    <div className="flex flex-col items-center space-y-4 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-4 text-center">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
                             <MailOpen className="h-6 w-6 text-blue-500" />
                         </div>

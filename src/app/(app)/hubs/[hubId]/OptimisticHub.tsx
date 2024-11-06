@@ -16,6 +16,7 @@ import {
     Building2,
     Hash,
     Users,
+    ChevronRight,
 } from "lucide-react"
 import { format } from "date-fns"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -26,6 +27,7 @@ import { type State, type StateId } from "@/lib/db/schema/states"
 import { Badge } from "@/components/ui/badge"
 import { BackButton } from "@/components/shared/BackButton"
 import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
 
 export default function OptimisticHub({
     hub,
@@ -181,26 +183,28 @@ export default function OptimisticHub({
                     )}
                     <div className="flex flex-col gap-4">
                         <div className="flex-1 rounded-lg border bg-card/30 p-4 shadow-sm">
-                            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                                <Users className="h-4 w-4 text-blue-500" />
-                                Members
-                            </div>
+                            <Link href={`/hubs/${optimisticHub.id}/members`}>
+                                <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                    <Users className="h-4 w-4 text-blue-500" />
+                                    Members
+                                    <ChevronRight className="h-4 w-4" />
+                                </div>
+                            </Link>
                         </div>
                     </div>
                 </div>
-                <Card>
+                {/* <Card>
                     <CardHeader>
                         <CardTitle>Hub Location</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {/* TODO: */}
-                        {/* <HubMarkerForm
+                        <HubMarkerForm
                             marker={optimisticMarker}
                             event={event}
                             addOptimistic={updateMarker}
-                        /> */}
+                        />
                     </CardContent>
-                </Card>
+                </Card> */}
             </div>
             <Separator className="my-2" />
         </div>
