@@ -255,8 +255,7 @@ const ReviewForm = ({
                                     key={hub.id}
                                     value={hub.id.toString()}
                                 >
-                                    {hub.id}
-                                    {/* TODO: Replace with a field from the hub model */}
+                                    {hub.name}
                                 </SelectItem>
                             ))}
                         </SelectContent>

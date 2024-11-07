@@ -15,6 +15,14 @@ import {
     insertHubParams,
     updateHubParams,
 } from "@/lib/db/schema/hubs"
+import { kv } from "@vercel/kv"
+import { Ratelimit } from "@upstash/ratelimit"
+import { headers } from "next/headers"
+
+const ratelimit = new Ratelimit({
+    redis: kv,
+    limiter: Ratelimit.fixedWindow(4, "60s"), // 4 attempts per minute
+})
 
 const handleErrors = (e: unknown) => {
     const errMsg = "Error, please try again."
@@ -58,6 +66,12 @@ export const deleteHubAction = async (input: HubId) => {
     }
 }
 export const createHubJoinRequestAction = async (hubId: string) => {
+    const headersList = await headers()
+    const ip = headersList.get("x-forwarded-for") ?? "ip"
+    const { success } = await ratelimit.limit(ip)
+    if (!success) {
+        return "Too many requests. Please try again later."
+    }
     try {
         await createHubJoinRequest(hubId)
     } catch (e) {

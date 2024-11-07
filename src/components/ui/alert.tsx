@@ -1,10 +1,10 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-
 import { cn } from "@/lib/utils"
+import { X } from "lucide-react"
 
 const alertVariants = cva(
-    "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+    "relative w-full rounded-lg border px-4 py-3 text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>div]:pl-7",
     {
         variants: {
             variant: {
@@ -34,7 +34,7 @@ Alert.displayName = "Alert"
 
 const AlertTitle = React.forwardRef<
     HTMLParagraphElement,
-    React.HTMLAttributes<HTMLHeadingElement>
+    React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
     <h5
         ref={ref}
@@ -59,4 +59,22 @@ const AlertDescription = React.forwardRef<
 ))
 AlertDescription.displayName = "AlertDescription"
 
-export { Alert, AlertTitle, AlertDescription }
+const AlertClose = React.forwardRef<
+    HTMLButtonElement,
+    React.ButtonHTMLAttributes<HTMLButtonElement>
+>(({ className, ...props }, ref) => (
+    <button
+        ref={ref}
+        className={cn(
+            "absolute right-2 top-2 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
+            className,
+        )}
+        {...props}
+    >
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+    </button>
+))
+AlertClose.displayName = "AlertClose"
+
+export { Alert, AlertTitle, AlertDescription, AlertClose }

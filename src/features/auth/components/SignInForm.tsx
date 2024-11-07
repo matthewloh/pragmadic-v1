@@ -24,13 +24,35 @@ import { toast } from "sonner"
 import { loginSchema, LoginValues } from "../zod/schemas/validation"
 import { PasswordInput } from "./PasswordInput"
 import { SignInMagicLink } from "./SignInMagicLink"
+import Link from "next/link"
+import { Alert, AlertDescription, AlertClose } from "@/components/ui/alert"
+import { CheckCircle2 } from "lucide-react"
+import { useCallback, useEffect } from "react"
+import { useRouter, usePathname } from "next/navigation"
 
 export function SignInForm() {
     const [error, setError] = useState<string>()
     const [isPending, startTransition] = useTransition()
-
+    const router = useRouter()
+    const pathname = usePathname()
     const params = useSearchParams()
+    const [showMessage, setShowMessage] = useState(false)
+
     const next = params.get("next") ?? ""
+    const message = params.get("message")
+
+    useEffect(() => {
+        if (message) {
+            setShowMessage(true)
+        }
+    }, [message])
+
+    const handleDismiss = useCallback(() => {
+        setShowMessage(false)
+        const newParams = new URLSearchParams(params)
+        newParams.delete("message")
+        router.replace(`${pathname}?${newParams.toString()}`)
+    }, [params, pathname, router])
 
     const getURL = () => {
         let url =
@@ -86,6 +108,14 @@ export function SignInForm() {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                {message && showMessage && (
+                    <Alert className="border-green-500 text-green-500">
+                        <CheckCircle2 className="h-4 w-4" />
+                        <AlertDescription>{message}</AlertDescription>
+                        <AlertClose onClick={handleDismiss} />
+                    </Alert>
+                )}
+
                 {error && (
                     <p className="text-center text-destructive">{error}</p>
                 )}
@@ -112,7 +142,15 @@ export function SignInForm() {
                     name="password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Password</FormLabel>
+                            <div className="flex items-center justify-between">
+                                <FormLabel>Password</FormLabel>
+                                <Link
+                                    href="/forgot-password"
+                                    className="text-sm text-muted-foreground hover:text-primary"
+                                >
+                                    Forgot password?
+                                </Link>
+                            </div>
                             <FormControl>
                                 <PasswordInput
                                     placeholder="Password"

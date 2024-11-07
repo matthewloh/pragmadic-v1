@@ -177,12 +177,18 @@ export const createHubJoinRequest = async (hubId: string) => {
     const { session } = await getUserAuth()
     if (!session) throw new Error("Unauthorized")
 
-    await db.insert(usersToHubs).values({
-        hub_id: hubId,
-        user_id: session.user.id,
-        invite_status: "pending",
-        invite_role_type: "member",
-    })
+    await db
+        .insert(usersToHubs)
+        .values({
+            hub_id: hubId,
+            user_id: session.user.id,
+            invite_status: "pending",
+            invite_role_type: "member",
+        })
+        .onConflictDoUpdate({
+            target: [usersToHubs.hub_id, usersToHubs.user_id],
+            set: { invite_status: "pending", invite_role_type: "member" },
+        })
 
     revalidatePath(`/hubs/${hubId}/invites`)
 }
