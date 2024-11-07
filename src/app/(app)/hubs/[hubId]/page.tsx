@@ -1,21 +1,17 @@
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
-import OptimisticHub from "./OptimisticHub"
+import Loading from "@/app/loading"
 import { HubTabs } from "@/components/hubs/HubTabs"
+import { getEventsByHubId } from "@/lib/api/events/queries"
 import {
-    getHubByIdWithEventsAndReviewsAndInvites,
-    getHubInvitesByHubId,
     getAllHubUsersById,
     getHubByIdWithOwnerProfile,
 } from "@/lib/api/hubs/queries"
+import { getReviewsByHubId } from "@/lib/api/reviews/queries"
 import { getStates } from "@/lib/api/states/queries"
-import Loading from "@/app/loading"
-import { BackButton } from "@/components/shared/BackButton"
-import { getUserRole } from "@/lib/auth/get-user-role"
-import { getUser } from "@/lib/api/users/queries"
-import { getReviews, getReviewsByHubId } from "@/lib/api/reviews/queries"
-import { getEventsByHubId } from "@/lib/api/events/queries"
+import { getUserAuth } from "@/lib/auth/utils"
+import OptimisticHub from "./OptimisticHub"
 
 export const revalidate = 0
 
@@ -26,7 +22,7 @@ export default async function HubPage(props: {
     const params = await props.params
     const searchParams = await props.searchParams
     return (
-        <main className="flex flex-1 flex-col">
+        <main className="flex h-full w-full flex-1 flex-col">
             <Suspense fallback={<Loading />}>
                 <Hub id={params.hubId} tab={searchParams.tab} />
             </Suspense>
@@ -35,6 +31,7 @@ export default async function HubPage(props: {
 }
 
 async function Hub({ id, tab }: { id: string; tab: string }) {
+    const { session } = await getUserAuth()
     const { hub } = await getHubByIdWithOwnerProfile(id)
     if (!hub) notFound()
     const { user: ownerUserProfile, hubOwnerProfile } = hub
@@ -44,7 +41,7 @@ async function Hub({ id, tab }: { id: string; tab: string }) {
     const { users: usersToHub } = await getAllHubUsersById(id)
 
     return (
-        <div className="flex flex-1 flex-col space-y-8">
+        <div className="flex h-full w-full flex-1 flex-col space-y-8">
             <div className="flex-1 rounded-xl border bg-gradient-to-br from-card to-muted/50 p-6 shadow-lg">
                 <OptimisticHub
                     hub={hub}

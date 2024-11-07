@@ -34,6 +34,7 @@ import {
     deleteEventMarkerAction,
 } from "@/features/onboarding/map/hub/actions"
 import CoordinatesSelector from "@/app/(onboarding)/onboarding/map/components/CoordinatesSelector"
+import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
 
 const EVENT_TYPES = [
     "networking",
@@ -76,6 +77,8 @@ export default function EventMarkerForm({
     closeModal?: () => void
     addOptimistic?: TAddOptimistic
 }) {
+    const { data: user } = useCurrentUser()
+    const isCreator = user?.id === event.userId
     const { errors, hasErrors, setErrors, handleChange } =
         useValidatedForm<EventMarker>(insertEventMarkerParams)
     const editing = !!marker?.id

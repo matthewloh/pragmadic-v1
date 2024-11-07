@@ -3,52 +3,129 @@
 import { TAddOptimistic } from "@/app/(app)/events/useOptimisticEvents"
 import { TAddOptimistic as TAddOptimisticMarker } from "@/app/(app)/regions/[regionId]/states/[stateId]/hubs/[hubId]/events/[eventId]/useOptimisticEventMarkers"
 import { CompleteEvent, type Event } from "@/lib/db/schema/events"
-import { cn } from "@/lib/utils"
-import { useOptimistic, useState } from "react"
 import {
-    useInsertMutation,
-    useUpdateMutation,
     useDeleteMutation,
     useQuery,
     useUpsertMutation,
 } from "@supabase-cache-helpers/postgrest-react-query"
-import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { useOptimistic, useState } from "react"
+import { toast } from "sonner"
 
 import EventForm from "@/components/events/EventForm"
 import { EventInviteForm } from "@/components/events/EventInviteForm"
 import EventMarkerForm from "@/components/map/MarkerForm"
 import Modal from "@/components/shared/Modal"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { EventMarker, SelectUser, UsersWithInviteStatus } from "@/lib/db/schema"
-import { type Hub } from "@/lib/db/schema/hubs"
-import { PencilIcon } from "lucide-react"
-import useSupabaseBrowser from "@/utils/supabase/client"
-import { useUserRole } from "@/features/auth/hooks/use-user-role"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDownIcon } from "lucide-react"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { useUserRole } from "@/features/auth/hooks/use-user-role"
+import { EventMarker, UsersWithInviteStatus } from "@/lib/db/schema"
+import { type Hub } from "@/lib/db/schema/hubs"
+import useSupabaseBrowser from "@/utils/supabase/client"
 import {
     CalendarIcon,
+    CheckCircle,
+    ChevronDownIcon,
+    Clock,
+    InfoIcon,
     MapPinIcon,
+    PencilIcon,
+    RefreshCcw,
+    Shield,
     TagIcon,
     UserIcon,
-    InfoIcon,
+    Users,
+    XCircle,
 } from "lucide-react"
 
 type UserCreatorEvent = {
     display_name: string
     email: string
     image_url: string
+}
+
+const ParticipantStatusDisplay = ({
+    status,
+    role,
+    participantUserId,
+    showActions = false,
+    onDeleteParticipant,
+}: {
+    status: "pending" | "accepted" | "rejected"
+    role: "admin" | "member" | null
+    participantUserId: string
+    showActions?: boolean
+    onDeleteParticipant?: (userId: string) => Promise<void>
+}) => {
+    const router = useRouter()
+    const statusConfig = {
+        pending: {
+            icon: Clock,
+            variant: "secondary" as const,
+            label: "Pending",
+        },
+        accepted: {
+            icon: CheckCircle,
+            variant: "success" as const,
+            label: "Accepted",
+        },
+        rejected: {
+            icon: XCircle,
+            variant: "destructive" as const,
+            label: "Rejected",
+        },
+    }
+
+    const { icon: StatusIcon, variant, label } = statusConfig[status]
+
+    return (
+        <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+                <Badge variant={variant} className="flex items-center gap-1">
+                    <StatusIcon className="h-3 w-3" />
+                    {label}
+                </Badge>
+                {role && (
+                    <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                    >
+                        <Shield className="h-3 w-3" />
+                        {role === "admin" ? "Admin" : "Member"}
+                    </Badge>
+                )}
+            </div>
+            {showActions && (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                            <ChevronDownIcon className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => {
+                                onDeleteParticipant?.(participantUserId)
+                                router.refresh()
+                            }}
+                        >
+                            Remove Participant
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )}
+        </div>
+    )
 }
 
 export default function OptimisticEvent({
@@ -76,9 +153,13 @@ export default function OptimisticEvent({
     const isHubMember = usersToHub.some(
         (userToHub) => userToHub.id === user?.id,
     )
-    const { data: eventParticipants } = useQuery(
-        supabase.from("users_to_events").select("*").eq("event_id", event.id),
-    )
+    const { data: eventParticipants, refetch: refetchEventParticipants } =
+        useQuery(
+            supabase
+                .from("users_to_events")
+                .select("*")
+                .eq("event_id", event.id),
+        )
     const isEventParticipant = eventParticipants?.some(
         (participant) => participant.user_id === user?.id,
     )
@@ -107,13 +188,32 @@ export default function OptimisticEvent({
         },
     )
 
+    const { mutateAsync: deleteParticipantMutationQuery } = useDeleteMutation(
+        supabase.from("users_to_events") as any,
+        ["user_id", "event_id"],
+    )
+
+    const deleteParticipantAsOwner = async (participantUserId: string) => {
+        try {
+            await deleteParticipantMutationQuery({
+                user_id: participantUserId,
+                event_id: event.id,
+            })
+            toast.success("Successfully removed participant")
+            router.refresh()
+        } catch (error) {
+            console.error("Failed to remove participant:", error)
+            toast.error("Failed to remove participant")
+        }
+    }
+
     const updateEvent: TAddOptimistic = (input) =>
         setOptimisticEvent({ ...optimisticEvent, ...input.data })
 
     const updateMarker: TAddOptimisticMarker = (input) =>
         setOptimisticMarker({ ...optimisticMarker, ...input.data })
 
-    const { data: participants } = useQuery(
+    const { data: participants, refetch: refetchParticipants } = useQuery(
         supabase
             .from("users_to_events")
             .select(
@@ -134,10 +234,10 @@ export default function OptimisticEvent({
         try {
             const user_id = user?.id
             if (!user_id) return
-            await supabase
-                .from("users_to_events")
-                .delete()
-                .eq("user_id", user_id)
+            await deleteParticipantMutationQuery({
+                user_id,
+                event_id: event.id,
+            })
             toast.success("Successfully left event")
             router.refresh()
         } catch (error) {
@@ -218,7 +318,12 @@ export default function OptimisticEvent({
 
     return (
         <div className="container mx-auto p-6">
-            <Modal open={open} setOpen={setOpen}>
+            <Modal
+                title="Edit Event"
+                open={open}
+                setOpen={setOpen}
+                className="max-w-[1000px]"
+            >
                 <EventForm
                     event={optimisticEvent}
                     hubs={hubs}
@@ -234,10 +339,8 @@ export default function OptimisticEvent({
                     {optimisticEvent.name}
                 </h1>
                 <div className="flex items-center gap-2">
-                    {isEventParticipant && !isCreator && (
-                        <ParticipantStatusBadge />
-                    )}
-                    {isCreator ? (
+                    {isEventParticipant && <ParticipantStatusBadge />}
+                    {isCreator && (
                         <Button
                             onClick={() => setOpen(true)}
                             variant="outline"
@@ -247,7 +350,8 @@ export default function OptimisticEvent({
                             <PencilIcon className="h-4 w-4" />
                             Edit Event
                         </Button>
-                    ) : isHubMember ? (
+                    )}
+                    {isHubMember || isCreator ? (
                         isEventParticipant ? (
                             <Button
                                 onClick={deleteParticipant}
@@ -264,7 +368,7 @@ export default function OptimisticEvent({
                                         event_id: event.id,
                                         user_id: user?.id,
                                         pending: "pending",
-                                        member: "member",
+                                        member: "admin",
                                     })
                                 }
                                 variant="default"
@@ -282,75 +386,88 @@ export default function OptimisticEvent({
                     <CardHeader>
                         <CardTitle>Event Details</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-semibold tracking-tight">
+                    <CardContent className="space-y-8">
+                        <div className="space-y-6">
+                            {/* Event Title & Description */}
+                            <div className="border-b pb-4">
+                                <h3 className="text-2xl font-semibold tracking-tight">
                                     {optimisticEvent.name}
                                 </h3>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                                     {optimisticEvent.description}
                                 </p>
                             </div>
 
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm">
+                            {/* Date & Time */}
+                            <div className="grid gap-6 rounded-lg border p-4 md:grid-cols-2">
+                                <div>
+                                    <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                                         <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                                        <span>Start Time</span>
+                                        <span>Start Date</span>
                                     </div>
-                                    <p className="font-medium">
+                                    <p className="text-lg">
                                         {new Date(
                                             optimisticEvent.startDate,
-                                        ).toLocaleString()}
+                                        ).toLocaleDateString("en-GB", {
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                        })}
                                     </p>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm">
+                                <div>
+                                    <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                                         <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                                        <span>End Time</span>
+                                        <span>End Date</span>
                                     </div>
-                                    <p className="font-medium">
+                                    <p className="text-lg">
                                         {new Date(
                                             optimisticEvent.endDate,
-                                        ).toLocaleString()}
+                                        ).toLocaleDateString("en-GB", {
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                        })}
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-sm">
+                            {/* Location */}
+                            <div>
+                                <div className="mb-3 flex items-center gap-2 text-sm font-medium">
                                     <MapPinIcon className="h-4 w-4 text-muted-foreground" />
                                     <span>Location</span>
                                 </div>
-                                <div className="rounded-md border p-3">
-                                    <p className="font-medium">
+                                <div className="rounded-lg border bg-muted/50 p-4">
+                                    <p className="text-lg font-medium">
                                         {optimisticEvent.hub?.name}
                                     </p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                                         {optimisticEvent.hub?.description}
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-sm">
+                            {/* Event Type */}
+                            <div>
+                                <div className="mb-3 flex items-center gap-2 text-sm font-medium">
                                     <TagIcon className="h-4 w-4 text-muted-foreground" />
                                     <span>Event Type</span>
                                 </div>
-                                <Badge variant="secondary">
+                                <Badge variant="secondary" className="text-sm">
                                     {optimisticEvent.typeOfEvent}
                                 </Badge>
                             </div>
 
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-sm">
+                            {/* Organizer */}
+                            <div>
+                                <div className="mb-3 flex items-center gap-2 text-sm font-medium">
                                     <UserIcon className="h-4 w-4 text-muted-foreground" />
                                     <span>Organized by</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Avatar className="h-8 w-8">
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10">
                                         <AvatarImage
                                             src={eventUser?.image_url}
                                         />
@@ -370,15 +487,18 @@ export default function OptimisticEvent({
                                 </div>
                             </div>
 
+                            {/* Additional Information */}
                             {optimisticEvent.info && (
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm">
+                                <div>
+                                    <div className="mb-3 flex items-center gap-2 text-sm font-medium">
                                         <InfoIcon className="h-4 w-4 text-muted-foreground" />
                                         <span>Additional Information</span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">
-                                        {optimisticEvent.info}
-                                    </p>
+                                    <div className="rounded-lg border bg-muted/50 p-4">
+                                        <p className="text-sm leading-relaxed text-muted-foreground">
+                                            {optimisticEvent.info}
+                                        </p>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -399,89 +519,190 @@ export default function OptimisticEvent({
                 </Card>
             </div>
 
-            {isCreator && (
-                <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Event Participants</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ScrollArea className="h-[300px] pr-4">
-                                <div className="space-y-4">
-                                    {participants?.map((participant) => (
-                                        <div
-                                            key={participant.user_id}
-                                            className="flex items-center justify-between"
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {isEventParticipant && !isCreator && (
+                    <div className="col-span-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>
+                                    <div className="flex items-center gap-2">
+                                        <Users className="h-4 w-4" />
+
+                                        <span>Event Participants</span>
+
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            onClick={async () => {
+                                                toast.info(
+                                                    "Refetching participants...",
+                                                )
+                                                await refetchParticipants()
+                                            }}
                                         >
-                                            <div className="flex items-center gap-3">
-                                                <Avatar>
-                                                    <AvatarImage
-                                                        src={
-                                                            participant.users
-                                                                ?.image_url ||
-                                                            ""
-                                                        }
-                                                        alt={
-                                                            participant.users
-                                                                ?.display_name ||
-                                                            ""
-                                                        }
-                                                    />
-                                                    <AvatarFallback>
-                                                        {participant.users
-                                                            ?.display_name?.[0] ||
-                                                            "?"}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div>
-                                                    <p className="font-medium">
-                                                        {
-                                                            participant.users
-                                                                ?.display_name
-                                                        }
-                                                    </p>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {
-                                                            participant.users
-                                                                ?.email
-                                                        }
-                                                    </p>
+                                            <RefreshCcw className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <ScrollArea className="h-[300px] pr-4">
+                                    <div className="space-y-4">
+                                        {participants?.map((participant) => (
+                                            <div
+                                                key={participant.user_id}
+                                                className="flex items-center justify-between"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar>
+                                                        <AvatarImage
+                                                            src={
+                                                                participant
+                                                                    .users
+                                                                    ?.image_url ||
+                                                                ""
+                                                            }
+                                                        />
+                                                    </Avatar>
+                                                    <div>
+                                                        <p className="font-medium">
+                                                            {
+                                                                participant
+                                                                    .users
+                                                                    ?.display_name
+                                                            }
+                                                        </p>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            {
+                                                                participant
+                                                                    .users
+                                                                    ?.email
+                                                            }
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <Badge
-                                                variant={
-                                                    participant.pending ===
-                                                    "pending"
-                                                        ? "secondary"
-                                                        : participant.pending ===
-                                                            "accepted"
-                                                          ? "success"
-                                                          : "destructive"
-                                                }
-                                            >
-                                                {participant.pending}
-                                            </Badge>
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollArea>
-                        </CardContent>
-                    </Card>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+                {isCreator && (
+                    <div className="col-span-2 space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>
+                                    <div className="flex items-center gap-2">
+                                        <Users className="h-4 w-4" />
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Invite Participants</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <EventInviteForm
-                                event={event}
-                                hub={event.hub!}
-                                usersToHub={usersToHub}
-                            />
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
+                                        <span>Event Participants</span>
+
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            onClick={async () => {
+                                                toast.info(
+                                                    "Refetching participants...",
+                                                )
+                                                await refetchParticipants()
+                                            }}
+                                        >
+                                            <RefreshCcw className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="col-span-2">
+                                <ScrollArea className="h-full min-h-[300px] space-y-4 pr-4">
+                                    <div className="col-span-2 space-y-4">
+                                        {participants?.map((participant) => (
+                                            <div
+                                                key={participant.user_id}
+                                                className="flex items-center justify-between"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar>
+                                                        <AvatarImage
+                                                            src={
+                                                                participant
+                                                                    .users
+                                                                    ?.image_url ||
+                                                                ""
+                                                            }
+                                                            alt={
+                                                                participant
+                                                                    .users
+                                                                    ?.display_name ||
+                                                                ""
+                                                            }
+                                                        />
+                                                        <AvatarFallback>
+                                                            {participant.users
+                                                                ?.display_name?.[0] ||
+                                                                "?"}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <p className="font-medium">
+                                                            {
+                                                                participant
+                                                                    .users
+                                                                    ?.display_name
+                                                            }
+                                                        </p>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            {
+                                                                participant
+                                                                    .users
+                                                                    ?.email
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <ParticipantStatusDisplay
+                                                    status={
+                                                        participant.pending ||
+                                                        "pending"
+                                                    }
+                                                    role={participant.member}
+                                                    participantUserId={
+                                                        participant.user_id
+                                                    }
+                                                    showActions={
+                                                        isCreator ||
+                                                        participant.user_id ===
+                                                            user?.id
+                                                    }
+                                                    onDeleteParticipant={
+                                                        participant.user_id ===
+                                                        user?.id
+                                                            ? deleteParticipant
+                                                            : deleteParticipantAsOwner
+                                                    }
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            </CardContent>
+                        </Card>
+                        <Card className="col-span-2">
+                            <CardHeader>
+                                <CardTitle>Invite Participants</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <EventInviteForm
+                                    event={event}
+                                    hub={event.hub!}
+                                    usersToHub={usersToHub}
+                                />
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

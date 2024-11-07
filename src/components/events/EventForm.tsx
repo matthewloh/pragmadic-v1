@@ -56,6 +56,7 @@ const EventForm = ({
 }) => {
     const { errors, hasErrors, setErrors, handleChange } =
         useValidatedForm<Event>(insertEventParams)
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const editing = !!event?.id
     const [eventDate, setEventDate] = useState<Date | undefined>(
         event ? new Date(event.startDate) : undefined,
@@ -87,14 +88,28 @@ const EventForm = ({
     }
 
     const handleSubmit = async (data: FormData) => {
+        setIsSubmitting(true)
         setErrors(null)
         const payload = Object.fromEntries(data.entries())
-        const eventParsed = await insertEventParams.safeParseAsync({
-            hubId,
+
+        // Convert dates to proper format
+        const formattedPayload = {
             ...payload,
-        })
+            startDate: eventDate, // Use the state values instead of form data
+            endDate: completionDate,
+            isComplete: payload.isComplete === "on", // Convert checkbox value
+            hubId: hubId || payload.hubId,
+        }
+
+        const eventParsed =
+            await insertEventParams.safeParseAsync(formattedPayload)
+
         if (!eventParsed.success) {
-            setErrors(eventParsed?.error.flatten().fieldErrors)
+            const fieldErrors = eventParsed.error.flatten().fieldErrors
+            console.log("Validation errors:", fieldErrors) // For debugging
+            setErrors(fieldErrors)
+            setIsSubmitting(false)
+            toast.error(`Please check the form for errors`)
             return
         }
 
@@ -133,6 +148,7 @@ const EventForm = ({
             if (e instanceof z.ZodError) {
                 setErrors(e.flatten().fieldErrors)
             }
+            setIsSubmitting(false)
         }
     }
 
@@ -291,6 +307,15 @@ const EventForm = ({
                                             onSelect={setEventDate}
                                             selected={eventDate}
                                             initialFocus
+                                            fromDate={new Date()}
+                                            toDate={
+                                                new Date(
+                                                    new Date().setFullYear(
+                                                        new Date().getFullYear() +
+                                                            1,
+                                                    ),
+                                                )
+                                            }
                                         />
                                     </PopoverContent>
                                 </Popover>
@@ -463,7 +488,7 @@ const EventForm = ({
                             Delet{isDeleting ? "ing..." : "e"}
                         </Button>
                     )}
-                    <SaveButton errors={hasErrors} editing={editing} />
+                    <SaveButton editing={editing} disabled={isSubmitting} />
                 </div>
             </Card>
         </form>
@@ -474,10 +499,10 @@ export default EventForm
 
 const SaveButton = ({
     editing,
-    errors,
+    disabled,
 }: {
     editing: boolean
-    errors: boolean
+    disabled: boolean
 }) => {
     const { pending } = useFormStatus()
     const isCreating = pending && editing === false
@@ -486,8 +511,8 @@ const SaveButton = ({
         <Button
             type="submit"
             className="min-w-[120px]"
-            disabled={isCreating || isUpdating || errors}
-            aria-disabled={isCreating || isUpdating || errors}
+            disabled={isCreating || isUpdating || disabled}
+            aria-disabled={isCreating || isUpdating || disabled}
         >
             {editing
                 ? `Sav${isUpdating ? "ing..." : "e"}`

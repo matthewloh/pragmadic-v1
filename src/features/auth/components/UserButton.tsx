@@ -12,7 +12,7 @@ import { type User } from "@supabase/supabase-js"
 import { Home, Sun, UserRound } from "lucide-react"
 import Link from "next/link"
 import { SignOut } from "./SignOutButton"
-import { useUser } from "../hooks/use-current-user"
+import { useCurrentUser } from "../hooks/use-current-user"
 import { Skeleton } from "@/components/ui/skeleton"
 
 function UserButtonSkeleton() {
@@ -26,7 +26,7 @@ function UserButtonSkeleton() {
 }
 
 export default function UserButton() {
-    const { data, isPending } = useUser()
+    const { data, isPending } = useCurrentUser()
     if (!data) {
         return null
     }

@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress"
 import { BookOpen, Calendar, Compass, Users, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useUser } from "@/features/auth/hooks/use-current-user"
+import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
 import { Skeleton } from "@/components/ui/skeleton"
 import useSupabaseBrowser from "@/utils/supabase/client"
 import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
@@ -107,7 +107,7 @@ function DashboardRegularSkeleton() {
 export default function DashboardRegular() {
     const router = useRouter()
     const supabase = useSupabaseBrowser()
-    const { data: user, isPending: isUserPending } = useUser()
+    const { data: user, isPending: isUserPending } = useCurrentUser()
     // Common query options to prevent excessive refetching
     const queryOptions = {
         enabled: !!user?.id,

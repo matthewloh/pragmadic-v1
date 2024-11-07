@@ -146,7 +146,7 @@ export function DocumentSelector({
     }
 
     return (
-        <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+        <ScrollArea className="h-full w-full rounded-md border p-4">
             {groupedDocuments && Object.keys(groupedDocuments).length > 0 ? (
                 <div className="space-y-2">
                     {Object.entries(groupedDocuments).map(([folder, docs]) =>

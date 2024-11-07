@@ -16,12 +16,6 @@ import { RoleType } from "@/lib/auth/get-user-role"
 import useSupabaseBrowser from "@/utils/supabase/client"
 import { Role } from "@/utils/supabase/permissions"
 import { getAllRoles } from "@/utils/supabase/roles"
-import {
-    useInsertMutation,
-    useUpdateMutation,
-    useUpsertMutation,
-    useDeleteMutation,
-} from "@supabase-cache-helpers/postgrest-react-query"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Search } from "lucide-react"
 import { useState } from "react"

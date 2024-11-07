@@ -235,7 +235,7 @@ const HubCard = ({
                         </div>
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                        {canEdit && (
+                        {canEdit && isOwnerOfHub && (
                             <Button
                                 onClick={() => openModal(hub)}
                                 variant="secondary"

@@ -13,28 +13,20 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { useSidebar } from "@/components/ui/sidebar"
 import { EventMarker } from "@/lib/db/schema/mapMarkers"
-import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css"
 import { formatDate } from "@/lib/utils"
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css"
 import { motion } from "framer-motion"
-import { RefreshCw } from "lucide-react"
 import "mapbox-gl/dist/mapbox-gl.css"
 import { useTheme } from "next-themes"
 import { useCallback, useState } from "react"
-import Map, {
-    Marker,
-    NavigationControl,
-    ScaleControl,
-    useMap,
-} from "react-map-gl"
-import { toast } from "sonner"
+import Map, { Marker, NavigationControl, ScaleControl } from "react-map-gl"
 import GeocoderControl from "./GeocoderControl"
 import { MarkerIcon } from "./MarkerIcon"
 
 interface MapComponentProps {
     eventMarkers: EventMarker[]
-    onMarkerClick: (markerId: string) => void
+    onMarkerClick(markerId: string): void
 }
 
 export function MapComponent({

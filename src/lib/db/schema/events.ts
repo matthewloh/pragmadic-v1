@@ -61,6 +61,35 @@ export const insertEventParams = baseSchema
         id: true,
         userId: true,
     })
+    .superRefine((data, ctx) => {
+        // Check if start date is after end date
+        if (data.startDate > data.endDate) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Start date cannot be after end date",
+                path: ["startDate"],
+            })
+        }
+
+        // Check if end date is before start date
+        if (data.endDate < data.startDate) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "End date cannot be before start date",
+                path: ["endDate"],
+            })
+        }
+
+        // Optional: Check if dates are in the past
+        const now = new Date()
+        if (data.startDate < now) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Start date cannot be in the past",
+                path: ["startDate"],
+            })
+        }
+    })
 
 export const updateEventSchema = baseSchema
 export const updateEventParams = baseSchema

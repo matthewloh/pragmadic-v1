@@ -1,38 +1,45 @@
 "use client"
-import useSupabaseBrowser, { createClient } from "@/utils/supabase/client"
+import { createClient } from "@/utils/supabase/client"
 import { UserRow } from "@/utils/supabase/types"
-import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
-import { User } from "@supabase/supabase-js"
-import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 
-export function useUser() {
-    const supabase = useSupabaseBrowser()
-    const [user, setUser] = useState<UserRow | null>(null)
+const emptyUser = {
+    created_at: null,
+    display_name: null,
+    email: null,
+    id: null,
+    image_url: null,
+    roles: [],
+}
 
-    useEffect(() => {
-        const getUser = async () => {
-            const {
-                data: { user },
-            } = await supabase.auth.getUser()
-            const { data: userData } = await supabase
-                .from("users")
-                .select("*")
-                .eq("id", user?.id ?? "")
-                .maybeSingle()
-            setUser(userData)
-        }
-        getUser()
-    }, [supabase, supabase.auth])
+export function useCurrentUser() {
+    return useQuery<UserRow | null>({
+        queryKey: ["current-user"],
+        queryFn: async () => {
+            const supabase = createClient()
+            const { data, error } = await supabase.auth.getSession()
+            if (error) {
+                console.error("Error fetching session:", error)
+                return null
+            }
+            if (data.session?.user) {
+                const { data: user, error: userError } = await supabase
+                    .from("users")
+                    .select("*")
+                    .eq("id", data.session.user.id)
+                    .single()
+                    .throwOnError()
 
-    return useQuery<UserRow>(
-        supabase
-            .from("users")
-            .select("*")
-            .eq("id", user?.id ?? "")
-            .maybeSingle(),
-        {
-            staleTime: 1000 * 60 * 5, // 5 minutes
-            refetchInterval: 1000 * 60 * 5, // 5 minutes
+                if (userError) {
+                    console.error("Error fetching user data:", userError)
+                    return null
+                }
+
+                return user
+            }
+            return null
         },
-    )
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchInterval: 1000 * 60 * 5, // 5 minutes
+    })
 }

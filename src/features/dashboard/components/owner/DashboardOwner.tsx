@@ -17,7 +17,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useUser } from "@/features/auth/hooks/use-current-user"
+import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
 import useSupabaseBrowser from "@/utils/supabase/client"
 import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
 import { format } from "date-fns"
@@ -90,7 +90,7 @@ function DashboardOwnerSkeleton() {
 export default function DashboardOwner() {
     const router = useRouter()
     const supabase = useSupabaseBrowser()
-    const { data: user, isPending: isUserPending } = useUser()
+    const { data: user, isPending: isUserPending } = useCurrentUser()
     const [selectedHubId, setSelectedHubId] = useState<string>("")
 
     const { data: ownerHubs, isPending: isOwnerHubsPending } = useQuery<

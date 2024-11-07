@@ -23,10 +23,10 @@ import { useUserRole } from "@/features/auth/hooks/use-user-role"
 import { ThemeSwitch } from "./mode-toggle"
 import { Skeleton } from "./ui/skeleton"
 import { SidebarMenuButton } from "./ui/sidebar"
-import { useUser } from "@/features/auth/hooks/use-current-user"
+import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
 
 export function NavUser() {
-    const { data: user, isPending } = useUser()
+    const { data: user, isPending } = useCurrentUser()
     if (isPending || !user) {
         return (
             <div className="flex w-full items-center gap-2 px-2 py-1.5">

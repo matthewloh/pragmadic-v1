@@ -105,16 +105,17 @@ export function MemberDistributionChart({
                     )}
                     className="h-full w-full"
                 >
-                    <PieChart>
+                    <PieChart className="h-full w-full">
                         <Pie
                             data={chartData}
                             cx="50%"
                             cy="50%"
                             labelLine={false}
                             label={renderCustomizedLabel}
-                            outerRadius={100}
+                            outerRadius={150}
                             fill="#8884d8"
                             dataKey="value"
+                            className="h-full w-full"
                         >
                             {chartData.map((entry, index) => (
                                 <Cell
@@ -131,13 +132,15 @@ export function MemberDistributionChart({
                             content={
                                 <ChartTooltipContent
                                     formatter={(value: any, name: any) =>
-                                        `${value} (${chartData.find((d) => d.name === name)?.percentage}%)`
+                                        `${value} ${name} (${chartData.find((d) => d.name === name)?.percentage}%)`
                                     }
                                 />
                             }
                         />
                         <Legend
-                            formatter={(value: string) => `${value} Members`}
+                            formatter={(value: string) =>
+                                `${value} Role Members`
+                            }
                             className="text-xs"
                         />
                     </PieChart>

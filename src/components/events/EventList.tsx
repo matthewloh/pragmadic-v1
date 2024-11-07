@@ -12,6 +12,7 @@ import {
     ChevronRight,
     CalendarPlus,
     Users,
+    Crown,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -26,8 +27,8 @@ import EventForm from "./EventForm"
 import { format } from "date-fns"
 import useSupabaseBrowser from "@/utils/supabase/client"
 import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
-import { useUser } from "@/features/auth/hooks/use-current-user"
-import { HubRow } from "@/utils/supabase/types"
+import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
+import { HubRow, UsersToHubRow } from "@/utils/supabase/types"
 
 type TOpenModal = (event?: Event) => void
 
@@ -40,6 +41,32 @@ export default function EventList({
     hubs: Hub[]
     hubId?: HubId
 }) {
+    const supabase = useSupabaseBrowser()
+    const { data: user } = useCurrentUser()
+    const { data: usersToHub, isPending: isLoadingUsersToHub } = useQuery<
+        UsersToHubRow[]
+    >(
+        supabase
+            .from("users_to_hubs")
+            .select("*")
+            .eq("hub_id", hubId ?? ""),
+    )
+
+    const isMember = usersToHub?.some(
+        (userToHub) =>
+            userToHub.user_id === user?.id &&
+            userToHub.invite_status === "accepted",
+    )
+
+    const isAdminInHub = usersToHub?.some(
+        (userToHub) =>
+            userToHub.user_id === user?.id &&
+            userToHub.invite_role_type === "admin",
+    )
+
+    const isOwner = user?.id === hubs.find((hub) => hub.id === hubId)?.userId
+    const canEdit = isAdminInHub || isOwner
+    const canView = isAdminInHub || isOwner || isMember
     const { optimisticEvents, addOptimisticEvent } = useOptimisticEvents(
         events,
         hubs,
@@ -72,18 +99,22 @@ export default function EventList({
             <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Upcoming Events</h2>
                 <div className="flex items-center gap-2">
-                    <Button
-                        onClick={() => openModal()}
-                        variant="outline"
-                        size="sm"
-                        className="gap-2 bg-background/50 shadow-sm hover:bg-accent"
-                    >
-                        <CalendarPlus className="h-4 w-4 text-muted-foreground" />
-                        <span className="hidden sm:inline">Add Event</span>
-                    </Button>
-                    <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/hubs/${hubId}/events`}>View All</Link>
-                    </Button>
+                    {canEdit && (
+                        <Button
+                            onClick={() => openModal()}
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 bg-background/50 shadow-sm hover:bg-accent"
+                        >
+                            <CalendarPlus className="h-4 w-4 text-muted-foreground" />
+                            <span className="hidden sm:inline">Add Event</span>
+                        </Button>
+                    )}
+                    {canView && (
+                        <Button variant="ghost" size="sm" asChild>
+                            <Link href={`/hubs/${hubId}/events`}>View All</Link>
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -122,7 +153,7 @@ const EventCard = ({
     index: number
 }) => {
     const supabase = useSupabaseBrowser()
-    const { data: user } = useUser()
+    const { data: user } = useCurrentUser()
     const { data: usersToEvent, isPending: isLoadingUsersToEvent } = useQuery(
         supabase.from("users_to_events").select("*").eq("event_id", event.id),
     )
@@ -132,6 +163,8 @@ const EventCard = ({
     const isParticipant = usersToEvent?.some(
         (userToEvent) => userToEvent.user_id === user?.id,
     )
+
+    const isCreator = user?.id === event.userId
     const optimistic = event.id === "optimistic"
     const deleting = event.id === "delete"
     const mutating = optimistic || deleting
@@ -172,8 +205,17 @@ const EventCard = ({
                 <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                            {participantStatus && (
-                                <div className="mb-2 flex items-center gap-2">
+                            <div className="mb-2 flex items-center gap-2">
+                                {isCreator && (
+                                    <Badge
+                                        variant="default"
+                                        className="bg-primary/10 text-primary"
+                                    >
+                                        <Crown className="mr-1 h-3 w-3" />
+                                        Your Event
+                                    </Badge>
+                                )}
+                                {participantStatus && (
                                     <Badge
                                         variant={
                                             participantStatus === "pending"
@@ -192,8 +234,8 @@ const EventCard = ({
                                             ]
                                         }
                                     </Badge>
-                                </div>
-                            )}
+                                )}
+                            </div>
                             <div className="flex items-center gap-2">
                                 <Badge
                                     variant="outline"
@@ -225,7 +267,36 @@ const EventCard = ({
                                     <div className="flex items-center gap-1 border-l border-border pl-2">
                                         <Users className="h-4 w-4" />
                                         <span>
-                                            {usersToEvent.length} participants
+                                            {
+                                                usersToEvent.filter(
+                                                    (userToEvent) =>
+                                                        userToEvent.pending ===
+                                                        "accepted",
+                                                ).length
+                                            }{" "}
+                                            accepted
+                                        </span>
+                                        <span className="mx-2">|</span>
+                                        <span>
+                                            {
+                                                usersToEvent.filter(
+                                                    (userToEvent) =>
+                                                        userToEvent.pending ===
+                                                        "pending",
+                                                ).length
+                                            }{" "}
+                                            pending
+                                        </span>
+                                        <span className="mx-2">|</span>
+                                        <span>
+                                            {
+                                                usersToEvent.filter(
+                                                    (userToEvent) =>
+                                                        userToEvent.pending ===
+                                                        "rejected",
+                                                ).length
+                                            }{" "}
+                                            rejected
                                         </span>
                                     </div>
                                 )}
@@ -237,7 +308,7 @@ const EventCard = ({
                             className="opacity-0 transition-opacity group-hover:opacity-100"
                             asChild
                         >
-                            <Link href={`${basePath}/${event.id}`}>
+                            <Link href={`${basePath}${event.id}`}>
                                 <ChevronRight className="h-4 w-4" />
                             </Link>
                         </Button>

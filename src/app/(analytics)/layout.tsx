@@ -13,7 +13,7 @@ export default async function AnalyticsLayout({
     return (
         <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
-            <main className="relative h-screen w-full flex-1 overflow-hidden">
+            <main className="flex h-screen w-full flex-1 overflow-hidden bg-transparent">
                 {children}
             </main>
         </SidebarProvider>

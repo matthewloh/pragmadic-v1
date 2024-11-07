@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Building2, Calendar, Users, MapPin } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useUser } from "@/features/auth/hooks/use-current-user"
+import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
 import useSupabaseBrowser from "@/utils/supabase/client"
 import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
 
@@ -44,7 +44,7 @@ function DashboardAdminSkeleton() {
 export default function DashboardAdmin() {
     const router = useRouter()
     const supabase = useSupabaseBrowser()
-    const { data: user, isPending: isUserPending } = useUser()
+    const { data: user, isPending: isUserPending } = useCurrentUser()
 
     const queryOptions = {
         enabled: !!user?.id,

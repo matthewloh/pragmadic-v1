@@ -31,7 +31,7 @@ export default function ModelSelector({
 }: {
     isExpanded: boolean
     selectedModel: ModelOption
-    onSelect: (option: ModelOption) => void
+    onSelect(option: ModelOption): void
 }) {
     const router = useRouter()
     const searchParams = useSearchParams()

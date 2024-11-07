@@ -13,7 +13,11 @@ interface HubSelectorProps {
     onHubChange: (hubId: string) => void
 }
 
-export function HubSelector({ hubs, selectedHubId, onHubChange }: HubSelectorProps) {
+export function HubSelector({
+    hubs,
+    selectedHubId,
+    onHubChange,
+}: HubSelectorProps) {
     return (
         <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
@@ -31,4 +35,4 @@ export function HubSelector({ hubs, selectedHubId, onHubChange }: HubSelectorPro
             </Select>
         </div>
     )
-} 
+}

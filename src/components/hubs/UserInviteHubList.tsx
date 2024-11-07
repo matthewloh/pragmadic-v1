@@ -1,6 +1,7 @@
 "use client"
 
 import {
+    useDeleteMutation,
     useQuery,
     useUpsertMutation,
 } from "@supabase-cache-helpers/postgrest-react-query"
@@ -9,6 +10,7 @@ import {
     ChevronDown,
     Clock,
     MoreHorizontal,
+    Plus,
     Shield,
     Users,
     XCircle,
@@ -53,6 +55,7 @@ import useSupabaseBrowser from "@/utils/supabase/client"
 import JoinButton from "../user-to-hubs/join-button"
 import LeaveButton from "../user-to-hubs/leave-button"
 import Link from "next/link"
+import { MemberCardNonAdminView } from "./MemberCardNonAdminView"
 
 export function UserInviteHubList({
     invites,
@@ -66,22 +69,31 @@ export function UserInviteHubList({
 
     const { data: userRoleData } = useUserRole()
     const { session, user, user_roles } = userRoleData ?? {}
+
+    // Basic state checks
     const isOwner =
         user_roles?.includes("owner") && session?.user.id === hub.userId
-    const isMember = invites.some(
-        (i) => i.id === session?.user.id && i.invite_status === "accepted",
-    )
-    const currentUserStatus = invites.find(
-        (i) => i.id === session?.user.id,
-    )?.invite_status
+    const currentUser = invites.find((i) => i.id === session?.user.id)
+    const isMember = currentUser?.invite_status === "accepted"
+    const currentUserRole = currentUser?.invite_role_type
+    const currentUserStatus = currentUser?.invite_status
 
-    const { mutateAsync: update } = useUpsertMutation(
+    const { mutateAsync: upsert } = useUpsertMutation(
         supabase.from("users_to_hubs") as any,
         ["hub_id", "user_id"],
         "user_id",
         {
-            onSuccess: () => console.log("Success!"),
+            onSuccess: () => {
+                toast.success("Successfully joined hub")
+                router.refresh()
+            },
         },
+    )
+
+    const { mutateAsync: deleteUserToHub } = useDeleteMutation(
+        supabase.from("users_to_hubs") as any,
+        ["hub_id", "user_id"],
+        "user_id",
     )
 
     const handleResponse = async (
@@ -90,7 +102,7 @@ export function UserInviteHubList({
         role?: string,
     ) => {
         try {
-            await update({
+            await upsert({
                 // @ts-expect-error GenericTable weird mismatch version
                 hub_id: invite.hub_id,
                 user_id: invite.id,
@@ -109,7 +121,7 @@ export function UserInviteHubList({
         }
     }
 
-    // Separate members and invitations
+    // Group invites by status
     const members = invites.filter((i) => i.invite_status === "accepted")
     const pendingInvites = invites.filter((i) => i.invite_status === "pending")
     const rejectedInvites = invites.filter(
@@ -120,7 +132,7 @@ export function UserInviteHubList({
         return <EmptyState isOwner={!!isOwner} hubId={hub.id} />
     }
 
-    // If not owner, show restricted view
+    // Non-owner view
     if (!isOwner) {
         return (
             <div className="space-y-6">
@@ -130,12 +142,14 @@ export function UserInviteHubList({
                         <CardDescription>
                             {currentUserStatus === "pending"
                                 ? "Your membership request is being reviewed"
-                                : !isMember
-                                  ? "Join this hub to access member features and connect with others."
-                                  : "You are a member of this hub."}
+                                : currentUserStatus === "rejected"
+                                  ? "Your membership request was rejected. You can attempt to re-request to join the hub."
+                                  : !isMember
+                                    ? "Join this hub to access member features and connect with others."
+                                    : "You are a member of this hub."}
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
                         {!isMember ? (
                             <div className="space-y-4">
                                 {currentUserStatus === "pending" ? (
@@ -154,11 +168,7 @@ export function UserInviteHubList({
                                                 size="sm"
                                                 onClick={() =>
                                                     handleResponse(
-                                                        {
-                                                            id: session?.user
-                                                                .id!,
-                                                            hub_id: hub.id,
-                                                        } as UsersWithInviteStatus,
+                                                        currentUser!,
                                                         "rejected",
                                                     )
                                                 }
@@ -167,21 +177,8 @@ export function UserInviteHubList({
                                             </Button>
                                         </div>
                                     </div>
-                                ) : currentUserStatus === "rejected" ? (
-                                    <div className="space-y-2">
-                                        <p className="text-sm text-muted-foreground">
-                                            Your previous request was not
-                                            approved. You can try requesting
-                                            again.
-                                        </p>
-                                        <JoinButton hubId={hub.id} />
-                                    </div>
                                 ) : (
                                     <>
-                                        <p className="text-sm text-muted-foreground">
-                                            Request to join this hub to access
-                                            member features.
-                                        </p>
                                         <JoinButton hubId={hub.id} />
                                     </>
                                 )}
@@ -194,16 +191,35 @@ export function UserInviteHubList({
                                             You&apos;re an active member of this
                                             hub.
                                         </p>
-                                        <Badge
-                                            variant="default"
-                                            className="mt-2"
-                                        >
-                                            <CheckCircle className="mr-2 h-4 w-4" />
-                                            Active Member
-                                        </Badge>
+                                        <div className="mt-2 flex items-center gap-2">
+                                            <Badge variant="default">
+                                                <CheckCircle className="mr-2 h-4 w-4" />
+                                                Active Member
+                                            </Badge>
+                                            <Badge variant="secondary">
+                                                <Shield className="mr-2 h-4 w-4" />
+                                                {currentUserRole}
+                                            </Badge>
+                                        </div>
                                     </div>
                                     <LeaveButton hubId={hub.id} />
                                 </div>
+                            </div>
+                        )}
+                        <Separator />
+                        {currentUserStatus === "accepted" && (
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-medium">
+                                    All Members ({members.length})
+                                </h3>
+                                {members.length >= 1
+                                    ? members.map((member) => (
+                                          <MemberCardNonAdminView
+                                              key={member.id}
+                                              member={member}
+                                          />
+                                      ))
+                                    : null}
                             </div>
                         )}
                     </CardContent>
@@ -212,7 +228,36 @@ export function UserInviteHubList({
         )
     }
 
-    // Original owner view with member management
+    const joinAsOwner = async () => {
+        try {
+            await upsert({
+                // @ts-expect-error GenericTable weird mismatch version
+                hub_id: hub.id,
+                user_id: session?.user.id!,
+                invite_status: "accepted",
+                invite_role_type: "admin",
+            })
+            toast.success("Successfully joined hub as owner")
+        } catch (error) {
+            console.error("Failed to join hub as owner:", error)
+            toast.error("Failed to join hub")
+        }
+    }
+
+    const leaveAsOwner = async () => {
+        try {
+            await deleteUserToHub({
+                hub_id: hub.id,
+                user_id: session?.user.id!,
+            })
+            toast.success("Successfully left hub")
+            router.refresh()
+        } catch (error) {
+            console.error("Failed to leave hub:", error)
+            toast.error("Failed to leave hub")
+        }
+    }
+
     return (
         <div className="space-y-6">
             {/* Members Section */}
@@ -223,6 +268,28 @@ export function UserInviteHubList({
                         {members.length} total
                     </Badge>
                 </div>
+                {isOwner && (
+                    <div className="flex items-center gap-4">
+                        {!isMember ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={joinAsOwner}
+                            >
+                                <Plus className="mr-2 h-4 w-4" />
+                                Join Hub
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={leaveAsOwner}
+                            >
+                                Leave Hub
+                            </Button>
+                        )}
+                    </div>
+                )}
                 <Card>
                     <ScrollArea className="h-[300px]">
                         <CardContent className="p-4">
@@ -257,30 +324,6 @@ export function UserInviteHubList({
                                             community.
                                         </p>
                                     </div>
-                                    {pendingInvites.length > 0 && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="mt-2"
-                                            onClick={() => {
-                                                // Scroll to pending invites section
-                                                document
-                                                    .querySelector(
-                                                        "#pending-invites",
-                                                    )
-                                                    ?.scrollIntoView({
-                                                        behavior: "smooth",
-                                                    })
-                                            }}
-                                        >
-                                            <Clock className="mr-2 h-4 w-4" />
-                                            View {pendingInvites.length} Pending
-                                            Request
-                                            {pendingInvites.length !== 1
-                                                ? "s"
-                                                : ""}
-                                        </Button>
-                                    )}
                                 </div>
                             )}
                         </CardContent>

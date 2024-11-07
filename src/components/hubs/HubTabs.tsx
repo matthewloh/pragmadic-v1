@@ -20,6 +20,7 @@ import { Calendar, Info, Star, Users } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { HubInfo } from "./HubInfo"
+import useSupabaseBrowser from "@/utils/supabase/client"
 
 interface HubTabsProps {
     hub: CompleteHub
@@ -51,8 +52,8 @@ export function HubTabs({
                 hubOwnerProfile={hubOwnerProfile}
             />
         ),
-        events: <EventList hubs={[]} hubId={hub.id} events={events} />,
-        reviews: <ReviewList hubs={[]} hubId={hub.id} reviews={reviews} />,
+        events: <EventList hubs={[hub]} hubId={hub.id} events={events} />,
+        reviews: <ReviewList hubs={[hub]} hubId={hub.id} reviews={reviews} />,
         members: <UserInviteHubList invites={usersToHub} hub={hub} />,
     }
 

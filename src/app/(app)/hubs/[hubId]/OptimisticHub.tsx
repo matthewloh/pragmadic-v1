@@ -1,33 +1,31 @@
 "use client"
 
 import { TAddOptimistic } from "@/app/(app)/hubs/useOptimisticHubs"
-import { type Hub } from "@/lib/db/schema/hubs"
-import { cn } from "@/lib/utils"
-import { useOptimistic, useState } from "react"
-import {
-    Edit3,
-    MapPin,
-    Globe,
-    Lock,
-    Calendar,
-    Clock,
-    Info,
-    Mail,
-    Building2,
-    Hash,
-    Users,
-    ChevronRight,
-} from "lucide-react"
-import { format } from "date-fns"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import HubForm from "@/components/hubs/HubForm"
-import Modal from "@/components/shared/Modal"
-import { Button } from "@/components/ui/button"
-import { type State, type StateId } from "@/lib/db/schema/states"
-import { Badge } from "@/components/ui/badge"
 import { BackButton } from "@/components/shared/BackButton"
+import Modal from "@/components/shared/Modal"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { type Hub } from "@/lib/db/schema/hubs"
+import { type State, type StateId } from "@/lib/db/schema/states"
+import { cn } from "@/lib/utils"
+import { format } from "date-fns"
+import {
+    Building2,
+    Calendar,
+    ChevronRight,
+    Clock,
+    Edit3,
+    Globe,
+    Hash,
+    Info,
+    Lock,
+    MapPin,
+    Users,
+} from "lucide-react"
 import Link from "next/link"
+import { useOptimistic, useState } from "react"
 
 export default function OptimisticHub({
     hub,

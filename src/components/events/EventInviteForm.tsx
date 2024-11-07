@@ -25,6 +25,11 @@ import { inviteUserToEvent } from "@/lib/actions/events"
 import { type Hub } from "@/lib/db/schema/hubs"
 import { type Event } from "@/lib/db/schema/events"
 import { UsersWithInviteStatus } from "@/lib/db/schema"
+import useSupabaseBrowser from "@/utils/supabase/client"
+import {
+    useInsertMutation,
+    useQuery,
+} from "@supabase-cache-helpers/postgrest-react-query"
 
 const inviteFormSchema = z.object({
     userId: z.string().uuid(),
@@ -44,9 +49,12 @@ export function EventInviteForm({
     hub,
     usersToHub,
 }: EventInviteFormProps) {
+    const supabase = useSupabaseBrowser()
+    const { refetch: refetchEventParticipants } = useQuery(
+        supabase.from("users_to_events").select("*").eq("event_id", event.id),
+    )
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
-
     const form = useForm<InviteFormValues>({
         resolver: zodResolver(inviteFormSchema),
         defaultValues: {
@@ -54,17 +62,27 @@ export function EventInviteForm({
             inviteRoleType: "member",
         },
     })
-
+    const { mutateAsync: insert } = useInsertMutation(
+        supabase.from("users_to_events") as any,
+        ["id"],
+        "event_id",
+        {
+            onSuccess: () => console.log("Success!"),
+        },
+    )
     async function onSubmit(data: InviteFormValues) {
         setIsSubmitting(true)
         try {
-            await inviteUserToEvent({
-                eventId: event.id,
-                userId: data.userId,
-                inviteRoleType: data.inviteRoleType,
+            await insert({
+                // @ts-expect-error GenericTable
+                event_id: event.id,
+                user_id: data.userId,
+                member: data.inviteRoleType,
+                pending: "pending",
             })
             toast.success("User invited successfully")
             form.reset()
+            refetchEventParticipants()
             router.refresh()
         } catch (error) {
             toast.error("Failed to invite user")

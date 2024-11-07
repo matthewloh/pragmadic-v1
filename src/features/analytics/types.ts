@@ -27,10 +27,6 @@ export interface CategoryAnalysisData {
     count: number
 }
 
-import { type Hub } from "@/lib/db/schema/hubs"
-import { type Event } from "@/lib/db/schema/events"
-import { type UsersToHub } from "@/lib/db/schema/hubs"
-import { type UsersToEvents } from "@/lib/db/schema/events"
 
 export type HubAnalytics = {
     id: string

@@ -69,7 +69,7 @@ export function AdminWelcomeDashboard() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-gray-300">
+                                <p className="text-muted-foreground">
                                     {item.description}
                                 </p>
                             </CardContent>
