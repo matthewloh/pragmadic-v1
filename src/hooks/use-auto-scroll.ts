@@ -6,26 +6,41 @@ export function useAutoScroll(dependencies: React.DependencyList) {
 
     const scrollToBottom = () => {
         if (containerRef.current) {
-            containerRef.current.scrollTop = containerRef.current.scrollHeight
+            const viewport = containerRef.current.querySelector(
+                "[data-radix-scroll-area-viewport]",
+            )
+            if (viewport) {
+                viewport.scrollTop = viewport.scrollHeight
+            }
         }
     }
 
     const handleScroll = () => {
         if (containerRef.current) {
-            const { scrollTop, scrollHeight, clientHeight } =
-                containerRef.current
-            const isScrolledToBottom =
-                Math.abs(scrollHeight - scrollTop - clientHeight) < 50
-            setShouldAutoScroll(isScrolledToBottom)
+            const viewport = containerRef.current.querySelector(
+                "[data-radix-scroll-area-viewport]",
+            )
+            if (viewport) {
+                const { scrollTop, scrollHeight, clientHeight } =
+                    viewport as HTMLElement
+                const distanceFromBottom =
+                    scrollHeight - scrollTop - clientHeight
+                setShouldAutoScroll(distanceFromBottom < 100)
+            }
         }
     }
 
     useEffect(() => {
+        const timer = setTimeout(scrollToBottom, 100)
+        return () => clearTimeout(timer)
+    }, [])
+
+    useEffect(() => {
         if (shouldAutoScroll) {
-            scrollToBottom()
+            const timer = setTimeout(scrollToBottom, 100)
+            return () => clearTimeout(timer)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, dependencies)
+    }, [shouldAutoScroll])
 
     return { containerRef, scrollToBottom, handleScroll, shouldAutoScroll }
 }

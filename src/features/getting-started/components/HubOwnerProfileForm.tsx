@@ -96,7 +96,6 @@ export function GettingStartedOwnerProfileForm({
                     return
                 }
 
-                // Only assign role if it's a new profile
                 const roleError = await assignUserRoleAction({
                     userId,
                     role: "owner",

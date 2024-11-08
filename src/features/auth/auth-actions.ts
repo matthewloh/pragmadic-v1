@@ -11,6 +11,15 @@ import {
 } from "./zod/schemas/validation"
 import { isAuthApiError } from "@supabase/supabase-js"
 
+import { Ratelimit } from "@upstash/ratelimit"
+import { kv } from "@vercel/kv"
+import { headers } from "next/headers"
+
+const ratelimit = new Ratelimit({
+    redis: kv,
+    limiter: Ratelimit.slidingWindow(5, "3600s"), // 5 attempts per hour
+})
+
 export async function login({
     credentials,
     next,
@@ -18,6 +27,14 @@ export async function login({
     credentials: LoginValues
     next: string
 }): Promise<{ error: string }> {
+    const headersList = await headers()
+    const ip = headersList.get("x-forwarded-for") ?? "ip"
+    const { success, remaining } = await ratelimit.limit(ip)
+
+    if (!success) {
+        return { error: "Too many requests. Please try again later." }
+    }
+
     const supabase = await createClient()
     const { email, password } = loginSchema.parse(credentials)
     // try {
@@ -33,7 +50,9 @@ export async function login({
 
     if (error) {
         if (isAuthApiError(error)) {
-            return { error: "Invalid credentials entered." }
+            return {
+                error: `Invalid credentials entered. ${remaining} attempts remaining.`,
+            }
         }
         console.log(error)
     }

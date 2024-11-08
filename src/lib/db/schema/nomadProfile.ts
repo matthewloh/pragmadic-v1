@@ -36,10 +36,27 @@ const baseSchema = createSelectSchema(nomadProfile).omit(timestamps)
 
 export const insertNomadProfileSchema =
     createInsertSchema(nomadProfile).omit(timestamps)
-export const insertNomadProfileParams = baseSchema.extend({}).omit({
-    id: true,
-    userId: true,
-})
+export const insertNomadProfileParams = baseSchema
+    .extend({
+        bio: z
+            .string()
+            .min(1, "Please enter a valid bio about yourself")
+            .describe("A short bio about yourself"),
+        skills: z.string().describe("Your skills"),
+        interests: z.string().describe("Your interests"),
+        currentLocation: z
+            .string()
+            .min(1, "Please enter your current location")
+            .describe("Your current location"),
+        contactInformation: z
+            .string()
+            .min(1, "Please enter how to contact you")
+            .describe("How to contact you"),
+    })
+    .omit({
+        id: true,
+        userId: true,
+    })
 
 export const updateNomadProfileSchema = baseSchema
 export const updateNomadProfileParams = baseSchema.extend({}).omit({

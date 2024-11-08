@@ -4,6 +4,7 @@ import { customMiddleware } from "@/lib/ai/custom-middleware"
 import { google } from "@ai-sdk/google"
 import { anthropic } from "@ai-sdk/anthropic"
 import { ragMiddleware } from "./ragMiddleware"
+import { ollama } from "ollama-ai-provider"
 
 export const gpt4oModel = wrapLanguageModel({
     model: openai("gpt-4o"),
@@ -27,5 +28,15 @@ export const geminiFlashModel = wrapLanguageModel({
 
 export const anthropicModel = wrapLanguageModel({
     model: anthropic("claude-3-haiku-20240307"),
-    middleware: customMiddleware,
+    middleware: ragMiddleware,
+})
+
+export const llama3Model = wrapLanguageModel({
+    model: ollama("llama3.1:8b"),
+    middleware: ragMiddleware,
+})
+
+export const granite3DenseModel = wrapLanguageModel({
+    model: ollama("granite3-dense:8b"),
+    middleware: ragMiddleware,
 })

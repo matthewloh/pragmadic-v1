@@ -75,7 +75,9 @@ export function GetStartedForm({
                 })
 
                 if (userError) {
-                    toast.error(userError)
+                    toast.error(
+                        "Failed to update user profile, please check you have uploaded an image for your profile",
+                    )
                     return
                 }
 

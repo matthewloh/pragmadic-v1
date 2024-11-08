@@ -12,7 +12,8 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { AiFillOpenAI } from "react-icons/ai"
 import { FcGoogle } from "react-icons/fc"
-import { SiAnthropic } from "react-icons/si"
+import { SiAnthropic, SiIbm } from "react-icons/si"
+import { FaMeta } from "react-icons/fa6"
 import { ChevronsUpDown } from "lucide-react"
 
 export const options = [
@@ -20,6 +21,8 @@ export const options = [
     { provider: "OpenAI", model: "gpt-4o", name: "GPT-4o" },
     { provider: "Google", model: "gemini-1.5-pro-002", name: "Gemini" },
     { provider: "Anthropic", model: "claude-3-haiku", name: "Claude Haiku" },
+    { provider: "Ollama", model: "llama3.1-8b", name: "Llama 3.1" },
+    { provider: "Ibm", model: "granite3-dense", name: "Granite 3 Dense" },
 ] as const
 
 export type ModelOption = (typeof options)[number]
@@ -57,6 +60,10 @@ export default function ModelSelector({
                 return <AiFillOpenAI className="h-5 w-5 rounded-full" />
             case "Anthropic":
                 return <SiAnthropic className="h-5 w-5 rounded-full" />
+            case "Ollama":
+                return <FaMeta className="h-5 w-5 rounded-full" />
+            case "Ibm":
+                return <SiIbm className="h-5 w-5 rounded-full" />
             default:
                 return <ChevronsUpDown className="h-5 w-5 rounded-full" />
         }

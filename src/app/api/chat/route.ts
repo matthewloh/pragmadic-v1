@@ -4,6 +4,8 @@ import {
     geminiProModel,
     gpt4ominiModel,
     gpt4oModel,
+    granite3DenseModel,
+    llama3Model,
 } from "@/lib/ai/custom-model"
 import { createMessage } from "@/lib/api/chats/mutations"
 import { kv } from "@vercel/kv"
@@ -56,6 +58,12 @@ export async function POST(req: NextRequest) {
             break
         case "gemini-1.5-pro-002":
             selectedModel = geminiProModel
+            break
+        case "granite3-dense":
+            selectedModel = granite3DenseModel
+            break
+        case "llama3.1-8b":
+            selectedModel = llama3Model
             break
         default:
             selectedModel = geminiFlashModel

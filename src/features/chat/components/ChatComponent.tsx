@@ -13,7 +13,7 @@ import { ChevronDown, FileIcon, MessageSquare } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { useScrollAnchor } from "../hooks/use-scroll-anchor"
+import { useAutoScroll } from "@/hooks/use-auto-scroll"
 import { ChatMessage } from "./ChatMessage"
 import { DocumentRow } from "./DocumentSelector"
 import { ModelOption } from "./ModelSelector"
@@ -73,19 +73,8 @@ export function ChatComponent({
         },
     })
 
-    const {
-        messagesRef,
-        scrollRef,
-        visibilityRef,
-        scrollToBottom,
-        isAtBottom,
-    } = useScrollAnchor()
-
-    useEffect(() => {
-        if (isAtBottom) {
-            scrollToBottom()
-        }
-    }, [messages, isAtBottom, scrollToBottom])
+    const { containerRef, scrollToBottom, handleScroll, shouldAutoScroll } =
+        useAutoScroll([messages, uploadedFiles])
 
     const [attachments, setAttachments] = useState<Array<Attachment>>([])
 
@@ -100,37 +89,32 @@ export function ChatComponent({
     )
 
     return (
-        <div className="flex h-full flex-col bg-background text-foreground">
+        <div className="relative flex h-full flex-col bg-background text-foreground">
             <ScrollArea
                 className="flex h-full flex-1 flex-col p-6 pb-0"
-                ref={scrollRef}
+                ref={containerRef}
+                onScrollCapture={handleScroll}
             >
-                <AnimatePresence initial={false}>
-                    {messages.length === 0 && <EmptyChat key="empty-chat" />}
+                <div className="flex flex-col">
+                    <AnimatePresence initial={false} mode="wait">
+                        {messages.length === 0 && (
+                            <EmptyChat key="empty-chat" />
+                        )}
 
-                    {messages.map((message, index) => (
-                        <ChatMessage
-                            key={`message-${chatId}-${index}`}
-                            message={message}
-                        />
-                    ))}
-                    {uploadedFiles.map((file, index) => (
-                        <FilePreview
-                            key={`file-${chatId}-${index}`}
-                            file={file}
-                        />
-                    ))}
-                    <div
-                        key="messages-anchor"
-                        ref={messagesRef}
-                        className="min-h-[4px] min-w-[4px] flex-shrink-0"
-                    />
-                    <div
-                        key="visibility-anchor"
-                        ref={visibilityRef}
-                        className="h-4 w-full"
-                    />
-                </AnimatePresence>
+                        {messages.map((message, index) => (
+                            <ChatMessage
+                                key={`message-${chatId}-${index}`}
+                                message={message}
+                            />
+                        ))}
+                        {uploadedFiles.map((file, index) => (
+                            <FilePreview
+                                key={`file-${chatId}-${index}`}
+                                file={file}
+                            />
+                        ))}
+                    </AnimatePresence>
+                </div>
             </ScrollArea>
 
             <MultimodalInput
@@ -147,10 +131,11 @@ export function ChatComponent({
                 selectedDocumentIds={selectedDocumentIds}
                 selectedDocuments={selectedDocuments as DocumentRow[] | null}
             />
-            {!isAtBottom && (
+            {!shouldAutoScroll && (
                 <Button
                     onClick={scrollToBottom}
-                    className="absolute bottom-20 right-8 z-10 rounded-full bg-blue-600 p-2 text-white hover:bg-blue-700"
+                    className="fixed bottom-28 right-8 z-50 h-10 w-10 rounded-full bg-blue-600 p-2 text-white hover:bg-blue-700"
+                    size="icon"
                 >
                     <ChevronDown className="h-5 w-5" />
                 </Button>
