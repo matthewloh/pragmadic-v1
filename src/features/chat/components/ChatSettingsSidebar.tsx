@@ -35,6 +35,7 @@ import { redirect, useRouter } from "next/navigation"
 import useSupabaseBrowser from "@/utils/supabase/client"
 import { useQuery } from "@supabase-cache-helpers/postgrest-react-query"
 import { ChatRow } from "@/utils/supabase/types"
+import { useQueryClient } from "@tanstack/react-query"
 
 type ChatSettingsSidebarIconComponentProps = {
     icon: LucideIcon | IconType
@@ -60,7 +61,8 @@ export function ChatSettingsSidebar({
     chatId, // Accept chatId
 }: ChatSettingsSidebarProps) {
     const supabase = useSupabaseBrowser()
-    const { data: chat } = useQuery<ChatRow>(
+    const queryClient = useQueryClient()
+    const { data: chat, refetch } = useQuery<ChatRow>(
         supabase.from("chats").select("*").eq("id", chatId).single(),
     )
 
@@ -100,6 +102,7 @@ export function ChatSettingsSidebar({
             toast.error("Error deleting chat")
         } finally {
             setIsDeleteDialogOpen(false)
+            queryClient.invalidateQueries({ queryKey: ["chat-history"] })
         }
     }
 

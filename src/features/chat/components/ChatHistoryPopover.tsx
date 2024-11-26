@@ -16,6 +16,7 @@ import { useChatHistory } from "../hooks/use-chat-history"
 import { Button } from "@/components/ui/button"
 import { AnimatePresence, motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useQueryClient } from "@tanstack/react-query"
 
 type ChatHistoryPopoverProps = {
     isExpanded: boolean
@@ -25,6 +26,7 @@ export default function ChatHistoryPopover({
     isExpanded,
 }: ChatHistoryPopoverProps) {
     const [searchTerm, setSearchTerm] = useState("")
+    const queryClient = useQueryClient()
     const [isHistoryOpen, setIsHistoryOpen] = useState(false)
     const { data: chats, isPending } = useChatHistory()
 
@@ -84,8 +86,12 @@ export default function ChatHistoryPopover({
                     </div>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent side="right" align="start" className="w-80 p-0">
-                <div className="flex items-center space-x-2 p-3">
+            <PopoverContent
+                side="right"
+                align="start"
+                className="flex h-[80vh] w-80 flex-col p-0"
+            >
+                <div className="flex shrink-0 items-center space-x-2 p-3">
                     <Search className="h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search history..."
@@ -94,8 +100,8 @@ export default function ChatHistoryPopover({
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <Separator />
-                <div className="max-h-[calc(100vh-50%)] overflow-y-auto">
+                <Separator className="shrink-0" />
+                <div className="flex-1 overflow-y-auto">
                     {isPending ? (
                         <div className="p-3 text-center text-sm text-muted-foreground">
                             Loading...

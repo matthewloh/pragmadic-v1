@@ -1,10 +1,9 @@
+import { anthropic } from "@ai-sdk/anthropic"
+import { google } from "@ai-sdk/google"
 import { openai } from "@ai-sdk/openai"
 import { experimental_wrapLanguageModel as wrapLanguageModel } from "ai"
-import { customMiddleware } from "@/lib/ai/custom-middleware"
-import { google } from "@ai-sdk/google"
-import { anthropic } from "@ai-sdk/anthropic"
-import { ragMiddleware } from "./ragMiddleware"
 import { ollama } from "ollama-ai-provider"
+import { ragMiddleware } from "./ragMiddleware"
 
 export const gpt4oModel = wrapLanguageModel({
     model: openai("gpt-4o"),
@@ -40,3 +39,5 @@ export const granite3DenseModel = wrapLanguageModel({
     model: ollama("granite3-dense:8b"),
     middleware: ragMiddleware,
 })
+
+// Add GROOOOOOQ I'M GONNA GROOQ
