@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { AiFillOpenAI } from "react-icons/ai"
 import { FcGoogle } from "react-icons/fc"
-import { SiAnthropic, SiIbm } from "react-icons/si"
+import { SiAnthropic, SiBmcsoftware } from "react-icons/si"
 import { FaMeta } from "react-icons/fa6"
 import { ChevronsUpDown } from "lucide-react"
 
@@ -63,7 +63,7 @@ export default function ModelSelector({
             case "Ollama":
                 return <FaMeta className="h-5 w-5 rounded-full" />
             case "Ibm":
-                return <SiIbm className="h-5 w-5 rounded-full" />
+                return <SiBmcsoftware className="h-5 w-5 rounded-full" />
             default:
                 return <ChevronsUpDown className="h-5 w-5 rounded-full" />
         }

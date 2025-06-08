@@ -16,12 +16,12 @@ export const gpt4ominiModel = wrapLanguageModel({
 })
 
 export const geminiProModel = wrapLanguageModel({
-    model: google("gemini-1.5-pro-latest"),
+    model: google("gemini-2.5-pro-preview-05-06"),
     middleware: ragMiddleware,
 })
 
 export const geminiFlashModel = wrapLanguageModel({
-    model: google("gemini-1.5-flash"),
+    model: google("gemini-2.5-flash-preview-04-17"),
     middleware: ragMiddleware,
 })
 

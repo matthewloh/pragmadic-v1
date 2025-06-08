@@ -1,5 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+.cursor/mcp.json
+
 # dependencies
 /node_modules
 /.pnp
@@ -37,4 +39,3 @@ yarn-error.log*
 next-env.d.ts
 
 # report writing
-/reports
