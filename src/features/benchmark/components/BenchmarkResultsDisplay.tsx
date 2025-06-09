@@ -19,7 +19,13 @@ import {
     Target,
     Database,
     Brain,
+    FileText,
+    Copy,
 } from "lucide-react"
+import { ScientificResultsAnalysis } from "./ScientificResultsAnalysis"
+import { ScientificMetricsCalculator } from "../utils/scientificMetrics"
+import React from "react"
+import { Button } from "@/components/ui/button"
 
 interface BenchmarkResultsDisplayProps {
     results: BenchmarkResults & {
@@ -37,6 +43,16 @@ export function BenchmarkResultsDisplay({
     results,
 }: BenchmarkResultsDisplayProps) {
     const { ragResults, analyticsResults, summary, metadata } = results
+    const [copiedPaper, setCopiedPaper] = React.useState(false)
+
+    // Calculate scientific metrics immediately
+    const scientificMetrics = React.useMemo(() => {
+        return ScientificMetricsCalculator.calculateComprehensiveMetrics(
+            ragResults,
+            analyticsResults,
+            0.95 // 95% confidence level
+        )
+    }, [ragResults, analyticsResults])
 
     const formatDuration = (ms: number) => {
         if (ms < 1000) return `${ms}ms`
@@ -47,19 +63,44 @@ export function BenchmarkResultsDisplay({
         return `${(value * 100).toFixed(1)}%`
     }
 
+    const exportForPaper = async () => {
+        const paperSummary = ScientificMetricsCalculator.exportMetricsForPaper(
+            scientificMetrics,
+            metadata?.modelLabel || metadata?.model || "Unknown Model"
+        )
+        await navigator.clipboard.writeText(paperSummary)
+        setCopiedPaper(true)
+        setTimeout(() => setCopiedPaper(false), 2000)
+    }
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5" />
-                    Benchmark Results
-                    {metadata && (
-                        <Badge variant="secondary" className="ml-2">
-                            <Brain className="mr-1 h-3 w-3" />
-                            {metadata.modelLabel || metadata.model}
-                        </Badge>
-                    )}
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                        <Target className="h-5 w-5" />
+                        Benchmark Results
+                        {metadata && (
+                            <Badge variant="secondary" className="ml-2">
+                                <Brain className="mr-1 h-3 w-3" />
+                                {metadata.modelLabel || metadata.model}
+                            </Badge>
+                        )}
+                    </CardTitle>
+                    <Button
+                        onClick={exportForPaper}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                    >
+                        {copiedPaper ? (
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                        ) : (
+                            <FileText className="h-4 w-4" />
+                        )}
+                        {copiedPaper ? 'Copied!' : 'Export for Paper'}
+                    </Button>
+                </div>
                 <CardDescription>
                     Quantitative evaluation results for conference paper metrics
                     {metadata && (
@@ -78,6 +119,9 @@ export function BenchmarkResultsDisplay({
                         <TabsTrigger value="summary">
                             Summary Metrics
                         </TabsTrigger>
+                        <TabsTrigger value="scientific">
+                            Scientific Analysis
+                        </TabsTrigger>
                         <TabsTrigger value="rag-details">
                             RAG Details
                         </TabsTrigger>
@@ -90,10 +134,14 @@ export function BenchmarkResultsDisplay({
                     <TabsContent value="summary" className="space-y-6">
                         <div className="grid gap-6 md:grid-cols-2">
                             {/* RAG Summary */}
-                            <Card>
+                            {summary.ragMetrics.totalTests > 0 && (
+                            <Card className={summary.analyticsMetrics.totalTests === 0 ? "md:col-span-2" : ""}>
                                 <CardHeader>
                                     <CardTitle className="text-lg">
                                         RAG Answer Engine
+                                        {summary.analyticsMetrics.totalTests === 0 && (
+                                            <Badge variant="secondary" className="ml-2">Single Test Mode</Badge>
+                                        )}
                                     </CardTitle>
                                     {metadata && (
                                         <CardDescription className="text-xs">
@@ -210,14 +258,47 @@ export function BenchmarkResultsDisplay({
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Show specific test details for single test mode */}
+                                    {summary.analyticsMetrics.totalTests === 0 && ragResults.length === 1 && (
+                                        <div className="border-t pt-3">
+                                            <h4 className="text-sm font-medium mb-2">Test Details</h4>
+                                            <div className="space-y-2 text-sm">
+                                                <div className="flex justify-between">
+                                                    <span>Test ID:</span>
+                                                    <span className="font-mono">{ragResults[0].testCase.id}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Category:</span>
+                                                    <span className="font-mono">{ragResults[0].testCase.category}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Chunks Retrieved:</span>
+                                                    <span className="font-mono">{ragResults[0].retrievedChunks.length}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Duration:</span>
+                                                    <span className="font-mono">{formatDuration(ragResults[0].duration)}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Tokens Used:</span>
+                                                    <span className="font-mono">{ragResults[0].tokenUsage.totalTokens}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
+                            )}
 
                             {/* Analytics Summary */}
-                            <Card>
+                            <Card className={summary.ragMetrics.totalTests === 0 ? "md:col-span-2" : ""}>
                                 <CardHeader>
                                     <CardTitle className="text-lg">
                                         AI-Driven Analytics
+                                        {summary.ragMetrics.totalTests === 0 && (
+                                            <Badge variant="secondary" className="ml-2">Single Test Mode</Badge>
+                                        )}
                                     </CardTitle>
                                     {metadata && (
                                         <CardDescription className="text-xs">
@@ -279,6 +360,31 @@ export function BenchmarkResultsDisplay({
                                             )}
                                         </span>
                                     </div>
+
+                                    {/* Show specific test details for single test mode */}
+                                    {summary.ragMetrics.totalTests === 0 && analyticsResults.length === 1 && (
+                                        <div className="border-t pt-3">
+                                            <h4 className="text-sm font-medium mb-2">Test Details</h4>
+                                            <div className="space-y-2 text-sm">
+                                                <div className="flex justify-between">
+                                                    <span>Test ID:</span>
+                                                    <span className="font-mono">{analyticsResults[0].testCase.id}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Category:</span>
+                                                    <span className="font-mono">{analyticsResults[0].testCase.category}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Tools Called:</span>
+                                                    <span className="font-mono">{analyticsResults[0].toolsCalled.length}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Duration:</span>
+                                                    <span className="font-mono">{formatDuration(analyticsResults[0].duration)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </div>
@@ -287,11 +393,15 @@ export function BenchmarkResultsDisplay({
                         <Card className="border-primary">
                             <CardHeader>
                                 <CardTitle className="text-lg text-primary">
-                                    Conference Paper Metrics
+                                    {summary.ragMetrics.totalTests === 0 ? "Single Analytics Test Results" : 
+                                     summary.analyticsMetrics.totalTests === 0 ? "Single RAG Test Results" : 
+                                     "Conference Paper Metrics"}
                                 </CardTitle>
                                 <CardDescription>
-                                    Key quantitative results for your CITIC 2025
-                                    submission
+                                    {summary.ragMetrics.totalTests === 0 ? "Quick validation results for single analytics test" :
+                                     summary.analyticsMetrics.totalTests === 0 ? "Quick validation results for single RAG test" :
+                                     "Key quantitative results for your CITIC 2025 submission"
+                                    }
                                     {metadata && (
                                         <span className="mt-1 block">
                                             Model evaluated:{" "}
@@ -301,12 +411,20 @@ export function BenchmarkResultsDisplay({
                                                 ` (${metadata.provider})`}
                                         </span>
                                     )}
+                                    {scientificMetrics.sampleSize > 1 && (
+                                        <span className="mt-1 block text-xs font-mono">
+                                            Scientific Metrics: F1={scientificMetrics.f1Score.toFixed(3)} | 
+                                            MRR={scientificMetrics.meanReciprocalRank.toFixed(3)} | 
+                                            CI={formatPercentage(scientificMetrics.confidenceLevel)}
+                                        </span>
+                                    )}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid gap-4 text-sm">
+                                    {summary.ragMetrics.totalTests > 0 && (
                                     <div className="rounded bg-muted p-3">
-                                        <strong>RAG System Evaluation:</strong>
+                                        <strong>{summary.analyticsMetrics.totalTests === 0 ? "RAG Test Result" : "RAG System Evaluation"}:</strong>
                                         <ul className="ml-4 mt-2 space-y-1">
                                             <li>
                                                 • Retrieval hit rate:{" "}
@@ -348,6 +466,22 @@ export function BenchmarkResultsDisplay({
                                                 )}{" "}
                                                 tokens per query
                                             </li>
+                                            {summary.analyticsMetrics.totalTests === 0 && ragResults.length === 1 && (
+                                                <>
+                                                    <li>
+                                                        • Test question: &quot;{ragResults[0].testCase.question}&quot;
+                                                    </li>
+                                                    <li>
+                                                        • Expected chunks: {ragResults[0].testCase.groundTruth.expectedChunks.length}
+                                                    </li>
+                                                    <li>
+                                                        • Retrieved chunks: {ragResults[0].retrievedChunks.length}
+                                                    </li>
+                                                    <li>
+                                                        • Result: {ragResults[0].success ? "✅ Success" : "❌ Failed"}
+                                                    </li>
+                                                </>
+                                            )}
                                             {metadata && (
                                                 <li>
                                                     • Evaluated using:{" "}
@@ -357,9 +491,11 @@ export function BenchmarkResultsDisplay({
                                             )}
                                         </ul>
                                     </div>
+                                    )}
+                                    {summary.analyticsMetrics.totalTests > 0 && (
                                     <div className="rounded bg-muted p-3">
                                         <strong>
-                                            AI Analytics Evaluation:
+                                            AI Analytics {summary.ragMetrics.totalTests === 0 ? "Test Result" : "Evaluation"}:
                                         </strong>
                                         <ul className="ml-4 mt-2 space-y-1">
                                             <li>
@@ -387,6 +523,22 @@ export function BenchmarkResultsDisplay({
                                                         .averageResponseTime,
                                                 )}
                                             </li>
+                                            {summary.ragMetrics.totalTests === 0 && analyticsResults.length === 1 && (
+                                                <>
+                                                    <li>
+                                                        • Test query: &quot;{analyticsResults[0].testCase.query}&quot;
+                                                    </li>
+                                                    <li>
+                                                        • Expected tool: {analyticsResults[0].testCase.groundTruth?.expectedTool || "N/A"}
+                                                    </li>
+                                                    <li>
+                                                        • Tools invoked: {analyticsResults[0].toolsCalled.join(", ") || "None"}
+                                                    </li>
+                                                    <li>
+                                                        • Result: {analyticsResults[0].success ? "✅ Success" : "❌ Failed"}
+                                                    </li>
+                                                </>
+                                            )}
                                             {metadata && (
                                                 <li>
                                                     • Evaluated using:{" "}
@@ -396,6 +548,7 @@ export function BenchmarkResultsDisplay({
                                             )}
                                         </ul>
                                     </div>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
@@ -474,6 +627,17 @@ export function BenchmarkResultsDisplay({
                                 </div>
                             </CardContent>
                         </Card>
+                    </TabsContent>
+
+                    {/* Scientific Analysis Tab */}
+                    <TabsContent value="scientific">
+                        <ScientificResultsAnalysis
+                            ragResults={ragResults}
+                            analyticsResults={analyticsResults}
+                            modelName={metadata?.model || "Unknown Model"}
+                            modelLabel={metadata?.modelLabel}
+                            scientificMetrics={scientificMetrics}
+                        />
                     </TabsContent>
 
                     {/* RAG Details Tab */}

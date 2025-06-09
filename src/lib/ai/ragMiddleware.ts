@@ -133,6 +133,16 @@ export const ragMiddleware: Experimental_LanguageModelV1Middleware = {
             JSON.stringify(retrievedChunkInfo),
         )
 
+        // Store chunk info for benchmark tests
+        if (currentChatId.startsWith("bench-")) {
+            try {
+                const { kv } = await import("@vercel/kv")
+                await kv.set(`chunks:${currentChatId}`, retrievedChunkInfo, { ex: 300 });
+            } catch (error) {
+                console.warn("Failed to store chunk data:", error);
+            }
+        }
+
         // Add context to the message
         messages.push({
             role: "user",

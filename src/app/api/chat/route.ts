@@ -111,6 +111,25 @@ export async function POST(req: NextRequest) {
                 `[RAG_METRICS] ChatID: ${chatId} - Generated Text Snippet: ${text.substring(0, 100)}...`,
             )
 
+            // Store metrics in a simple cache for benchmark retrieval
+            if (chatId.startsWith("bench-")) {
+                try {
+                    await kv.set(
+                        `metrics:${chatId}`,
+                        {
+                            usage: usage,
+                            finishReason: finishReason,
+                            duration: durationInMs,
+                            textLength: text.length,
+                            timestamp: new Date().toISOString(),
+                        },
+                        { ex: 300 },
+                    ) // Expire after 5 minutes
+                } catch (error) {
+                    console.warn("Failed to store metrics:", error)
+                }
+            }
+
             let assistantToolCalls: ToolCallPart[] | undefined = undefined
             if (toolCalls && toolCalls.length > 0) {
                 assistantToolCalls = toolCalls.map((tc) => ({

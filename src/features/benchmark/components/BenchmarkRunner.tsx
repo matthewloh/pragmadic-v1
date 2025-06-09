@@ -27,6 +27,7 @@ import { BenchmarkResults, RAGTestCase } from "../types"
 import { BenchmarkRunner as Runner } from "../utils/benchmarkRunner"
 import { ChunkMapper } from "../utils/chunkMapping"
 import { BenchmarkResultsDisplay } from "./BenchmarkResultsDisplay"
+import { BenchmarkHistory } from "./BenchmarkHistory"
 
 interface ProgressState {
     isRunning: boolean
@@ -70,8 +71,13 @@ export function BenchmarkRunner() {
     const [chunkValidation, setChunkValidation] = useState<
         Record<string, boolean>
     >({})
-    const [testSubset, setTestSubset] = useState<"all" | "sample" | "custom">("sample")
+    const [testSubset, setTestSubset] = useState<
+        "all" | "sample" | "custom" | "single-analytics" | "single-rag"
+    >("sample")
     const [maxTests, setMaxTests] = useState(5)
+    const [selectedAnalyticsTest, setSelectedAnalyticsTest] =
+        useState<string>("")
+    const [selectedRAGTest, setSelectedRAGTest] = useState<string>("")
 
     const { data: documents } = useQuery({
         queryKey: ["documents"],
@@ -151,19 +157,48 @@ export function BenchmarkRunner() {
 
             if (testSubset === "sample") {
                 // Run a balanced sample from each category
-                const highPriority = validatedTestCases.filter(t => t.category === "high-priority").slice(0, 3)
-                const mediumPriority = validatedTestCases.filter(t => t.category === "medium-priority").slice(0, 2)
-                const edgeCase = validatedTestCases.filter(t => t.category === "edge-case").slice(0, 1)
-                const negativeTest = validatedTestCases.filter(t => t.category === "negative-test").slice(0, 1)
-                
-                ragTestsToRun = [...highPriority, ...mediumPriority, ...edgeCase, ...negativeTest]
+                const highPriority = validatedTestCases
+                    .filter((t) => t.category === "high-priority")
+                    .slice(0, 3)
+                const mediumPriority = validatedTestCases
+                    .filter((t) => t.category === "medium-priority")
+                    .slice(0, 2)
+                const edgeCase = validatedTestCases
+                    .filter((t) => t.category === "edge-case")
+                    .slice(0, 1)
+                const negativeTest = validatedTestCases
+                    .filter((t) => t.category === "negative-test")
+                    .slice(0, 1)
+
+                ragTestsToRun = [
+                    ...highPriority,
+                    ...mediumPriority,
+                    ...edgeCase,
+                    ...negativeTest,
+                ]
                 analyticsTestsToRun = ANALYTICS_TEST_CASES.slice(0, 3) // Just 3 analytics tests
+            } else if (testSubset === "single-rag") {
+                // Run only the selected RAG test, no analytics tests
+                const selectedTest = validatedTestCases.find(
+                    (t) => t.id === selectedRAGTest,
+                )
+                ragTestsToRun = selectedTest ? [selectedTest] : []
+                analyticsTestsToRun = [] // No analytics tests
+            } else if (testSubset === "single-analytics") {
+                // Run only the selected analytics test, no RAG tests
+                const selectedTest = ANALYTICS_TEST_CASES.find(
+                    (t) => t.id === selectedAnalyticsTest,
+                )
+                ragTestsToRun = [] // No RAG tests
+                analyticsTestsToRun = selectedTest ? [selectedTest] : []
             } else if (testSubset === "custom") {
                 ragTestsToRun = validatedTestCases.slice(0, maxTests)
                 analyticsTestsToRun = ANALYTICS_TEST_CASES.slice(0, maxTests)
             }
 
-            console.log(`Running ${ragTestsToRun.length} RAG tests and ${analyticsTestsToRun.length} analytics tests`)
+            console.log(
+                `Running ${ragTestsToRun.length} RAG tests and ${analyticsTestsToRun.length} analytics tests`,
+            )
 
             const benchmarkResults = await runner.runAllTests(
                 ragTestsToRun,
@@ -171,6 +206,7 @@ export function BenchmarkRunner() {
                 selectedDocuments,
                 selectedModel,
                 setProgress,
+                testSubset as "all" | "sample" | "custom" | "single-analytics" | "single-rag",
             )
 
             setResults(benchmarkResults)
@@ -243,6 +279,9 @@ export function BenchmarkRunner() {
 
     return (
         <div className="space-y-6">
+            {/* Benchmark History */}
+            <BenchmarkHistory />
+
             <Card>
                 <CardHeader>
                     <CardTitle>Benchmark Configuration</CardTitle>
@@ -347,48 +386,182 @@ export function BenchmarkRunner() {
                             Test Subset (Cost Control)
                         </Label>
                         <p className="mb-3 text-sm text-muted-foreground">
-                            Choose subset size to control API costs. Sample mode runs {maxTests} tests per category.
+                            Choose subset size to control API costs. Sample mode
+                            runs {maxTests} tests per category.
                         </p>
                         <div className="space-y-3">
                             <Select
                                 value={testSubset}
-                                onValueChange={(value: "all" | "sample" | "custom") => setTestSubset(value)}
+                                onValueChange={(
+                                    value:
+                                        | "all"
+                                        | "sample"
+                                        | "custom"
+                                        | "single-analytics"
+                                        | "single-rag",
+                                ) => setTestSubset(value)}
                             >
                                 <SelectTrigger>
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="sample">Sample Testing ({maxTests} tests) - Recommended</SelectItem>
-                                    <SelectItem value="all">Full Suite ({validatedTestCases.length + ANALYTICS_TEST_CASES.length} tests) - Expensive</SelectItem>
-                                    <SelectItem value="custom">Custom Amount</SelectItem>
+                                    <SelectItem value="sample">
+                                        Sample Testing ({maxTests} tests) -
+                                        Recommended
+                                    </SelectItem>
+                                    <SelectItem value="single-rag">
+                                        Single RAG Test - Quick Test
+                                    </SelectItem>
+                                    <SelectItem value="single-analytics">
+                                        Single Analytics Test - Quick Test
+                                    </SelectItem>
+                                    <SelectItem value="custom">
+                                        Custom Amount
+                                    </SelectItem>
+                                    <SelectItem value="all">
+                                        Full Suite (
+                                        {validatedTestCases.length +
+                                            ANALYTICS_TEST_CASES.length}{" "}
+                                        tests) - Expensive
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
-                            
+
+                            {testSubset === "single-rag" && (
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="ragTest"
+                                        className="text-sm"
+                                    >
+                                        Select RAG Test:
+                                    </Label>
+                                    <Select
+                                        value={selectedRAGTest}
+                                        onValueChange={setSelectedRAGTest}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Choose a RAG test..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {validatedTestCases.map(
+                                                (testCase) => (
+                                                    <SelectItem
+                                                        key={testCase.id}
+                                                        value={testCase.id}
+                                                    >
+                                                        {testCase.id}:{" "}
+                                                        {testCase.question.substring(
+                                                            0,
+                                                            50,
+                                                        )}
+                                                        ...
+                                                    </SelectItem>
+                                                ),
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                    <div className="rounded border border-blue-200 bg-blue-50 p-2 text-sm text-blue-800">
+                                        💡 Quick test mode: Runs only the
+                                        selected RAG test for fast validation
+                                    </div>
+                                </div>
+                            )}
+
+                            {testSubset === "single-analytics" && (
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="analyticsTest"
+                                        className="text-sm"
+                                    >
+                                        Select Analytics Test:
+                                    </Label>
+                                    <Select
+                                        value={selectedAnalyticsTest}
+                                        onValueChange={setSelectedAnalyticsTest}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Choose an analytics test..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {ANALYTICS_TEST_CASES.map(
+                                                (testCase) => (
+                                                    <SelectItem
+                                                        key={testCase.id}
+                                                        value={testCase.id}
+                                                    >
+                                                        {testCase.id}:{" "}
+                                                        {testCase.query.substring(
+                                                            0,
+                                                            50,
+                                                        )}
+                                                        ...
+                                                    </SelectItem>
+                                                ),
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                    <div className="rounded border border-blue-200 bg-blue-50 p-2 text-sm text-blue-800">
+                                        💡 Quick test mode: Runs only the
+                                        selected analytics test for fast
+                                        validation
+                                    </div>
+                                </div>
+                            )}
+
                             {testSubset === "custom" && (
                                 <div className="flex items-center gap-2">
-                                    <Label htmlFor="maxTests" className="text-sm">Max tests per category:</Label>
+                                    <Label
+                                        htmlFor="maxTests"
+                                        className="text-sm"
+                                    >
+                                        Max tests per category:
+                                    </Label>
                                     <input
                                         id="maxTests"
                                         type="number"
                                         min="1"
                                         max="20"
                                         value={maxTests}
-                                        onChange={(e) => setMaxTests(parseInt(e.target.value) || 1)}
-                                        className="w-16 px-2 py-1 text-sm border rounded"
+                                        onChange={(e) =>
+                                            setMaxTests(
+                                                parseInt(e.target.value) || 1,
+                                            )
+                                        }
+                                        className="w-16 rounded border px-2 py-1 text-sm"
                                     />
                                 </div>
                             )}
-                            
+
                             {testSubset === "all" && (
                                 <div className="rounded border border-orange-200 bg-orange-50 p-2 text-sm text-orange-800">
-                                    ⚠️ Full testing will run {validatedTestCases.length + ANALYTICS_TEST_CASES.length} tests and may cost $5-15 depending on your model choice.
+                                    ⚠️ Full testing will run{" "}
+                                    {validatedTestCases.length +
+                                        ANALYTICS_TEST_CASES.length}{" "}
+                                    tests and may cost $5-15 depending on your
+                                    model choice.
                                 </div>
                             )}
-                            
+
                             <div className="text-xs text-muted-foreground">
-                                Estimated tests to run: {testSubset === "all" ? validatedTestCases.length + ANALYTICS_TEST_CASES.length : 
-                                    testSubset === "sample" ? Math.min(5, validatedTestCases.length) + Math.min(3, ANALYTICS_TEST_CASES.length) :
-                                    Math.min(maxTests, validatedTestCases.length) + Math.min(maxTests, ANALYTICS_TEST_CASES.length)}
+                                Estimated tests to run:{" "}
+                                {testSubset === "all"
+                                    ? validatedTestCases.length +
+                                      ANALYTICS_TEST_CASES.length
+                                    : testSubset === "sample"
+                                      ? Math.min(5, validatedTestCases.length) +
+                                        Math.min(3, ANALYTICS_TEST_CASES.length)
+                                      : testSubset === "single-analytics"
+                                        ? 1
+                                        : testSubset === "single-rag"
+                                          ? 1
+                                          : Math.min(
+                                                maxTests,
+                                                validatedTestCases.length,
+                                            ) +
+                                            Math.min(
+                                                maxTests,
+                                                ANALYTICS_TEST_CASES.length,
+                                            )}
                             </div>
                         </div>
                     </div>
@@ -506,12 +679,15 @@ export function BenchmarkRunner() {
                         </div>
                     </div>
 
-                        <Button
+                    <Button
                         onClick={runBenchmark}
                         disabled={
                             isRunning ||
                             !selectedDocuments.length ||
-                            validatedTestCases.length === 0
+                            validatedTestCases.length === 0 ||
+                            (testSubset === "single-analytics" &&
+                                !selectedAnalyticsTest) ||
+                            (testSubset === "single-rag" && !selectedRAGTest)
                         }
                         className="w-full"
                     >
@@ -520,6 +696,10 @@ export function BenchmarkRunner() {
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Running Benchmark...
                             </>
+                        ) : testSubset === "single-analytics" ? (
+                            "Run Single Analytics Test"
+                        ) : testSubset === "single-rag" ? (
+                            "Run Single RAG Test"
                         ) : (
                             "Run Comprehensive Benchmark"
                         )}
@@ -552,8 +732,8 @@ export function BenchmarkRunner() {
                                 Current: {progress.current}
                             </p>
                         </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
             )}
 
             {/* Results Display */}

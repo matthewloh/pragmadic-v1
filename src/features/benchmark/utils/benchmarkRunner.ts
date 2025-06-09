@@ -6,6 +6,10 @@ import {
     RAGTestResult,
     DetailedSummaryMetrics,
 } from "../types"
+import {
+    benchmarkStorage,
+    BenchmarkSession,
+} from "../services/benchmarkStorage"
 
 export class BenchmarkRunner {
     private results: {
@@ -14,6 +18,7 @@ export class BenchmarkRunner {
     } = { rag: [], analytics: [] }
     private logs: string[] = []
     private isCapturing = false
+    private currentSession: BenchmarkSession | null = null
 
     constructor() {
         this.startLogCapture()
@@ -142,11 +147,78 @@ export class BenchmarkRunner {
 
             const endTime = Date.now()
 
-            // Parse logs for this specific chatId
+            // Fetch metrics from API instead of parsing logs
+            let retrievedChunks: any[] = []
+            let tokenUsage = {
+                promptTokens: 0,
+                completionTokens: 0,
+                totalTokens: 0,
+            }
+            let finishReason = "completed"
+
+            try {
+                // Wait a moment for the metrics to be stored
+                await new Promise((resolve) => setTimeout(resolve, 1000))
+
+                const metricsResponse = await fetch(
+                    `/api/benchmark/metrics?chatId=${chatId}`,
+                )
+                if (metricsResponse.ok) {
+                    const metricsData = await metricsResponse.json()
+
+                    if (metricsData.chunks) {
+                        retrievedChunks = metricsData.chunks
+                    }
+
+                    if (metricsData.metrics?.usage) {
+                        tokenUsage = {
+                            promptTokens:
+                                metricsData.metrics.usage.promptTokens || 0,
+                            completionTokens:
+                                metricsData.metrics.usage.completionTokens || 0,
+                            totalTokens:
+                                metricsData.metrics.usage.totalTokens || 0,
+                        }
+                    }
+
+                    if (metricsData.metrics?.finishReason) {
+                        finishReason = metricsData.metrics.finishReason
+                    }
+
+                    console.log(`[DEBUG] Retrieved metrics for ${chatId}:`, {
+                        chunksCount: retrievedChunks.length,
+                        tokenUsage,
+                        finishReason,
+                    })
+                } else {
+                    console.warn(`Failed to fetch metrics for ${chatId}`)
+                }
+            } catch (error) {
+                console.warn(`Error fetching metrics for ${chatId}:`, error)
+            }
+
+            // Parse logs for this specific chatId (fallback)
             const testLogs = this.logs.filter((log) => log.includes(chatId))
-            const retrievedChunks = this.parseRetrievedChunks(testLogs)
-            const tokenUsage = this.parseTokenUsage(testLogs)
-            const finishReason = this.parseFinishReason(testLogs)
+            console.log(`[DEBUG] Total captured logs: ${this.logs.length}`)
+            console.log(`[DEBUG] Test logs for ${chatId}:`, testLogs)
+
+            // Use fallback parsing if API didn't return data
+            if (retrievedChunks.length === 0) {
+                retrievedChunks = this.parseRetrievedChunks(testLogs)
+            }
+            if (tokenUsage.totalTokens === 0) {
+                tokenUsage = this.parseTokenUsage(testLogs)
+            }
+            if (finishReason === "completed" && testLogs.length > 0) {
+                finishReason = this.parseFinishReason(testLogs)
+            }
+
+            console.log(`[DEBUG] Final parsed chunks:`, retrievedChunks)
+            console.log(`[DEBUG] Final parsed tokens:`, tokenUsage)
+            console.log(
+                `[DEBUG] Generated text snippet:`,
+                generatedText.substring(0, 100),
+            )
 
             // Calculate accurate retrieval metrics
             const retrievalMetrics = this.calculateRetrievalMetrics(
@@ -201,8 +273,8 @@ export class BenchmarkRunner {
                     containsExpectedPoints:
                         testCase.groundTruth.expectedAnswerPoints.map(
                             (point) => ({
-                        point,
-                        found: false,
+                                point,
+                                found: false,
                                 confidence: 0,
                             }),
                         ),
@@ -410,6 +482,13 @@ export class BenchmarkRunner {
                 toolsInvoked: toolsInvoked,
             }
 
+            console.log(`[DEBUG] Analytics test ${testCase.id} result:`, {
+                generatedTextLength: generatedText.length,
+                toolsInvokedCount: toolsInvoked.length,
+                toolsInvoked: toolsInvoked,
+                duration: endTime - startTime,
+            })
+
             // Analyze tool calling accuracy
             const toolAccuracy = this.analyzeToolAccuracy(testCase, result)
 
@@ -455,20 +534,47 @@ export class BenchmarkRunner {
             result.toolsInvoked?.map((tool: any) => tool.name) || []
         const expectedTool = testCase.groundTruth?.expectedTool
 
-        const correctToolCalled = expectedTool ? 
-            actualTools.includes(expectedTool) : 
-            actualTools.length > 0
-        const score = correctToolCalled ? 1 : 0
+        console.log(`[DEBUG] Tool Analysis for ${testCase.id}:`, {
+            expectedTool,
+            actualTools,
+            toolsInvoked: result.toolsInvoked,
+        })
+
+        let correctToolCalled = false
+        let correctParamsExtracted = false
+
+        if (expectedTool) {
+            // Check if the expected tool was called
+            correctToolCalled = actualTools.includes(expectedTool)
+        } else {
+            // If no specific tool expected, consider any tool call as correct
+            correctToolCalled = actualTools.length > 0
+        }
 
         // Parameter checking based on ground truth
-        const correctParamsExtracted = testCase.groundTruth?.expectedParams ?
-            result.toolsInvoked?.some((tool: any) => {
-                const expectedParams = testCase.groundTruth!.expectedParams!
-                return Object.keys(expectedParams).every(
-                    (key) => tool.parameters && tool.parameters.hasOwnProperty(key)
+        if (
+            testCase.groundTruth?.expectedParams &&
+            result.toolsInvoked?.length > 0
+        ) {
+            const expectedParams = testCase.groundTruth.expectedParams
+            correctParamsExtracted = result.toolsInvoked.some((tool: any) => {
+                if (!tool.parameters) return false
+                return Object.keys(expectedParams).every((key) =>
+                    tool.parameters.hasOwnProperty(key),
                 )
-            }) || false :
-            result.toolsInvoked?.length > 0 || false
+            })
+        } else {
+            // If no specific params expected, consider any params as correct if tools were called
+            correctParamsExtracted = result.toolsInvoked?.length > 0
+        }
+
+        const score = correctToolCalled ? 1 : 0
+
+        console.log(`[DEBUG] Tool accuracy result:`, {
+            correctToolCalled,
+            correctParamsExtracted,
+            score,
+        })
 
         return {
             correctToolCalled,
@@ -497,17 +603,40 @@ export class BenchmarkRunner {
             total: number
             current: string
         }) => void,
+        testSubsetType: "all" | "sample" | "custom" | "single-analytics" | "single-rag" = "sample",
     ): Promise<BenchmarkResults> {
         this.startLogCapture()
 
-        // Validate chunk IDs before starting tests
-        const chunkValidation = await this.validateChunkIds(ragTests)
-        const invalidChunks = Array.from(chunkValidation.entries())
-            .filter(([_, isValid]) => !isValid)
-            .map(([chunkId, _]) => chunkId)
+        // Create benchmark session in database
+        try {
+            this.currentSession = await benchmarkStorage.createSession({
+                model_name: model,
+                model_label: this.getModelLabel(model),
+                provider: this.getModelProvider(model),
+                selected_documents: selectedDocumentIds,
+                test_subset_type: testSubsetType,
+                total_rag_tests: ragTests.length,
+                total_analytics_tests: analyticsTests.length,
+            })
 
-        if (invalidChunks.length > 0) {
-            console.warn("Invalid chunk IDs found:", invalidChunks)
+            console.log(`Created benchmark session: ${this.currentSession.id}`)
+        } catch (error) {
+            console.error("Failed to create benchmark session:", error)
+            // Continue without database storage
+        }
+
+        // For single analytics tests, we don't need to validate chunk IDs
+        let chunkValidation = new Map<string, boolean>()
+        if (ragTests.length > 0) {
+            // Validate chunk IDs before starting tests
+            chunkValidation = await this.validateChunkIds(ragTests)
+            const invalidChunks = Array.from(chunkValidation.entries())
+                .filter(([_, isValid]) => !isValid)
+                .map(([chunkId, _]) => chunkId)
+
+            if (invalidChunks.length > 0) {
+                console.warn("Invalid chunk IDs found:", invalidChunks)
+            }
         }
 
         const ragResults: RAGTestResult[] = []
@@ -516,35 +645,128 @@ export class BenchmarkRunner {
         const totalTests = ragTests.length + analyticsTests.length
         let completed = 0
 
-        // Run RAG tests
-        for (const testCase of ragTests) {
-            onProgress?.({
-                completed,
-                total: totalTests,
-                current: `RAG: ${testCase.question}`,
-            })
-            const result = await this.runRAGTest(
-                testCase,
-                selectedDocumentIds,
-                model,
-            )
-            ragResults.push(result)
-            completed++
+        try {
+            // Run RAG tests
+            for (const testCase of ragTests) {
+                onProgress?.({
+                    completed,
+                    total: totalTests,
+                    current: `RAG: ${testCase.question}`,
+                })
+                const result = await this.runRAGTest(
+                    testCase,
+                    selectedDocumentIds,
+                    model,
+                )
+                ragResults.push(result)
 
-            // Small delay to avoid rate limiting
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-        }
+                // Store result in database
+                if (this.currentSession) {
+                    try {
+                        await benchmarkStorage.storeRAGResult(
+                            this.currentSession.id,
+                            result,
+                        )
+                        console.log(
+                            `Stored RAG result for test ${testCase.id} in session ${this.currentSession.id}`,
+                        )
+                    } catch (error) {
+                        console.error("Failed to store RAG result:", error)
+                    }
+                }
 
-        // Run Analytics tests
-        for (const testCase of analyticsTests) {
-            onProgress?.({
-                completed,
-                total: totalTests,
-                current: `Analytics: ${testCase.query}`,
-            })
-            const result = await this.runAnalyticsTest(testCase)
-            analyticsResults.push(result)
-            completed++
+                completed++
+
+                // For single RAG tests, provide specific progress feedback
+                if (testSubsetType === "single-rag") {
+                    onProgress?.({
+                        completed,
+                        total: totalTests,
+                        current: `Completed single RAG test: ${testCase.id}`,
+                    })
+                }
+
+                // Small delay to avoid rate limiting (except for single tests)
+                if (testSubsetType !== "single-analytics" && testSubsetType !== "single-rag") {
+                    await new Promise((resolve) => setTimeout(resolve, 1000))
+                }
+            }
+
+            // Run Analytics tests
+            for (const testCase of analyticsTests) {
+                onProgress?.({
+                    completed,
+                    total: totalTests,
+                    current: `Analytics: ${testCase.query}`,
+                })
+                const result = await this.runAnalyticsTest(testCase)
+                analyticsResults.push(result)
+
+                // Store result in database
+                if (this.currentSession) {
+                    try {
+                        await benchmarkStorage.storeAnalyticsResult(
+                            this.currentSession.id,
+                            result,
+                        )
+                        console.log(
+                            `Stored analytics result for test ${testCase.id} in session ${this.currentSession.id}`,
+                        )
+                    } catch (error) {
+                        console.error(
+                            "Failed to store analytics result:",
+                            error,
+                        )
+                    }
+                }
+
+                completed++
+
+                // For single analytics tests, provide specific progress feedback
+                if (testSubsetType === "single-analytics") {
+                    onProgress?.({
+                        completed,
+                        total: totalTests,
+                        current: `Completed single analytics test: ${testCase.id}`,
+                    })
+                }
+
+                // Small delay to avoid rate limiting (except for single tests)
+                if (testSubsetType !== "single-analytics" && testSubsetType !== "single-rag") {
+                    await new Promise((resolve) => setTimeout(resolve, 1000))
+                }
+            }
+
+            // Mark session as completed
+            if (this.currentSession) {
+                try {
+                    await benchmarkStorage.updateSessionStatus(
+                        this.currentSession.id,
+                        "completed",
+                    )
+                    console.log(
+                        `Session ${this.currentSession.id} marked as completed`,
+                    )
+                } catch (error) {
+                    console.error("Failed to update session status:", error)
+                }
+            }
+        } catch (error) {
+            // Mark session as failed
+            if (this.currentSession) {
+                try {
+                    await benchmarkStorage.updateSessionStatus(
+                        this.currentSession.id,
+                        "failed",
+                    )
+                } catch (dbError) {
+                    console.error(
+                        "Failed to update session status to failed:",
+                        dbError,
+                    )
+                }
+            }
+            throw error
         }
 
         this.stopLogCapture()
@@ -566,21 +788,30 @@ export class BenchmarkRunner {
         const chunks: any[] = []
 
         for (const log of logs) {
-            if (log.includes("[RAG_METRICS]") && log.includes("Retrieved Chunks:")) {
+            if (
+                log.includes("[RAG_METRICS]") &&
+                log.includes("Retrieved Chunks:")
+            ) {
                 try {
                     // Extract JSON from log: "[RAG_METRICS] ChatID: xyz - Retrieved Chunks: [JSON]"
-                    const jsonMatch = log.match(/Retrieved Chunks:\s*(\[.*\])/);
+                    const jsonMatch = log.match(/Retrieved Chunks:\s*(\[.*\])/)
                     if (jsonMatch) {
-                        const retrievedChunks = JSON.parse(jsonMatch[1]);
-                        chunks.push(...retrievedChunks.map((chunk: any) => ({
-                            chunkId: chunk.chunkId,
-                            similarity: chunk.similarity,
-                            sourceDocumentId: chunk.sourceDocumentId,
-                            filePath: chunk.filePath || "unknown",
-                        })));
+                        const retrievedChunks = JSON.parse(jsonMatch[1])
+                        chunks.push(
+                            ...retrievedChunks.map((chunk: any) => ({
+                                chunkId: chunk.chunkId,
+                                similarity: chunk.similarity,
+                                sourceDocumentId: chunk.sourceDocumentId,
+                                filePath: chunk.filePath || "unknown",
+                            })),
+                        )
                     }
                 } catch (e) {
-                    console.warn("Failed to parse retrieved chunks from log:", log, e);
+                    console.warn(
+                        "Failed to parse retrieved chunks from log:",
+                        log,
+                        e,
+                    )
                 }
             }
         }
@@ -593,17 +824,21 @@ export class BenchmarkRunner {
         for (const log of logs) {
             if (log.includes("[RAG_METRICS]") && log.includes("LLM Usage:")) {
                 try {
-                    const jsonMatch = log.match(/LLM Usage:\s*(\{.*\})/);
+                    const jsonMatch = log.match(/LLM Usage:\s*(\{.*\})/)
                     if (jsonMatch) {
-                        const usage = JSON.parse(jsonMatch[1]);
+                        const usage = JSON.parse(jsonMatch[1])
                         return {
                             promptTokens: usage.promptTokens || 0,
                             completionTokens: usage.completionTokens || 0,
                             totalTokens: usage.totalTokens || 0,
-                        };
+                        }
                     }
                 } catch (e) {
-                    console.warn("Failed to parse token usage from log:", log, e);
+                    console.warn(
+                        "Failed to parse token usage from log:",
+                        log,
+                        e,
+                    )
                 }
             }
         }
@@ -618,10 +853,13 @@ export class BenchmarkRunner {
     private parseFinishReason(logs: string[]) {
         // Extract finish reason from logs: "[RAG_METRICS] ChatID: xyz - Finish Reason: completed"
         for (const log of logs) {
-            if (log.includes("[RAG_METRICS]") && log.includes("Finish Reason:")) {
-                const match = log.match(/Finish Reason:\s*(\w+)/);
+            if (
+                log.includes("[RAG_METRICS]") &&
+                log.includes("Finish Reason:")
+            ) {
+                const match = log.match(/Finish Reason:\s*(\w+)/)
                 if (match) {
-                    return match[1];
+                    return match[1]
                 }
             }
         }
@@ -638,7 +876,7 @@ export class BenchmarkRunner {
         const ragMetrics = {
             totalTests: ragResults.length,
             successfulTests: successfulRAG.length,
-            
+
             // Response metrics
             averageResponseTime:
                 successfulRAG.length > 0
@@ -652,7 +890,7 @@ export class BenchmarkRunner {
                           0,
                       ) / successfulRAG.length
                     : 0,
-            
+
             // Retrieval metrics (now calculated accurately)
             averagePrecisionAtK:
                 successfulRAG.length > 0
@@ -696,7 +934,7 @@ export class BenchmarkRunner {
                           (r) => r.testCase.category === "negative-test",
                       ).length
                     : 0,
-            
+
             // By category breakdown
             byCategory: {
                 "high-priority": this.calculateCategoryMetrics(
@@ -728,7 +966,7 @@ export class BenchmarkRunner {
                           0,
                       ) / successfulAnalytics.length
                     : 0,
-            
+
             // Tool calling metrics (now calculated accurately)
             toolCallingAccuracy:
                 successfulAnalytics.length > 0
@@ -743,7 +981,7 @@ export class BenchmarkRunner {
                           (r) => r.toolAccuracy.correctParamsExtracted,
                       ).length / successfulAnalytics.length
                     : 0,
-            
+
             // Data quality
             averageDataQualityScore:
                 successfulAnalytics.length > 0
@@ -753,7 +991,7 @@ export class BenchmarkRunner {
                           0,
                       ) / successfulAnalytics.length
                     : 0,
-            
+
             // By category breakdown
             byCategory: {
                 "member-analytics": this.calculateAnalyticsCategoryMetrics(
@@ -900,5 +1138,31 @@ export class BenchmarkRunner {
                     : 0,
             successRate: successfulResults.length / categoryResults.length,
         }
+    }
+
+    private getModelLabel(model: string): string {
+        const modelMap: Record<string, string> = {
+            "gemini-1.5-flash-002": "Gemini 1.5 Flash",
+            "gemini-1.5-pro-002": "Gemini 1.5 Pro",
+            "gpt-4o": "GPT-4o",
+            "gpt-4o-mini": "GPT-4o Mini",
+            "claude-3-haiku": "Claude 3 Haiku",
+            "granite3-dense": "Granite 3 Dense",
+            "llama3.1-8b": "Llama 3.1 8B",
+        }
+        return modelMap[model] || model
+    }
+
+    private getModelProvider(model: string): string {
+        if (model.startsWith("gemini")) return "Google"
+        if (model.startsWith("gpt")) return "OpenAI"
+        if (model.startsWith("claude")) return "Anthropic"
+        if (model.startsWith("granite")) return "IBM"
+        if (model.startsWith("llama")) return "Meta"
+        return "Unknown"
+    }
+
+    getCurrentSession(): BenchmarkSession | null {
+        return this.currentSession
     }
 }
