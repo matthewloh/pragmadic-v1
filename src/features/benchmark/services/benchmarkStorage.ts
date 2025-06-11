@@ -1,4 +1,4 @@
-import { BenchmarkResults, RAGTestResult, AnalyticsTestResult } from '../types'
+import { AnalyticsTestResult, BenchmarkResults, RAGTestResult } from '../types'
 
 export interface BenchmarkSession {
     id: string

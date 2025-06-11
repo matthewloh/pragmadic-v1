@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import { documentChunks } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { NextRequest, NextResponse } from "next/server"
+import { db } from "@/lib/db"
+import { documentChunks } from "@/lib/db/schema"
+import { eq } from "drizzle-orm"
 
 export async function POST(req: NextRequest) {
     try {
@@ -9,8 +9,8 @@ export async function POST(req: NextRequest) {
 
         if (!chunkId) {
             return NextResponse.json(
-                { error: 'chunkId is required' },
-                { status: 400 }
+                { error: "chunkId is required" },
+                { status: 400 },
             )
         }
 
@@ -23,17 +23,16 @@ export async function POST(req: NextRequest) {
 
         const exists = chunk.length > 0
 
-        return NextResponse.json({ 
-            chunkId, 
+        return NextResponse.json({
+            chunkId,
             exists,
-            ...(exists && { found: true })
+            ...(exists && { found: true }),
         })
-
     } catch (error) {
-        console.error('Error validating chunk ID:', error)
+        console.error("Error validating chunk ID:", error)
         return NextResponse.json(
-            { error: 'Failed to validate chunk ID' },
-            { status: 500 }
+            { error: "Failed to validate chunk ID" },
+            { status: 500 },
         )
     }
-} 
+}

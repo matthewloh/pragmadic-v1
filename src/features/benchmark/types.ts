@@ -35,6 +35,14 @@ export interface GenerationMetrics {
     correctRefusal: boolean | null // For negative tests: did it refuse appropriately?
     hallucination: boolean // Did it make up information not in context?
     citationsPresent: boolean // Did it cite sources when appropriate?
+    llmJudgeMetrics?: {
+        faithfulness: number // 0-1 scale
+        completeness: number // 0-1 scale
+        relevance: number // 0-1 scale
+        clarity: number // 0-1 scale
+        factualAccuracy: number // 0-1 scale
+        overallQuality: number // 0-1 scale
+    }
 }
 
 export interface RAGTestCase {
@@ -64,6 +72,48 @@ export interface AnalyticsTestCase {
     evaluationNotes?: string
 }
 
+export interface LLMJudgeMetrics {
+    faithfulness: {
+        score: number // 0-1 scale
+        reasoning: string
+        confidence: number
+    }
+    completeness: {
+        score: number // 0-1 scale
+        reasoning: string
+        missingAspects: string[]
+    }
+    relevance: {
+        score: number // 0-1 scale
+        reasoning: string
+        confidence: number
+    }
+    clarity: {
+        score: number // 0-1 scale
+        reasoning: string
+        issues: string[]
+    }
+    factualAccuracy: {
+        score: number // 0-1 scale
+        reasoning: string
+        factualErrors: string[]
+    }
+    overallQuality: {
+        score: number // 0-1 scale
+        reasoning: string
+        strengths: string[]
+        weaknesses: string[]
+    }
+}
+
+export interface LLMJudgeEvaluation {
+    judgeModel: string
+    evaluationTimestamp: string
+    metrics: LLMJudgeMetrics
+    rawJudgeResponse: string
+    evaluationLatency: number
+}
+
 export interface RAGTestResult {
     testCase: RAGTestCase
     chatId: string
@@ -90,6 +140,7 @@ export interface RAGTestResult {
     retrievalMetrics: RetrievalMetrics
     generationMetrics: GenerationMetrics
     humanEvaluation?: HumanEvaluationScores
+    llmJudgeEvaluation?: LLMJudgeEvaluation
 
     success: boolean
     error?: string

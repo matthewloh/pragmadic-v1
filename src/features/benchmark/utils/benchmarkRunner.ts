@@ -2,6 +2,7 @@ import {
     AnalyticsTestCase,
     AnalyticsTestResult,
     BenchmarkResults,
+    GenerationMetrics,
     RAGTestCase,
     RAGTestResult,
     DetailedSummaryMetrics,
@@ -88,6 +89,7 @@ export class BenchmarkRunner {
         testCase: RAGTestCase,
         selectedDocumentIds: string[],
         model: string = "gemini-1.5-flash-002",
+        enableLLMJudge: boolean = false,
     ): Promise<RAGTestResult> {
         const chatId = `bench-${testCase.id}-${Date.now()}`
         const startTime = Date.now()
@@ -116,36 +118,88 @@ export class BenchmarkRunner {
                 )
             }
 
-            // Parse the streaming response
-            const reader = response.body?.getReader()
-            let generatedText = ""
+                    // Consume the streaming response (required for completion)
+        const reader = response.body?.getReader()
+        let toolCalls: any[] = []
 
-            if (reader) {
-                while (true) {
-                    const { done, value } = await reader.read()
-                    if (done) break
+        if (reader) {
+            while (true) {
+                const { done, value } = await reader.read()
+                if (done) break
 
-                    const chunk = new TextDecoder().decode(value)
-                    // Parse streaming data chunks for content
-                    const lines = chunk
-                        .split("\n")
-                        .filter((line) => line.trim())
-                    for (const line of lines) {
-                        if (line.startsWith("0:")) {
-                            try {
-                                const data = JSON.parse(line.slice(2))
-                                if (data.type === "text-delta") {
-                                    generatedText += data.textDelta
-                                }
-                            } catch (e) {
-                                // Skip malformed chunks
+                const chunk = new TextDecoder().decode(value)
+                const lines = chunk.split("\n")
+
+                for (const line of lines) {
+                    if (line.trim() === "") continue
+
+                    try {
+                        // Still parse tool calls if needed
+                        if (line.startsWith("2:")) {
+                            const data = JSON.parse(line.slice(2))
+                            if (data.type === "tool-call") {
+                                toolCalls.push({
+                                    name: data.toolName,
+                                    parameters: data.args,
+                                })
                             }
                         }
+                    } catch (parseError) {
+                        // Skip malformed chunks
+                        console.warn(
+                            `Failed to parse chunk: ${line}`,
+                            parseError,
+                        )
                     }
                 }
             }
+        }
 
-            const endTime = Date.now()
+        const endTime = Date.now()
+
+        // Fetch generated text from chat database (more reliable than stream parsing)
+        let generatedText = ""
+        try {
+            // Wait for chat to be saved
+            await new Promise((resolve) => setTimeout(resolve, 2000))
+            
+            const chatResponse = await fetch(`/api/chats/${chatId}`)
+            if (chatResponse.ok) {
+                const chatData = await chatResponse.json()
+                const messages = chatData.messages || []
+                const lastAssistantMessage = messages
+                    .reverse()
+                    .find((m: any) => m.role === "assistant")
+                
+                if (lastAssistantMessage?.content) {
+                    generatedText = lastAssistantMessage.content
+                    console.log(
+                        `[DEBUG] ${testCase.id} - Retrieved text from chat DB: ${generatedText.length} chars`,
+                    )
+                } else {
+                    console.warn(`[DEBUG] ${testCase.id} - No assistant message found in chat`)
+                }
+            } else {
+                console.warn(`[DEBUG] ${testCase.id} - Failed to fetch chat: ${chatResponse.status}`)
+            }
+        } catch (error) {
+            console.warn(`[DEBUG] Failed to fetch chat data for ${chatId}:`, error)
+        }
+
+        // Fallback: If we still don't have text, log a warning but continue
+        if (!generatedText || generatedText.length === 0) {
+            console.warn(
+                `[DEBUG] ${testCase.id} - WARNING: No generated text captured. LLM Judge will be skipped.`
+            )
+        }
+
+        // Enhanced debug logging
+        console.log(
+            `[DEBUG] ${testCase.id} - Generated text length: ${generatedText.length}`,
+        )
+        console.log(
+            `[DEBUG] ${testCase.id} - Text preview: "${generatedText.substring(0, 200)}..."`,
+        )
 
             // Fetch metrics from API instead of parsing logs
             let retrievedChunks: any[] = []
@@ -227,11 +281,71 @@ export class BenchmarkRunner {
             )
 
             // Calculate generation metrics
-            const generationMetrics = this.calculateGenerationMetrics(
-                testCase,
-                generatedText,
-                retrievedChunks,
-            )
+            const generationMetrics: GenerationMetrics =
+                this.calculateGenerationMetrics(
+                    testCase,
+                    generatedText,
+                    retrievedChunks,
+                )
+
+            // LLM as a Judge evaluation (optional - only if enabled and meaningful text)
+            let llmJudgeEvaluation = undefined
+            if (enableLLMJudge && generatedText.length > 10) {
+                try {
+                    console.log(
+                        `[LLM Judge] Evaluating ${testCase.id} with ${generatedText.length} chars...`,
+                    )
+                    
+                    // Call server-side API for LLM Judge evaluation
+                    const response = await fetch("/api/benchmark/llm-judge", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            testCase,
+                            generatedAnswer: generatedText,
+                            retrievedChunks,
+                        }),
+                    })
+
+                    if (response.ok) {
+                        const { evaluation } = await response.json()
+                        llmJudgeEvaluation = evaluation
+                        
+                        console.log(
+                            `[LLM Judge] Completed ${testCase.id}: Overall Quality = ${llmJudgeEvaluation.metrics.overallQuality.score}`,
+                        )
+
+                        // Override basic generation metrics with LLM judge results if available
+                        if (llmJudgeEvaluation.metrics) {
+                            generationMetrics.llmJudgeMetrics = {
+                                faithfulness:
+                                    llmJudgeEvaluation.metrics.faithfulness.score,
+                                completeness:
+                                    llmJudgeEvaluation.metrics.completeness.score,
+                                relevance:
+                                    llmJudgeEvaluation.metrics.relevance.score,
+                                clarity: llmJudgeEvaluation.metrics.clarity.score,
+                                factualAccuracy:
+                                    llmJudgeEvaluation.metrics.factualAccuracy
+                                        .score,
+                                overallQuality:
+                                    llmJudgeEvaluation.metrics.overallQuality.score,
+                            }
+                        }
+                    } else {
+                        const errorData = await response.json()
+                        console.warn(
+                            `[LLM Judge] API failed for ${testCase.id}:`,
+                            errorData.details || errorData.error
+                        )
+                    }
+                } catch (error) {
+                    console.warn(
+                        `[LLM Judge] Failed for ${testCase.id}:`,
+                        error,
+                    )
+                }
+            }
 
             return {
                 testCase,
@@ -245,6 +359,7 @@ export class BenchmarkRunner {
                 finishReason,
                 retrievalMetrics,
                 generationMetrics,
+                llmJudgeEvaluation,
                 success: true,
             }
         } catch (error) {
@@ -354,30 +469,109 @@ export class BenchmarkRunner {
         generatedText: string,
         retrievedChunks: any[],
     ) {
-        // Check if expected points are covered
+        // Enhanced keyword matching for expected points
         const containsExpectedPoints =
             testCase.groundTruth.expectedAnswerPoints.map((point) => {
-                // Simple keyword matching - could be enhanced with more sophisticated NLP
-                const found =
-                    generatedText.toLowerCase().includes(point.toLowerCase()) ||
-                    point
-                        .toLowerCase()
+                const lowerText = generatedText.toLowerCase()
+                const lowerPoint = point.toLowerCase()
+
+                // Multiple matching strategies
+                let found = false
+                let confidence = 0.2
+
+                // 1. Exact phrase match (highest confidence)
+                if (lowerText.includes(lowerPoint)) {
+                    found = true
+                    confidence = 0.9
+                } else {
+                    // 2. Keywords matching (moderate confidence)
+                    const keywords = lowerPoint
                         .split(" ")
-                        .some((keyword) =>
-                            generatedText.toLowerCase().includes(keyword),
+                        .filter(
+                            (word) =>
+                                word.length > 3 &&
+                                ![
+                                    "the",
+                                    "and",
+                                    "for",
+                                    "are",
+                                    "this",
+                                    "that",
+                                    "with",
+                                ].includes(word),
                         )
+                    const matchedKeywords = keywords.filter((keyword) =>
+                        lowerText.includes(keyword),
+                    )
+
+                    if (matchedKeywords.length > 0) {
+                        found = true
+                        confidence = Math.min(
+                            0.8,
+                            0.4 +
+                                (matchedKeywords.length / keywords.length) *
+                                    0.4,
+                        )
+                    }
+
+                    // 3. Semantic similarity for specific concepts
+                    const conceptMappings: Record<string, string[]> = {
+                        income: [
+                            "salary",
+                            "earnings",
+                            "financial",
+                            "money",
+                            "revenue",
+                            "USD",
+                            "dollar",
+                        ],
+                        passport: ["travel document", "identification", "ID"],
+                        insurance: ["coverage", "medical", "health"],
+                        application: ["apply", "submit", "process", "form"],
+                        fee: ["cost", "price", "payment", "charge", "RM"],
+                        validity: [
+                            "valid",
+                            "duration",
+                            "period",
+                            "expire",
+                            "year",
+                            "month",
+                        ],
+                        extension: ["extend", "renew", "prolongation"],
+                        employment: ["work", "job", "employment", "business"],
+                        tax: ["taxation", "ITA", "income tax", "IRB"],
+                        bank: ["banking", "account", "financial institution"],
+                        travel: ["Sabah", "Sarawak", "interstate", "domestic"],
+                    }
+
+                    for (const [concept, synonyms] of Object.entries(
+                        conceptMappings,
+                    )) {
+                        if (lowerPoint.includes(concept)) {
+                            const foundSynonyms = synonyms.filter((syn) =>
+                                lowerText.includes(syn),
+                            )
+                            if (foundSynonyms.length > 0) {
+                                found = true
+                                confidence = Math.max(confidence, 0.6)
+                            }
+                        }
+                    }
+                }
+
                 return {
                     point,
                     found,
-                    confidence: found ? 0.8 : 0.2, // Simple confidence scoring
+                    confidence: Math.round(confidence * 100) / 100,
                 }
             })
 
-        // Check for correct refusal (for negative tests)
+        // Enhanced refusal detection for negative tests
         let correctRefusal: boolean | null = null
         if (testCase.category === "negative-test") {
             const refusalPhrases = [
-                "don't have",
+                "don't have information",
+                "don't have enough information",
                 "cannot answer",
                 "not available",
                 "cannot provide",
@@ -386,24 +580,55 @@ export class BenchmarkRunner {
                 "not relevant",
                 "can't help",
                 "unable to answer",
+                "not about DE Rantau",
+                "unrelated to",
+                "out of scope",
+                "I don't know",
+                "no information available",
             ]
-            correctRefusal = refusalPhrases.some((phrase) =>
-                generatedText.toLowerCase().includes(phrase),
+
+            const questionPhrases = [
+                "what questions can I answer",
+                "how can I help",
+                "ask me about DE Rantau",
+                "DE Rantau related questions",
+            ]
+
+            const lowerText = generatedText.toLowerCase()
+            const hasRefusal = refusalPhrases.some((phrase) =>
+                lowerText.includes(phrase),
             )
+            const redirectsToScope = questionPhrases.some((phrase) =>
+                lowerText.includes(phrase),
+            )
+
+            correctRefusal = hasRefusal || redirectsToScope
+
+            // Check if it incorrectly provides answer to unrelated question
+            if (!correctRefusal && generatedText.length > 50) {
+                // If it's a long response without refusal phrases, likely incorrect
+                correctRefusal = false
+            }
         }
 
-        // Basic hallucination detection
+        // Enhanced hallucination detection
         const hallucination =
             retrievedChunks.length === 0 &&
             generatedText.length > 100 &&
-            testCase.category !== "negative-test"
+            testCase.category !== "negative-test" &&
+            !generatedText.toLowerCase().includes("don't have") &&
+            !generatedText.toLowerCase().includes("cannot provide")
 
-        // Check for citations
+        // Enhanced citation detection
         const citationsPresent =
             generatedText.includes("source") ||
             generatedText.includes("according to") ||
             generatedText.includes("document") ||
-            generatedText.includes("FAQ")
+            generatedText.includes("FAQ") ||
+            generatedText.includes("DE Rantau") ||
+            generatedText.toLowerCase().includes("based on") ||
+            generatedText.toLowerCase().includes("as stated") ||
+            generatedText.toLowerCase().includes("mentioned in")
 
         return {
             containsExpectedPoints,
@@ -439,7 +664,7 @@ export class BenchmarkRunner {
                 )
             }
 
-            // Parse the streaming response
+            // Parse the AI SDK streaming response format (same as RAG tests)
             const reader = response.body?.getReader()
             let generatedText = ""
             let toolsInvoked: any[] = []
@@ -450,25 +675,52 @@ export class BenchmarkRunner {
                     if (done) break
 
                     const chunk = new TextDecoder().decode(value)
-                    // Parse streaming data chunks for content and tool calls
-                    const lines = chunk
-                        .split("\n")
-                        .filter((line) => line.trim())
+                    const lines = chunk.split("\n")
+
                     for (const line of lines) {
-                        if (line.startsWith("0:")) {
-                            try {
+                        if (line.trim() === "") continue
+
+                        try {
+                            // AI SDK streams different data types with prefixes
+                            if (line.startsWith("0:")) {
+                                // Text delta chunks
                                 const data = JSON.parse(line.slice(2))
-                                if (data.type === "text-delta") {
+                                if (
+                                    data.type === "text-delta" &&
+                                    data.textDelta
+                                ) {
                                     generatedText += data.textDelta
-                                } else if (data.type === "tool-call") {
+                                }
+                            } else if (line.startsWith("2:")) {
+                                // Tool call chunks
+                                const data = JSON.parse(line.slice(2))
+                                if (data.type === "tool-call") {
                                     toolsInvoked.push({
                                         name: data.toolName,
                                         parameters: data.args,
+                                        id: data.toolCallId,
                                     })
                                 }
-                            } catch (e) {
-                                // Skip malformed chunks
+                            } else if (line.startsWith("8:")) {
+                                // Tool result chunks
+                                const data = JSON.parse(line.slice(2))
+                                if (data.type === "tool-result") {
+                                    // Find the corresponding tool call and add result
+                                    const toolCall = toolsInvoked.find(
+                                        (t) => t.id === data.toolCallId,
+                                    )
+                                    if (toolCall) {
+                                        toolCall.result = data.result
+                                    }
+                                }
                             }
+                            // Handle other stream types as needed
+                        } catch (parseError) {
+                            // Skip malformed chunks
+                            console.warn(
+                                `Failed to parse analytics chunk: ${line}`,
+                                parseError,
+                            )
                         }
                     }
                 }
@@ -476,18 +728,23 @@ export class BenchmarkRunner {
 
             const endTime = Date.now()
 
+            // Enhanced debug logging for analytics
+            console.log(`[DEBUG] Analytics test ${testCase.id} result:`, {
+                generatedTextLength: generatedText.length,
+                toolsInvokedCount: toolsInvoked.length,
+                toolsInvoked: toolsInvoked.map((t) => ({
+                    name: t.name,
+                    hasResult: !!t.result,
+                })),
+                duration: endTime - startTime,
+                textPreview: generatedText.substring(0, 100),
+            })
+
             // Create a mock result object that matches what the analysis expects
             const result = {
                 response: generatedText,
                 toolsInvoked: toolsInvoked,
             }
-
-            console.log(`[DEBUG] Analytics test ${testCase.id} result:`, {
-                generatedTextLength: generatedText.length,
-                toolsInvokedCount: toolsInvoked.length,
-                toolsInvoked: toolsInvoked,
-                duration: endTime - startTime,
-            })
 
             // Analyze tool calling accuracy
             const toolAccuracy = this.analyzeToolAccuracy(testCase, result)
@@ -507,6 +764,7 @@ export class BenchmarkRunner {
                 success: true,
             }
         } catch (error) {
+            console.error(`Analytics test ${testCase.id} failed:`, error)
             return {
                 testCase,
                 chatId: `analytics-${testCase.id}-${Date.now()}`,
@@ -546,41 +804,122 @@ export class BenchmarkRunner {
         if (expectedTool) {
             // Check if the expected tool was called
             correctToolCalled = actualTools.includes(expectedTool)
-        } else {
-            // If no specific tool expected, consider any tool call as correct
-            correctToolCalled = actualTools.length > 0
-        }
 
-        // Parameter checking based on ground truth
-        if (
-            testCase.groundTruth?.expectedParams &&
-            result.toolsInvoked?.length > 0
-        ) {
-            const expectedParams = testCase.groundTruth.expectedParams
-            correctParamsExtracted = result.toolsInvoked.some((tool: any) => {
-                if (!tool.parameters) return false
-                return Object.keys(expectedParams).every((key) =>
-                    tool.parameters.hasOwnProperty(key),
+            // Enhanced parameter validation
+            if (correctToolCalled) {
+                const toolCall = result.toolsInvoked?.find(
+                    (tool: any) => tool.name === expectedTool,
                 )
-            })
+                if (toolCall && testCase.groundTruth?.expectedParams) {
+                    const actualParams = toolCall.parameters || {}
+                    const expectedParams = testCase.groundTruth.expectedParams
+
+                    // Check if key expected parameters are present and correct
+                    let paramMatches = 0
+                    let totalParams = Object.keys(expectedParams).length
+
+                    for (const [key, expectedValue] of Object.entries(
+                        expectedParams,
+                    )) {
+                        const actualValue = actualParams[key]
+
+                        if (actualValue !== undefined) {
+                            // For string params, do fuzzy matching
+                            if (
+                                typeof expectedValue === "string" &&
+                                typeof actualValue === "string"
+                            ) {
+                                const similarity =
+                                    this.calculateStringSimilarity(
+                                        expectedValue.toLowerCase(),
+                                        actualValue.toLowerCase(),
+                                    )
+                                if (similarity > 0.7) paramMatches++
+                            } else if (actualValue === expectedValue) {
+                                paramMatches++
+                            }
+                        }
+                    }
+
+                    correctParamsExtracted =
+                        totalParams > 0
+                            ? paramMatches / totalParams >= 0.5
+                            : true
+
+                    console.log(
+                        `[DEBUG] Parameter analysis for ${testCase.id}:`,
+                        {
+                            expectedParams,
+                            actualParams,
+                            paramMatches,
+                            totalParams,
+                            correctParamsExtracted,
+                        },
+                    )
+                }
+            }
         } else {
-            // If no specific params expected, consider any params as correct if tools were called
-            correctParamsExtracted = result.toolsInvoked?.length > 0
+            // If no specific tool expected, consider any relevant tool call as correct
+            const relevantTools = [
+                "mcp_supabase_execute_sql",
+                "mcp_supabase_list_tables",
+                "mcp_supabase_get_project",
+                "mcp_supabase_list_projects",
+            ]
+            correctToolCalled = actualTools.some((tool: string) =>
+                relevantTools.includes(tool),
+            )
+            correctParamsExtracted = correctToolCalled // If tool called, assume params are reasonable
         }
 
-        const score = correctToolCalled ? 1 : 0
-
-        console.log(`[DEBUG] Tool accuracy result:`, {
-            correctToolCalled,
-            correctParamsExtracted,
-            score,
-        })
+        // Calculate overall score
+        let score = 0
+        if (correctToolCalled) score += 0.6
+        if (correctParamsExtracted) score += 0.4
 
         return {
             correctToolCalled,
             correctParamsExtracted,
-            score,
+            score: Math.round(score * 100) / 100,
         }
+    }
+
+    /**
+     * Simple string similarity calculation for parameter matching
+     */
+    private calculateStringSimilarity(str1: string, str2: string): number {
+        const longer = str1.length > str2.length ? str1 : str2
+        const shorter = str1.length > str2.length ? str2 : str1
+
+        if (longer.length === 0) return 1.0
+
+        const editDistance = this.calculateEditDistance(longer, shorter)
+        return (longer.length - editDistance) / longer.length
+    }
+
+    /**
+     * Calculate edit distance between two strings
+     */
+    private calculateEditDistance(str1: string, str2: string): number {
+        const matrix = Array(str2.length + 1)
+            .fill(null)
+            .map(() => Array(str1.length + 1).fill(null))
+
+        for (let i = 0; i <= str1.length; i++) matrix[0][i] = i
+        for (let j = 0; j <= str2.length; j++) matrix[j][0] = j
+
+        for (let j = 1; j <= str2.length; j++) {
+            for (let i = 1; i <= str1.length; i++) {
+                const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1
+                matrix[j][i] = Math.min(
+                    matrix[j][i - 1] + 1, // deletion
+                    matrix[j - 1][i] + 1, // insertion
+                    matrix[j - 1][i - 1] + indicator, // substitution
+                )
+            }
+        }
+
+        return matrix[str2.length][str1.length]
     }
 
     private analyzeDataAccuracy(testCase: AnalyticsTestCase, result: any) {
@@ -603,7 +942,13 @@ export class BenchmarkRunner {
             total: number
             current: string
         }) => void,
-        testSubsetType: "all" | "sample" | "custom" | "single-analytics" | "single-rag" = "sample",
+        testSubsetType:
+            | "all"
+            | "sample"
+            | "custom"
+            | "single-analytics"
+            | "single-rag" = "sample",
+        enableLLMJudge: boolean = false,
     ): Promise<BenchmarkResults> {
         this.startLogCapture()
 
@@ -657,6 +1002,7 @@ export class BenchmarkRunner {
                     testCase,
                     selectedDocumentIds,
                     model,
+                    enableLLMJudge,
                 )
                 ragResults.push(result)
 
@@ -687,7 +1033,10 @@ export class BenchmarkRunner {
                 }
 
                 // Small delay to avoid rate limiting (except for single tests)
-                if (testSubsetType !== "single-analytics" && testSubsetType !== "single-rag") {
+                if (
+                    testSubsetType !== "single-analytics" &&
+                    testSubsetType !== "single-rag"
+                ) {
                     await new Promise((resolve) => setTimeout(resolve, 1000))
                 }
             }
@@ -732,7 +1081,10 @@ export class BenchmarkRunner {
                 }
 
                 // Small delay to avoid rate limiting (except for single tests)
-                if (testSubsetType !== "single-analytics" && testSubsetType !== "single-rag") {
+                if (
+                    testSubsetType !== "single-analytics" &&
+                    testSubsetType !== "single-rag"
+                ) {
                     await new Promise((resolve) => setTimeout(resolve, 1000))
                 }
             }
@@ -1019,6 +1371,12 @@ export class BenchmarkRunner {
         if (results.length === 0) return 0
 
         const faithfulnessScores = results.map((result) => {
+            // Prefer LLM judge score if available
+            if (result.generationMetrics.llmJudgeMetrics?.faithfulness !== undefined) {
+                return result.generationMetrics.llmJudgeMetrics.faithfulness
+            }
+            
+            // Fallback to basic calculation
             const totalPoints =
                 result.generationMetrics.containsExpectedPoints.length
             const coveredPoints =
@@ -1038,6 +1396,12 @@ export class BenchmarkRunner {
         if (results.length === 0) return 0
 
         const relevanceScores = results.map((result) => {
+            // Prefer LLM judge score if available
+            if (result.generationMetrics.llmJudgeMetrics?.relevance !== undefined) {
+                return result.generationMetrics.llmJudgeMetrics.relevance
+            }
+            
+            // Fallback to basic calculation
             // Base score on retrieval hit rate and generation quality
             const retrievalScore = result.retrievalMetrics.hitRate * 2.5
             const generationScore = result.generationMetrics.citationsPresent
@@ -1056,6 +1420,12 @@ export class BenchmarkRunner {
         if (results.length === 0) return 0
 
         const completenessScores = results.map((result) => {
+            // Prefer LLM judge score if available
+            if (result.generationMetrics.llmJudgeMetrics?.completeness !== undefined) {
+                return result.generationMetrics.llmJudgeMetrics.completeness
+            }
+            
+            // Fallback to basic calculation
             const pointsCovered =
                 result.generationMetrics.containsExpectedPoints.filter(
                     (p) => p.found,

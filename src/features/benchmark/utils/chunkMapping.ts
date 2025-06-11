@@ -25,7 +25,7 @@ const QUESTION_THEME_PATTERNS = {
 }
 
 export class ChunkMapper {
-    private static deRantauDocumentId = '10ba6de3-c3b4-4999-86e1-4e0587b397b7'
+    private static deRantauDocumentId = '7614ae9e-abf2-4f4e-96b7-4028bb7e5778'
 
     /**
      * Fetch and analyze chunks from the DE Rantau FAQ document via API
@@ -155,6 +155,7 @@ export class ChunkMapper {
      */
     static async updateTestCaseChunks(testCases: any[]): Promise<any[]> {
         const allMappings = await this.getAllChunkMappings()
+        console.log("All chunk mappings:", allMappings);
         
         return testCases.map(testCase => {
             const questionId = testCase.id
@@ -186,6 +187,7 @@ export class ChunkMapper {
                 }))
             }
 
+            console.log(`Updated test case ${testCase.id}:`, testCase.groundTruth.expectedChunks);
             return testCase
         })
     }

@@ -1,4 +1,5 @@
 import { anthropic } from "@ai-sdk/anthropic"
+import { groq } from "@ai-sdk/groq"
 import { google } from "@ai-sdk/google"
 import { openai } from "@ai-sdk/openai"
 import { experimental_wrapLanguageModel as wrapLanguageModel } from "ai"
@@ -41,3 +42,8 @@ export const granite3DenseModel = wrapLanguageModel({
 })
 
 // Add GROOOOOOQ I'M GONNA GROOQ
+
+export const groqModel = wrapLanguageModel({
+    model: groq("llama-3.3-70b-versatile"),
+    middleware: ragMiddleware,
+})

@@ -38,9 +38,10 @@ interface ProgressState {
 }
 
 const AVAILABLE_MODELS = [
+    { value: "groq-llama-3.3", label: "Groq Llama 3.3 (Default)", provider: "Groq" },
     {
         value: "gemini-1.5-flash-002",
-        label: "Gemini 1.5 Flash (Default)",
+        label: "Gemini 1.5 Flash",
         provider: "Google",
     },
     {
@@ -57,7 +58,7 @@ const AVAILABLE_MODELS = [
 
 export function BenchmarkRunner() {
     const [selectedDocuments, setSelectedDocuments] = useState<string[]>([])
-    const [selectedModel, setSelectedModel] = useState("gemini-1.5-flash-002")
+    const [selectedModel, setSelectedModel] = useState("groq-llama-3.3")
     const [isRunning, setIsRunning] = useState(false)
     const [results, setResults] = useState<BenchmarkResults | null>(null)
     const [progress, setProgress] = useState({
@@ -78,6 +79,7 @@ export function BenchmarkRunner() {
     const [selectedAnalyticsTest, setSelectedAnalyticsTest] =
         useState<string>("")
     const [selectedRAGTest, setSelectedRAGTest] = useState<string>("")
+    const [enableLLMJudge, setEnableLLMJudge] = useState(true)
 
     const { data: documents } = useQuery({
         queryKey: ["documents"],
@@ -88,13 +90,11 @@ export function BenchmarkRunner() {
     useEffect(() => {
         async function initializeTestCases() {
             try {
-                // Update test cases with validated chunk IDs
-                const updatedCases =
-                    await ChunkMapper.updateTestCaseChunks(RAG_TEST_CASES)
-                setValidatedTestCases(updatedCases)
+                // Use our manually curated test cases directly (no auto-mapping override)
+                setValidatedTestCases(RAG_TEST_CASES)
 
-                // Validate all chunk IDs
-                const allChunkIds = updatedCases.flatMap((testCase) =>
+                // Validate all chunk IDs from our curated test cases
+                const allChunkIds = RAG_TEST_CASES.flatMap((testCase) =>
                     testCase.groundTruth.expectedChunks.map(
                         (chunk: { chunkId: string }) => chunk.chunkId,
                     ),
@@ -104,7 +104,7 @@ export function BenchmarkRunner() {
                 setChunkValidation(validation)
 
                 console.log("Test cases initialized and validated:", {
-                    totalCases: updatedCases.length,
+                    totalCases: RAG_TEST_CASES.length,
                     validChunks:
                         Object.values(validation).filter(Boolean).length,
                     invalidChunks: Object.values(validation).filter((v) => !v)
@@ -206,7 +206,13 @@ export function BenchmarkRunner() {
                 selectedDocuments,
                 selectedModel,
                 setProgress,
-                testSubset as "all" | "sample" | "custom" | "single-analytics" | "single-rag",
+                testSubset as
+                    | "all"
+                    | "sample"
+                    | "custom"
+                    | "single-analytics"
+                    | "single-rag",
+                enableLLMJudge,
             )
 
             setResults(benchmarkResults)
@@ -564,6 +570,64 @@ export function BenchmarkRunner() {
                                             )}
                             </div>
                         </div>
+                    </div>
+
+                    {/* LLM Judge Evaluation Toggle */}
+                    <div className="space-y-3">
+                        <Label className="text-base font-medium">
+                            Generation Quality Evaluation
+                        </Label>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox
+                                id="enableLLMJudge"
+                                checked={enableLLMJudge}
+                                onCheckedChange={(checked) =>
+                                    setEnableLLMJudge(checked === true)
+                                }
+                            />
+                            <Label
+                                htmlFor="enableLLMJudge"
+                                className="cursor-pointer text-sm font-normal"
+                            >
+                                Enable LLM as a Judge (Groq Llama 3.3
+                                evaluation)
+                            </Label>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            Uses Groq Llama 3.3 to evaluate generation quality:
+                            faithfulness, completeness, relevance, clarity, and
+                            factual accuracy. Adds ~2-3s per test and extra
+                            cost.
+                        </p>
+                        {enableLLMJudge && (
+                            <div className="rounded border border-blue-200 bg-blue-50 p-3 text-sm">
+                                <div className="mb-1 font-medium text-blue-900">
+                                    🎯 LLM Judge Evaluation Includes:
+                                </div>
+                                <ul className="space-y-1 text-xs text-blue-800">
+                                    <li>
+                                        • <strong>Faithfulness:</strong>{" "}
+                                        Adherence to retrieved content
+                                    </li>
+                                    <li>
+                                        • <strong>Completeness:</strong>{" "}
+                                        Coverage of question aspects
+                                    </li>
+                                    <li>
+                                        • <strong>Relevance:</strong> Direct
+                                        answer to the question
+                                    </li>
+                                    <li>
+                                        • <strong>Clarity:</strong> Structure
+                                        and readability
+                                    </li>
+                                    <li>
+                                        • <strong>Factual Accuracy:</strong>{" "}
+                                        Correctness of information
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
                     </div>
 
                     {/* Model Selection */}

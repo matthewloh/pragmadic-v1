@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import {
+import { 
     Select,
     SelectContent,
     SelectItem,
@@ -51,9 +51,9 @@ interface ScientificResultsAnalysisProps {
     scientificMetrics?: ScientificMetrics
 }
 
-export function ScientificResultsAnalysis({
-    ragResults,
-    analyticsResults,
+export function ScientificResultsAnalysis({ 
+    ragResults, 
+    analyticsResults, 
     modelName,
     modelLabel,
     sessionId,
@@ -79,8 +79,8 @@ export function ScientificResultsAnalysis({
             return providedMetrics
         }
         return ScientificMetricsCalculator.calculateComprehensiveMetrics(
-            ragResults,
-            analyticsResults,
+            ragResults, 
+            analyticsResults, 
             confidenceLevel,
         )
     }, [providedMetrics, ragResults, analyticsResults, confidenceLevel])
@@ -147,15 +147,15 @@ export function ScientificResultsAnalysis({
         <div className="space-y-6">
             {/* Analysis Controls */}
             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Calculator className="h-5 w-5" />
+            <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Calculator className="h-5 w-5" />
                         Scientific Analysis Controls
-                    </CardTitle>
-                    <CardDescription>
+                        </CardTitle>
+                        <CardDescription>
                         Generate rigorous statistical analysis for your CITIC
                         2025 conference paper
-                    </CardDescription>
+                        </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-4">
@@ -184,13 +184,13 @@ export function ScientificResultsAnalysis({
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                    </div>
                         <div className="flex gap-2">
                             <Button
                                 onClick={generateScientificAnalysis}
                                 disabled={loading || !sessionId}
                                 className="flex items-center gap-2"
-                            >
+                        >
                                 {loading ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
@@ -199,9 +199,9 @@ export function ScientificResultsAnalysis({
                                 {loading
                                     ? "Analyzing..."
                                     : "Generate Scientific Analysis"}
-                            </Button>
-                        </div>
+                        </Button>
                     </div>
+                </div>
                 </CardContent>
             </Card>
 
@@ -218,13 +218,13 @@ export function ScientificResultsAnalysis({
                     <TabsTrigger value="comparison">
                         Model Comparison
                     </TabsTrigger>
-                </TabsList>
+                    </TabsList>
 
                 {/* Core Metrics Tab */}
                 <TabsContent value="metrics" className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                         {/* Retrieval Performance */}
-                        <Card>
+                            <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg">
                                     Retrieval Performance
@@ -232,8 +232,8 @@ export function ScientificResultsAnalysis({
                                 <CardDescription>
                                     Information Retrieval Metrics
                                 </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
+                                </CardHeader>
+                                <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>Precision@3:</span>
@@ -311,11 +311,11 @@ export function ScientificResultsAnalysis({
                                         for more robust statistical analysis.
                                     </div>
                                 )}
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
 
                         {/* Generation Quality */}
-                        <Card>
+                            <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg">
                                     Generation Quality
@@ -323,8 +323,8 @@ export function ScientificResultsAnalysis({
                                 <CardDescription>
                                     Natural Language Generation Assessment
                                 </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
+                                </CardHeader>
+                                <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>Faithfulness:</span>
@@ -385,12 +385,12 @@ export function ScientificResultsAnalysis({
                                         {formatPercentage(confidenceLevel)}{" "}
                                         level
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                    </div>
+                                </CardContent>
+                            </Card>
 
                         {/* System Performance */}
-                        <Card>
+                            <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg">
                                     System Performance
@@ -398,8 +398,8 @@ export function ScientificResultsAnalysis({
                                 <CardDescription>
                                     Operational Efficiency Metrics
                                 </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
+                                </CardHeader>
+                                <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>Mean Response Time:</span>
@@ -503,10 +503,10 @@ export function ScientificResultsAnalysis({
                                         </div>
                                     </div>
                                 )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
 
                 {/* Alternative Task-Based Metrics Tab */}
                 <TabsContent value="alternative" className="space-y-4">
@@ -526,24 +526,24 @@ export function ScientificResultsAnalysis({
                                     <div className="flex justify-between">
                                         <span>System Availability:</span>
                                         <span className="font-mono">{formatPercentage(taskMetrics.systemAvailability)}</span>
-                                    </div>
+                                            </div>
                                     <div className="flex justify-between">
                                         <span>Questions Answered:</span>
                                         <span className="font-mono">{formatPercentage(taskMetrics.questionsWithAnswers)}</span>
-                                    </div>
+                                                </div>
                                     <div className="flex justify-between">
                                         <span>Documents Retrieved:</span>
                                         <span className="font-mono">{formatPercentage(taskMetrics.documentsRetrieved)}</span>
-                                    </div>
+                                                </div>
                                     <div className="flex justify-between">
                                         <span>High Confidence Retrievals:</span>
                                         <span className="font-mono">{formatPercentage(taskMetrics.highConfidenceRetrievals)}</span>
-                                    </div>
+                                                </div>
                                     <div className="flex justify-between">
                                         <span>Response Completeness:</span>
                                         <span className="font-mono">{formatPercentage(taskMetrics.responseCompleteness)}</span>
-                                    </div>
-                                </div>
+                                                </div>
+                                            </div>
                             </CardContent>
                         </Card>
 
@@ -574,7 +574,7 @@ export function ScientificResultsAnalysis({
                                     <div className="flex justify-between">
                                         <span>Appropriate Length:</span>
                                         <span className="font-mono">{formatPercentage(uxMetrics.reliability.appropriateLength)}</span>
-                                    </div>
+                                        </div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -888,9 +888,9 @@ export function ScientificResultsAnalysis({
                                         " Click 'Enhanced Analysis' for database-backed metrics with additional features."}
                                 </div>
                             )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
 
                 {/* Comparison Tab */}
                 <TabsContent value="comparison" className="space-y-4">
@@ -971,10 +971,10 @@ export function ScientificResultsAnalysis({
                                     </p>
                                 </div>
                             )}
-                        </CardContent>
-                    </Card>
+            </CardContent>
+        </Card>
                 </TabsContent>
             </Tabs>
         </div>
     )
-}
+} 

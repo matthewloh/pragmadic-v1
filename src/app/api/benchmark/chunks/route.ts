@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { documentChunks } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 
-const DE_RANTAU_DOCUMENT_ID = '10ba6de3-c3b4-4999-86e1-4e0587b397b7'
+const DE_RANTAU_DOCUMENT_ID = '7614ae9e-abf2-4f4e-96b7-4028bb7e5778'
 
 export async function GET(request: NextRequest) {
     try {

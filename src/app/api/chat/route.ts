@@ -5,6 +5,7 @@ import {
     gpt4ominiModel,
     gpt4oModel,
     granite3DenseModel,
+    groqModel,
     llama3Model,
 } from "@/lib/ai/custom-model"
 import { createMessage } from "@/lib/api/chats/mutations"
@@ -77,6 +78,9 @@ export async function POST(req: NextRequest) {
             break
         case "llama3.1-8b":
             selectedModel = llama3Model
+            break
+        case "groq-llama-3.3":
+            selectedModel = groqModel
             break
         default:
             selectedModel = geminiFlashModel

@@ -10,8 +10,18 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "1de853e2-af31-40c3-9a75-8df45a9aa456",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "d4c6a6d1-839a-4649-950e-44f538471e80",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "47534576-bbed-423c-b5a2-1d2901408b0d",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "eacdee5f-c834-42e8-abb1-70ab33ddf1e5",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "essential",
                 },
             ],
@@ -32,8 +42,13 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "1de853e2-af31-40c3-9a75-8df45a9aa456",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "1f5d1ea4-fee6-4ad8-af29-edd6a8fbe346",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "22a08f00-4e1f-46c7-8542-c5082b6d61e6",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "essential",
                 },
             ],
@@ -51,8 +66,13 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "1de853e2-af31-40c3-9a75-8df45a9aa456",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "eacdee5f-c834-42e8-abb1-70ab33ddf1e5",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "dc6a7156-31d0-45b5-afa3-a8b1edc0d8a0",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "essential",
                 },
             ],
@@ -70,9 +90,24 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "1de853e2-af31-40c3-9a75-8df45a9aa456",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "dc6a7156-31d0-45b5-afa3-a8b1edc0d8a0",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "essential",
+                },
+                {
+                    chunkId: "eacdee5f-c834-42e8-abb1-70ab33ddf1e5",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "728651d1-ca1c-43ec-b6ad-d48bbcdceb1f",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
+                },
+                {
+                    chunkId: "1f5d1ea4-fee6-4ad8-af29-edd6a8fbe346",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
                 },
             ],
             expectedAnswerPoints: [
@@ -90,9 +125,29 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "1de853e2-af31-40c3-9a75-8df45a9aa456",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "c0fe4715-fe57-4a79-82b0-27b751b3a872",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "essential",
+                },
+                {
+                    chunkId: "728651d1-ca1c-43ec-b6ad-d48bbcdceb1f",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "ef4b5f78-172a-4356-940b-151f291dfbce",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
+                },
+                {
+                    chunkId: "c3a22325-eb47-4191-8af6-4a907a94bda4",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
+                },
+                {
+                    chunkId: "cf00349f-fafd-4b92-8f77-dbc23365cea8",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
                 },
             ],
             expectedAnswerPoints: [
@@ -110,9 +165,24 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "1de853e2-af31-40c3-9a75-8df45a9aa456",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "47534576-bbed-423c-b5a2-1d2901408b0d",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "essential",
+                },
+                {
+                    chunkId: "eacdee5f-c834-42e8-abb1-70ab33ddf1e5",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "c0fe4715-fe57-4a79-82b0-27b751b3a872",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
+                },
+                {
+                    chunkId: "ef4b5f78-172a-4356-940b-151f291dfbce",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
                 },
             ],
             expectedAnswerPoints: [
@@ -131,9 +201,9 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "4fc9fc36-69e2-4cad-b4d0-a2c23ef59617",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
-                    priority: "relevant",
+                    chunkId: "2d726454-ad07-4c9f-908b-5763b5306d97",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
                 },
             ],
             expectedAnswerPoints: [
@@ -151,9 +221,9 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "d65ead97-795d-482c-a460-02ccf9315091",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
-                    priority: "relevant",
+                    chunkId: "728651d1-ca1c-43ec-b6ad-d48bbcdceb1f",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
                 },
             ],
             expectedAnswerPoints: [
@@ -170,8 +240,18 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "1de853e2-af31-40c3-9a75-8df45a9aa456",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "c3a22325-eb47-4191-8af6-4a907a94bda4",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "82a97eeb-54ae-43b4-9b8b-0049d57ef887",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "728651d1-ca1c-43ec-b6ad-d48bbcdceb1f",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "relevant",
                 },
             ],
@@ -190,8 +270,18 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "1de853e2-af31-40c3-9a75-8df45a9aa456",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "2d726454-ad07-4c9f-908b-5763b5306d97",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "d4c6a6d1-839a-4649-950e-44f538471e80",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
+                },
+                {
+                    chunkId: "c0fe4715-fe57-4a79-82b0-27b751b3a872",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "relevant",
                 },
             ],
@@ -213,9 +303,9 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "4fc9fc36-69e2-4cad-b4d0-a2c23ef59617",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
-                    priority: "relevant",
+                    chunkId: "cf00349f-fafd-4b92-8f77-dbc23365cea8",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
                 },
             ],
             expectedAnswerPoints: [
@@ -233,9 +323,24 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "5fdcaf17-b643-4d2d-a452-f452895f49f4",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "af7ad1ef-bf08-4174-97a8-ab2797f641d7",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "essential",
+                },
+                {
+                    chunkId: "7687433f-0004-4205-98c9-b20e93746a96",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "c4480be8-b198-44f2-b13e-68ab772eb5f3",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
+                },
+                {
+                    chunkId: "86f29b20-c0af-4a54-b15c-bb1de23c22df",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
                 },
             ],
             expectedAnswerPoints: [
@@ -253,9 +358,19 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         groundTruth: {
             expectedChunks: [
                 {
-                    chunkId: "8a3a904e-2335-485d-bcfa-69c89d9e8116",
-                    documentId: "10ba6de3-c3b4-4999-86e1-4e0587b397b7",
+                    chunkId: "b5da015b-17c3-4a89-a5ee-dda6224015d2",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
                     priority: "essential",
+                },
+                {
+                    chunkId: "728651d1-ca1c-43ec-b6ad-d48bbcdceb1f",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "essential",
+                },
+                {
+                    chunkId: "d4c6a6d1-839a-4649-950e-44f538471e80",
+                    documentId: "7614ae9e-abf2-4f4e-96b7-4028bb7e5778",
+                    priority: "relevant",
                 },
             ],
             expectedAnswerPoints: [
@@ -273,7 +388,7 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         question: "What's the weather like in Penang?",
         category: "negative-test",
         groundTruth: {
-            expectedChunks: [], // No relevant chunks should be found
+            expectedChunks: [],
             expectedAnswerPoints: [
                 "Should indicate lack of relevant information",
                 "Should not provide weather information",
@@ -288,7 +403,7 @@ export const RAG_TEST_CASES: RAGTestCase[] = [
         question: "How do I cook rendang?",
         category: "negative-test",
         groundTruth: {
-            expectedChunks: [], // No relevant chunks should be found
+            expectedChunks: [],
             expectedAnswerPoints: [
                 "Should indicate lack of relevant information",
                 "Should not provide cooking instructions",

@@ -1,4 +1,6 @@
 import { BenchmarkRunner } from "@/features/benchmark/components/BenchmarkRunner"
+import { BenchmarkAnalysis } from "@/features/benchmark/components/BenchmarkAnalysis"
+import { TestCaseUpdater } from "@/features/benchmark/components/TestCaseUpdater"
 
 export default function BenchmarkPage() {
     return (
@@ -12,7 +14,17 @@ export default function BenchmarkPage() {
                     Pragmadic&apos;s RAG Answer Engine and AI-Driven Analytics
                 </p>
             </div>
-            <BenchmarkRunner />
+            
+            <div className="space-y-8">
+                {/* Test Case Updater - Fix ground truth issue */}
+                <TestCaseUpdater />
+                
+                {/* Benchmark Runner Section */}
+                <BenchmarkRunner />
+                
+                {/* Scientific Analysis Section */}
+                <BenchmarkAnalysis />
+            </div>
         </div>
     )
 }
