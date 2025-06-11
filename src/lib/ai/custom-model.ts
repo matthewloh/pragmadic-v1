@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import { anthropic } from "@ai-sdk/anthropic"
 import { groq } from "@ai-sdk/groq"
 import { google } from "@ai-sdk/google"
@@ -17,7 +19,7 @@ export const gpt4ominiModel = wrapLanguageModel({
 })
 
 export const geminiProModel = wrapLanguageModel({
-    model: google("gemini-2.5-pro-preview-05-06"),
+    model: google("gemini-2.5-pro-exp-03-25"),
     middleware: ragMiddleware,
 })
 

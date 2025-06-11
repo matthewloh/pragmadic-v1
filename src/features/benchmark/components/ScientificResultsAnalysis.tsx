@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import { 
+import {
     Select,
     SelectContent,
     SelectItem,
@@ -51,9 +51,9 @@ interface ScientificResultsAnalysisProps {
     scientificMetrics?: ScientificMetrics
 }
 
-export function ScientificResultsAnalysis({ 
-    ragResults, 
-    analyticsResults, 
+export function ScientificResultsAnalysis({
+    ragResults,
+    analyticsResults,
     modelName,
     modelLabel,
     sessionId,
@@ -79,19 +79,24 @@ export function ScientificResultsAnalysis({
             return providedMetrics
         }
         return ScientificMetricsCalculator.calculateComprehensiveMetrics(
-            ragResults, 
-            analyticsResults, 
+            ragResults,
+            analyticsResults,
             confidenceLevel,
         )
     }, [providedMetrics, ragResults, analyticsResults, confidenceLevel])
 
     // Calculate alternative task-based metrics
     const taskMetrics = React.useMemo(() => {
-        return ScientificMetricsCalculator.calculateTaskCompletionMetrics(ragResults, analyticsResults)
+        return ScientificMetricsCalculator.calculateTaskCompletionMetrics(
+            ragResults,
+            analyticsResults,
+        )
     }, [ragResults, analyticsResults])
 
     const uxMetrics = React.useMemo(() => {
-        return ScientificMetricsCalculator.calculateUserExperienceMetrics(ragResults)
+        return ScientificMetricsCalculator.calculateUserExperienceMetrics(
+            ragResults,
+        )
     }, [ragResults])
 
     const generateScientificAnalysis = async () => {
@@ -146,16 +151,16 @@ export function ScientificResultsAnalysis({
     return (
         <div className="space-y-6">
             {/* Analysis Controls */}
-            <Card>
-            <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Calculator className="h-5 w-5" />
+            {/* <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Calculator className="h-5 w-5" />
                         Scientific Analysis Controls
-                        </CardTitle>
-                        <CardDescription>
+                    </CardTitle>
+                    <CardDescription>
                         Generate rigorous statistical analysis for your CITIC
                         2025 conference paper
-                        </CardDescription>
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-4">
@@ -184,13 +189,13 @@ export function ScientificResultsAnalysis({
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
-                    </div>
+                        </div>
                         <div className="flex gap-2">
                             <Button
                                 onClick={generateScientificAnalysis}
                                 disabled={loading || !sessionId}
                                 className="flex items-center gap-2"
-                        >
+                            >
                                 {loading ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
@@ -199,11 +204,11 @@ export function ScientificResultsAnalysis({
                                 {loading
                                     ? "Analyzing..."
                                     : "Generate Scientific Analysis"}
-                        </Button>
+                            </Button>
+                        </div>
                     </div>
-                </div>
                 </CardContent>
-            </Card>
+            </Card> */}
 
             <Tabs defaultValue="metrics" className="space-y-4">
                 <TabsList className="grid w-full grid-cols-5">
@@ -218,13 +223,13 @@ export function ScientificResultsAnalysis({
                     <TabsTrigger value="comparison">
                         Model Comparison
                     </TabsTrigger>
-                    </TabsList>
+                </TabsList>
 
                 {/* Core Metrics Tab */}
                 <TabsContent value="metrics" className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                         {/* Retrieval Performance */}
-                            <Card>
+                        <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg">
                                     Retrieval Performance
@@ -232,8 +237,8 @@ export function ScientificResultsAnalysis({
                                 <CardDescription>
                                     Information Retrieval Metrics
                                 </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
+                            </CardHeader>
+                            <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>Precision@3:</span>
@@ -311,11 +316,11 @@ export function ScientificResultsAnalysis({
                                         for more robust statistical analysis.
                                     </div>
                                 )}
-                                </CardContent>
-                            </Card>
+                            </CardContent>
+                        </Card>
 
                         {/* Generation Quality */}
-                            <Card>
+                        <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg">
                                     Generation Quality
@@ -323,8 +328,8 @@ export function ScientificResultsAnalysis({
                                 <CardDescription>
                                     Natural Language Generation Assessment
                                 </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
+                            </CardHeader>
+                            <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>Faithfulness:</span>
@@ -385,12 +390,12 @@ export function ScientificResultsAnalysis({
                                         {formatPercentage(confidenceLevel)}{" "}
                                         level
                                     </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                </div>
+                            </CardContent>
+                        </Card>
 
                         {/* System Performance */}
-                            <Card>
+                        <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg">
                                     System Performance
@@ -398,8 +403,8 @@ export function ScientificResultsAnalysis({
                                 <CardDescription>
                                     Operational Efficiency Metrics
                                 </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
+                            </CardHeader>
+                            <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>Mean Response Time:</span>
@@ -503,78 +508,132 @@ export function ScientificResultsAnalysis({
                                         </div>
                                     </div>
                                 )}
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </TabsContent>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
 
                 {/* Alternative Task-Based Metrics Tab */}
                 <TabsContent value="alternative" className="space-y-4">
                     <div className="rounded border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                        💡 These metrics focus on system effectiveness and user experience, independent of ground truth chunk matching.
+                        💡 These metrics focus on system effectiveness and user
+                        experience, independent of ground truth chunk matching.
                     </div>
-                    
+
                     <div className="grid gap-4 md:grid-cols-2">
                         {/* System Effectiveness */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-lg">System Effectiveness</CardTitle>
-                                <CardDescription>Task completion and reliability metrics</CardDescription>
+                                <CardTitle className="text-lg">
+                                    System Effectiveness
+                                </CardTitle>
+                                <CardDescription>
+                                    Task completion and reliability metrics
+                                </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>System Availability:</span>
-                                        <span className="font-mono">{formatPercentage(taskMetrics.systemAvailability)}</span>
-                                            </div>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                taskMetrics.systemAvailability,
+                                            )}
+                                        </span>
+                                    </div>
                                     <div className="flex justify-between">
                                         <span>Questions Answered:</span>
-                                        <span className="font-mono">{formatPercentage(taskMetrics.questionsWithAnswers)}</span>
-                                                </div>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                taskMetrics.questionsWithAnswers,
+                                            )}
+                                        </span>
+                                    </div>
                                     <div className="flex justify-between">
                                         <span>Documents Retrieved:</span>
-                                        <span className="font-mono">{formatPercentage(taskMetrics.documentsRetrieved)}</span>
-                                                </div>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                taskMetrics.documentsRetrieved,
+                                            )}
+                                        </span>
+                                    </div>
                                     <div className="flex justify-between">
                                         <span>High Confidence Retrievals:</span>
-                                        <span className="font-mono">{formatPercentage(taskMetrics.highConfidenceRetrievals)}</span>
-                                                </div>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                taskMetrics.highConfidenceRetrievals,
+                                            )}
+                                        </span>
+                                    </div>
                                     <div className="flex justify-between">
                                         <span>Response Completeness:</span>
-                                        <span className="font-mono">{formatPercentage(taskMetrics.responseCompleteness)}</span>
-                                                </div>
-                                            </div>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                taskMetrics.responseCompleteness,
+                                            )}
+                                        </span>
+                                    </div>
+                                </div>
                             </CardContent>
                         </Card>
 
                         {/* User Experience */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-lg">User Experience</CardTitle>
-                                <CardDescription>Responsiveness and information quality</CardDescription>
+                                <CardTitle className="text-lg">
+                                    User Experience
+                                </CardTitle>
+                                <CardDescription>
+                                    Responsiveness and information quality
+                                </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>Fast Responses (&lt;10s):</span>
-                                        <span className="font-mono">{formatPercentage(uxMetrics.responsiveness.under10s)}</span>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                uxMetrics.responsiveness
+                                                    .under10s,
+                                            )}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Detailed Responses:</span>
-                                        <span className="font-mono">{formatPercentage(uxMetrics.informationRichness.detailedResponses)}</span>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                uxMetrics.informationRichness
+                                                    .detailedResponses,
+                                            )}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Cited Sources:</span>
-                                        <span className="font-mono">{formatPercentage(uxMetrics.informationRichness.citedSources)}</span>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                uxMetrics.informationRichness
+                                                    .citedSources,
+                                            )}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Structured Answers:</span>
-                                        <span className="font-mono">{formatPercentage(uxMetrics.informationRichness.structuredAnswers)}</span>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                uxMetrics.informationRichness
+                                                    .structuredAnswers,
+                                            )}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Appropriate Length:</span>
-                                        <span className="font-mono">{formatPercentage(uxMetrics.reliability.appropriateLength)}</span>
-                                        </div>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                uxMetrics.reliability
+                                                    .appropriateLength,
+                                            )}
+                                        </span>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -582,30 +641,55 @@ export function ScientificResultsAnalysis({
                         {/* Performance Metrics */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-lg">Performance Analysis</CardTitle>
-                                <CardDescription>Efficiency and resource utilization</CardDescription>
+                                <CardTitle className="text-lg">
+                                    Performance Analysis
+                                </CardTitle>
+                                <CardDescription>
+                                    Efficiency and resource utilization
+                                </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>Average Response Length:</span>
-                                        <span className="font-mono">{Math.round(taskMetrics.averageResponseLength)} chars</span>
+                                        <span className="font-mono">
+                                            {Math.round(
+                                                taskMetrics.averageResponseLength,
+                                            )}{" "}
+                                            chars
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Average Chunks Retrieved:</span>
-                                        <span className="font-mono">{taskMetrics.averageChunksRetrieved.toFixed(1)}</span>
+                                        <span className="font-mono">
+                                            {taskMetrics.averageChunksRetrieved.toFixed(
+                                                1,
+                                            )}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Efficient Token Usage:</span>
-                                        <span className="font-mono">{formatPercentage(taskMetrics.efficientTokenUsage)}</span>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                taskMetrics.efficientTokenUsage,
+                                            )}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Tool Invocation Success:</span>
-                                        <span className="font-mono">{formatPercentage(taskMetrics.toolInvocationSuccess)}</span>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                taskMetrics.toolInvocationSuccess,
+                                            )}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Average Tools/Query:</span>
-                                        <span className="font-mono">{taskMetrics.averageToolsPerQuery.toFixed(1)}</span>
+                                        <span className="font-mono">
+                                            {taskMetrics.averageToolsPerQuery.toFixed(
+                                                1,
+                                            )}
+                                        </span>
                                     </div>
                                 </div>
                             </CardContent>
@@ -614,34 +698,58 @@ export function ScientificResultsAnalysis({
                         {/* Quality Assurance */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-lg">Quality Assurance</CardTitle>
-                                <CardDescription>Reliability and consistency metrics</CardDescription>
+                                <CardTitle className="text-lg">
+                                    Quality Assurance
+                                </CardTitle>
+                                <CardDescription>
+                                    Reliability and consistency metrics
+                                </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>No Hallucinations:</span>
-                                        <span className="font-mono">{formatPercentage(uxMetrics.reliability.noHallucinations)}</span>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                uxMetrics.reliability
+                                                    .noHallucinations,
+                                            )}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Response Times:</span>
                                         <div className="text-right">
                                             <div className="font-mono text-xs">
-                                                &lt;5s: {formatPercentage(uxMetrics.responsiveness.under5s)}
+                                                &lt;5s:{" "}
+                                                {formatPercentage(
+                                                    uxMetrics.responsiveness
+                                                        .under5s,
+                                                )}
                                             </div>
                                             <div className="font-mono text-xs">
-                                                &lt;30s: {formatPercentage(uxMetrics.responsiveness.under30s)}
+                                                &lt;30s:{" "}
+                                                {formatPercentage(
+                                                    uxMetrics.responsiveness
+                                                        .under30s,
+                                                )}
                                             </div>
                                         </div>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Consistent Tone:</span>
-                                        <span className="font-mono">{formatPercentage(uxMetrics.reliability.consistentToneAndStyle)}</span>
+                                        <span className="font-mono">
+                                            {formatPercentage(
+                                                uxMetrics.reliability
+                                                    .consistentToneAndStyle,
+                                            )}
+                                        </span>
                                     </div>
                                 </div>
-                                
+
                                 <div className="mt-3 rounded border border-blue-200 bg-blue-50 p-2 text-xs text-blue-800">
-                                    📊 These metrics can be directly reported in your conference paper as they measure real system performance.
+                                    📊 These metrics can be directly reported in
+                                    your conference paper as they measure real
+                                    system performance.
                                 </div>
                             </CardContent>
                         </Card>
@@ -888,9 +996,9 @@ export function ScientificResultsAnalysis({
                                         " Click 'Enhanced Analysis' for database-backed metrics with additional features."}
                                 </div>
                             )}
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
 
                 {/* Comparison Tab */}
                 <TabsContent value="comparison" className="space-y-4">
@@ -971,10 +1079,10 @@ export function ScientificResultsAnalysis({
                                     </p>
                                 </div>
                             )}
-            </CardContent>
-        </Card>
+                        </CardContent>
+                    </Card>
                 </TabsContent>
             </Tabs>
         </div>
     )
-} 
+}

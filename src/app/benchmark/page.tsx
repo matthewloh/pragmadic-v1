@@ -14,14 +14,11 @@ export default function BenchmarkPage() {
                     Pragmadic&apos;s RAG Answer Engine and AI-Driven Analytics
                 </p>
             </div>
-            
+
             <div className="space-y-8">
-                {/* Test Case Updater - Fix ground truth issue */}
-                <TestCaseUpdater />
-                
                 {/* Benchmark Runner Section */}
                 <BenchmarkRunner />
-                
+
                 {/* Scientific Analysis Section */}
                 <BenchmarkAnalysis />
             </div>

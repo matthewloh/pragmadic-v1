@@ -12,13 +12,14 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ScientificMetricsService } from "../services/scientificMetricsService"
 import { Loader2, BarChart3, FileText, Copy, CheckCircle } from "lucide-react"
 
 export function BenchmarkAnalysis() {
     const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
     const [copiedPaper, setCopiedPaper] = useState(false)
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     // Fetch all benchmark sessions
     const { data: sessions, isLoading: sessionsLoading } = useQuery({
@@ -43,9 +44,28 @@ export function BenchmarkAnalysis() {
         if (sessionAnalysis?.paperSummary) {
             await navigator.clipboard.writeText(sessionAnalysis.paperSummary)
             setCopiedPaper(true)
-            setTimeout(() => setCopiedPaper(false), 2000)
+            
+            // Clear any existing timeout
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current)
+            }
+            
+            // Set new timeout
+            timeoutRef.current = setTimeout(() => {
+                setCopiedPaper(false)
+                timeoutRef.current = null
+            }, 2000)
         }
     }
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current)
+            }
+        }
+    }, [])
 
     if (sessionsLoading) {
         return (
@@ -198,12 +218,12 @@ export function BenchmarkAnalysis() {
                                                     </div>
                                                     <div className="text-sm text-muted-foreground">F1-Score</div>
                                                 </div>
-                                                <div className="text-center">
-                                                    <div className="text-2xl font-bold text-blue-600">
-                                                        {sessionAnalysis.scientificMetrics.precision.toFixed(3)}
-                                                    </div>
-                                                    <div className="text-sm text-muted-foreground">Precision</div>
-                                                </div>
+                                                                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-blue-600">
+                                        {sessionAnalysis.scientificMetrics.precisionAtK.k5.toFixed(3)}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">Precision@5</div>
+                                </div>
                                                 <div className="text-center">
                                                     <div className="text-2xl font-bold text-green-600">
                                                         {sessionAnalysis.scientificMetrics.recall.toFixed(3)}
@@ -226,51 +246,61 @@ export function BenchmarkAnalysis() {
                                             <CardTitle>Statistical Analysis</CardTitle>
                                         </CardHeader>
                                         <CardContent>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <h4 className="font-medium mb-2">Confidence Intervals (95%)</h4>
-                                                    <div className="space-y-2 text-sm">
-                                                        <div className="flex justify-between">
-                                                            <span>Precision:</span>
-                                                            <span className="font-mono">
-                                                                [{sessionAnalysis.scientificMetrics.confidenceIntervals.precision.lower.toFixed(3)}, 
-                                                                 {sessionAnalysis.scientificMetrics.confidenceIntervals.precision.upper.toFixed(3)}]
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex justify-between">
-                                                            <span>Recall:</span>
-                                                            <span className="font-mono">
-                                                                [{sessionAnalysis.scientificMetrics.confidenceIntervals.recall.lower.toFixed(3)}, 
-                                                                 {sessionAnalysis.scientificMetrics.confidenceIntervals.recall.upper.toFixed(3)}]
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex justify-between">
-                                                            <span>F1-Score:</span>
-                                                            <span className="font-mono">
-                                                                [{sessionAnalysis.scientificMetrics.confidenceIntervals.f1Score.lower.toFixed(3)}, 
-                                                                 {sessionAnalysis.scientificMetrics.confidenceIntervals.f1Score.upper.toFixed(3)}]
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-medium mb-2">Sample Characteristics</h4>
-                                                    <div className="space-y-2 text-sm">
-                                                        <div className="flex justify-between">
-                                                            <span>Sample Size:</span>
-                                                            <span className="font-mono">{sessionAnalysis.scientificMetrics.sampleSize}</span>
-                                                        </div>
-                                                        <div className="flex justify-between">
-                                                            <span>Standard Error:</span>
-                                                            <span className="font-mono">{sessionAnalysis.scientificMetrics.standardError.toFixed(4)}</span>
-                                                        </div>
-                                                        <div className="flex justify-between">
-                                                            <span>Confidence Level:</span>
-                                                            <span className="font-mono">{(sessionAnalysis.scientificMetrics.confidenceLevel * 100).toFixed(0)}%</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <h4 className="font-medium mb-2">Generation Quality Metrics</h4>
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span>Faithfulness:</span>
+                                            <span className="font-mono">
+                                                {sessionAnalysis.scientificMetrics.faithfulness.mean.toFixed(2)}/5.0
+                                                <span className="text-xs text-muted-foreground ml-1">
+                                                    (±{sessionAnalysis.scientificMetrics.faithfulness.std.toFixed(2)})
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Relevance:</span>
+                                            <span className="font-mono">
+                                                {sessionAnalysis.scientificMetrics.relevance.mean.toFixed(2)}/5.0
+                                                <span className="text-xs text-muted-foreground ml-1">
+                                                    (±{sessionAnalysis.scientificMetrics.relevance.std.toFixed(2)})
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Completeness:</span>
+                                            <span className="font-mono">
+                                                {sessionAnalysis.scientificMetrics.completeness.mean.toFixed(2)}/5.0
+                                                <span className="text-xs text-muted-foreground ml-1">
+                                                    (±{sessionAnalysis.scientificMetrics.completeness.std.toFixed(2)})
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="font-medium mb-2">Performance Metrics</h4>
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span>Sample Size:</span>
+                                            <span className="font-mono">{sessionAnalysis.scientificMetrics.sampleSize}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Hit Rate:</span>
+                                            <span className="font-mono">{(sessionAnalysis.scientificMetrics.hitRate * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Avg Response Time:</span>
+                                            <span className="font-mono">{(sessionAnalysis.scientificMetrics.responseTime.mean / 1000).toFixed(1)}s</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Confidence Level:</span>
+                                            <span className="font-mono">{(sessionAnalysis.scientificMetrics.confidenceLevel * 100).toFixed(0)}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                                         </CardContent>
                                     </Card>
 
