@@ -20,8 +20,7 @@ type GeocoderControlProps = Omit<
 export default function GeocoderControl(props: GeocoderControlProps) {
     const [marker, setMarker] = useState<React.ReactElement | null>(null)
 
-    // @ts-expect-error - MapboxGeocoder control type mismatch
-    const geocoder = useControl<MapboxGeocoder>(
+    const geocoder = useControl<any>(
         () => {
             const ctrl = new MapboxGeocoder({
                 ...props,
